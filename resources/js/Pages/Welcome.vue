@@ -39,15 +39,15 @@ function goToInvite() {
 
 <template>
     <Head>
-        <title>GiftMatch 🎁 - Amigo Secreto Online Inteligente</title>
+        <title>GiftMatch - Amigo Secreto Online Inteligente</title>
         <meta name="description" content="Organize seu Amigo Secreto no GiftMatch de forma simples, rápida e 100% gratuita! Sorteio automático sem ninguém tirar a si mesmo, regras para casais, lista de desejos e envio direto no WhatsApp." />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="GiftMatch" />
-        <meta property="og:title" content="GiftMatch 🎁 - Amigo Secreto Online Inteligente" />
+        <meta property="og:title" content="GiftMatch - Amigo Secreto Online Inteligente" />
         <meta property="og:description" content="Organize seu Amigo Secreto no GiftMatch de forma simples, rápida e 100% gratuita! Sorteio automático com regras para casais, lista de desejos e envio direto no WhatsApp." />
         <meta property="og:image" content="/og-home.jpg" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="GiftMatch 🎁 - Amigo Secreto Online Inteligente" />
+        <meta name="twitter:title" content="GiftMatch - Amigo Secreto Online Inteligente" />
         <meta name="twitter:description" content="Organize seu Amigo Secreto no GiftMatch de forma simples, rápida e 100% gratuita! Sorteio automático com regras para casais, lista de desejos e envio direto no WhatsApp." />
         <meta name="twitter:image" content="/og-home.jpg" />
     </Head>
