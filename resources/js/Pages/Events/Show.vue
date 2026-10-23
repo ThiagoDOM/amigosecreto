@@ -119,7 +119,7 @@ function copyMagicLink(p) {
 
 // Shared invite payload
 const invitePayload = computed(() => {
-    const text = `🎁 *Convite para o Amigo Secreto: ${props.event.title}*!\n\n` +
+    const text = `*Convite para o Amigo Secreto: ${props.event.title}*!\n\n` +
         `Olá! Estou organizando nosso amigo secreto no GiftMatch.\n` +
         (props.event.budget_limit ? `💰 *Valor sugerido:* ${formatCurrency(props.event.budget_limit)}\n` : '') +
         (props.event.event_date ? `📅 *Data da confraternização:* ${formatDate(props.event.event_date)}\n` : '') +
@@ -138,11 +138,11 @@ function getParticipantSharePayload(p) {
     if (props.event.is_drawn) {
         text = `🎉 Olá *${p.name}*!\n\n` +
             `O sorteio do Amigo Secreto *${props.event.title}* foi realizado com sucesso!\n\n` +
-            `🎁 Descubra quem você tirou clicando no seu link exclusivo e secreto abaixo:\n` +
+            `Descubra quem você tirou clicando no seu link exclusivo e secreto abaixo:\n` +
             `${p.magic_url}\n\n` +
             `🤫 Lembre-se: é segredo! Não conte para ninguém e confira a lista de desejos do seu amigo.`;
     } else {
-        text = `🎁 Olá *${p.name}*!\n\n` +
+        text = `Olá *${p.name}*!\n\n` +
             `Aqui está o seu link de acesso exclusivo ao Amigo Secreto *${props.event.title}*:\n` +
             `${p.magic_url}\n\n` +
             `📝 Acesse para cadastrar seus presentes desejados, tamanhos e preferências antes do sorteio!`;

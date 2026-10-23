@@ -35,7 +35,7 @@ function copyInviteLink(event) {
 }
 
 function getInviteText(event) {
-    return `🎁 *Convite para o Amigo Secreto: ${event.title}*!\n\n` +
+    return `*Convite para o Amigo Secreto: ${event.title}*!\n\n` +
         `O sorteio está sendo organizado no Amigo Secreto.\n` +
         (event.budget_limit ? `💰 *Valor sugerido:* ${formatCurrency(event.budget_limit)}\n` : '') +
         (event.event_date ? `📅 *Data da confraternização:* ${formatDate(event.event_date)}\n` : '') +
