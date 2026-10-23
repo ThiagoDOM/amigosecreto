@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use App\Models\Participant;
+use App\Services\AffiliateLinkService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -62,10 +63,9 @@ class InviteController extends Controller
         ]);
 
         if (is_array($request->input('wishlist'))) {
-            $validated['wishlist'] = json_encode(
-                array_values(array_filter($request->input('wishlist'), fn ($i) => ! empty($i['title']))),
-                JSON_UNESCAPED_UNICODE
-            );
+            $cleaned = array_values(array_filter($request->input('wishlist'), fn ($i) => ! empty($i['title'])));
+            $processed = app(AffiliateLinkService::class)->processWishlist($cleaned);
+            $validated['wishlist'] = json_encode($processed, JSON_UNESCAPED_UNICODE);
         }
 
         $participant = $event->participants()->create([
