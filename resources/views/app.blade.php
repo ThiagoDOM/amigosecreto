@@ -86,6 +86,14 @@
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap"
         rel="stylesheet">
 
+    <!-- Google AdSense -->
+    @php
+        $adsenseClientId = config('services.adsense.client_id');
+    @endphp
+    @if(!empty($adsenseClientId))
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ $adsenseClientId }}" crossorigin="anonymous"></script>
+    @endif
+
     <!-- Scripts -->
     @routes
     @vite(['resources/js/app.js', "resources/js/Pages/{$page['component']}.vue"])

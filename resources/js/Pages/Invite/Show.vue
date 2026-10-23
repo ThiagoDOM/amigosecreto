@@ -1,6 +1,8 @@
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
+import CookieConsent from '@/Components/CookieConsent.vue';
+import GoogleAd from '@/Components/GoogleAd.vue';
 import ToastNotification from '@/Components/ToastNotification.vue';
 import WishlistEditor from '@/Components/WishlistEditor.vue';
 import { formatDate, formatCurrency, maskPhone } from '@/Utils/formatters';
@@ -54,8 +56,9 @@ function submit() {
         <meta name="twitter:image" content="/og-invite.jpg" />
     </Head>
 
-    <div class="min-h-screen bg-slate-950 text-slate-100 relative overflow-hidden font-sans py-12 px-4 sm:px-6">
+    <div class="min-h-screen bg-slate-950 text-slate-100 relative overflow-hidden font-sans py-12 px-4 sm:px-6 flex flex-col justify-between">
         <ToastNotification />
+        <CookieConsent />
 
         <!-- Festive background glows -->
         <div class="absolute -top-32 -left-32 w-[500px] h-[500px] bg-rose-600/20 rounded-full blur-[140px] pointer-events-none"></div>
@@ -269,6 +272,18 @@ function submit() {
                     </p>
                 </div>
             </form>
+
+            <!-- Google AdSense Unit -->
+            <GoogleAd slot-id="invite-bottom" />
         </div>
+
+        <!-- Footer -->
+        <footer class="relative z-10 mt-12 text-center text-xs text-slate-500 space-x-3">
+            <Link :href="route('terms')" class="hover:text-rose-400 transition-colors">Termos de Uso</Link>
+            <span>&bull;</span>
+            <Link :href="route('privacy')" class="hover:text-rose-400 transition-colors">Política de Privacidade</Link>
+            <span>&bull;</span>
+            <span>GiftMatch</span>
+        </footer>
     </div>
 </template>

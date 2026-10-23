@@ -2,6 +2,8 @@
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
+import CookieConsent from '@/Components/CookieConsent.vue';
+import GoogleAd from '@/Components/GoogleAd.vue';
 import { 
     Gift, 
     ArrowRight, 
@@ -51,6 +53,8 @@ function goToInvite() {
         <meta name="twitter:description" content="Organize seu Amigo Secreto no GiftMatch de forma simples, rápida e 100% gratuita! Sorteio automático com regras para casais, lista de desejos e envio direto no WhatsApp." />
         <meta name="twitter:image" content="/og-home.jpg" />
     </Head>
+
+    <CookieConsent />
 
     <div class="min-h-screen bg-slate-950 text-slate-100 selection:bg-rose-500 selection:text-white font-sans antialiased relative overflow-hidden flex flex-col justify-between">
         <!-- Ambient lighting (subtle & elegant) -->
@@ -277,6 +281,11 @@ function goToInvite() {
                     </div>
                 </div>
             </section>
+
+            <!-- Google AdSense Native Banner -->
+            <div class="max-w-4xl mx-auto px-4 w-full">
+                <GoogleAd slot-id="home-bottom" />
+            </div>
         </main>
 
         <!-- Footer -->
@@ -285,8 +294,12 @@ function goToInvite() {
                 <div class="flex items-center gap-2">
                     <ApplicationLogo />
                 </div>
-                <div>
-                    GiftMatch &bull; Amigo Secreto Online sem complicações
+                <div class="flex flex-wrap items-center justify-center gap-4 text-xs text-slate-400">
+                    <Link :href="route('terms')" class="hover:text-rose-400 transition-colors">Termos de Uso</Link>
+                    <span>&bull;</span>
+                    <Link :href="route('privacy')" class="hover:text-rose-400 transition-colors">Política de Privacidade</Link>
+                    <span>&bull;</span>
+                    <span>GiftMatch &bull; Amigo Secreto Online sem complicações</span>
                 </div>
             </div>
         </footer>

@@ -2,6 +2,8 @@
 import { Head, Link, useForm, router, usePage } from '@inertiajs/vue3';
 import { ref, onMounted } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
+import CookieConsent from '@/Components/CookieConsent.vue';
+import GoogleAd from '@/Components/GoogleAd.vue';
 import ToastNotification from '@/Components/ToastNotification.vue';
 import WishlistEditor from '@/Components/WishlistEditor.vue';
 import WishlistDisplay from '@/Components/WishlistDisplay.vue';
@@ -558,6 +560,7 @@ onMounted(() => {
 
     <div class="min-h-screen bg-slate-950 text-slate-100 relative overflow-hidden font-sans py-12 px-4 sm:px-6">
         <ToastNotification />
+        <CookieConsent />
 
         <!-- Festive Ambient Blobs -->
         <div class="absolute -top-32 -left-32 w-[500px] h-[500px] bg-rose-600/20 rounded-full blur-[140px] pointer-events-none"></div>
@@ -892,6 +895,18 @@ onMounted(() => {
                     <span v-if="participant.likes">Adora: <strong class="text-white">{{ participant.likes }}</strong></span>
                 </div>
             </div>
+
+            <!-- Google AdSense Unit -->
+            <GoogleAd slot-id="secret-bottom" />
+
+            <!-- Legal Footer -->
+            <footer class="pt-4 pb-2 text-center text-xs text-slate-500 space-x-3">
+                <Link :href="route('terms')" class="hover:text-rose-400 transition-colors">Termos de Uso</Link>
+                <span>&bull;</span>
+                <Link :href="route('privacy')" class="hover:text-rose-400 transition-colors">Política de Privacidade</Link>
+                <span>&bull;</span>
+                <span>GiftMatch</span>
+            </footer>
         </div>
 
         <!-- MODAL: Editar Minha Própria Lista de Desejos com WishlistEditor -->
