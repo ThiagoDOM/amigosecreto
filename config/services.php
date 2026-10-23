@@ -43,13 +43,13 @@ return [
         'shopee' => [
             'app_id' => env('SHOPEE_AFFILIATE_APP_ID'),
             'secret' => env('SHOPEE_AFFILIATE_SECRET'),
-            'pid' => env('SHOPEE_AFFILIATE_PID', 'an_18380670344'),
+            'pid' => env('SHOPEE_AFFILIATE_PID'),
         ],
         'mercadolivre' => [
             'app_id' => env('MERCADOLIVRE_AFFILIATE_APP_ID'),
             'secret' => env('MERCADOLIVRE_AFFILIATE_SECRET'),
-            'tag' => env('MERCADOLIVRE_AFFILIATE_TAG', '45253537'),
-            'word' => env('MERCADOLIVRE_AFFILIATE_WORD', 'thiagomtman'),
+            'tag' => env('MERCADOLIVRE_AFFILIATE_TAG'),
+            'word' => env('MERCADOLIVRE_AFFILIATE_WORD'),
         ],
         'amazon' => [
             'tag' => env('AMAZON_AFFILIATE_TAG'),
