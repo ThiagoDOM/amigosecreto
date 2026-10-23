@@ -38,7 +38,19 @@ function goToInvite() {
 </script>
 
 <template>
-    <Head title="Amigo Secreto Online - Sorteio Gratuito e Descomplicado" />
+    <Head>
+        <title>Amigo Secreto Online 🎁 - Sorteio Grátis com Regras e Desejos</title>
+        <meta name="description" content="Organize seu Amigo Secreto de forma simples, rápida e gratuita! Sorteio automático sem ninguém tirar a si mesmo, regras para casais, lista de desejos e envio direto no WhatsApp." />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Amigo Secreto Online" />
+        <meta property="og:title" content="Amigo Secreto Online 🎁 - Sorteio Grátis com Regras e Desejos" />
+        <meta property="og:description" content="Organize seu Amigo Secreto de forma simples, rápida e gratuita! Sorteio automático com regras para casais, lista de desejos e envio direto no WhatsApp." />
+        <meta property="og:image" content="/og-home.jpg" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Amigo Secreto Online 🎁 - Sorteio Grátis com Regras e Desejos" />
+        <meta name="twitter:description" content="Organize seu Amigo Secreto de forma simples, rápida e gratuita! Sorteio automático com regras para casais, lista de desejos e envio direto no WhatsApp." />
+        <meta name="twitter:image" content="/og-home.jpg" />
+    </Head>
 
     <div class="min-h-screen bg-slate-950 text-slate-100 selection:bg-rose-500 selection:text-white font-sans antialiased relative overflow-hidden flex flex-col justify-between">
         <!-- Ambient lighting (subtle & elegant) -->
