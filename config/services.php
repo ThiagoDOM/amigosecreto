@@ -43,6 +43,7 @@ return [
         'shopee' => [
             'app_id' => env('SHOPEE_AFFILIATE_APP_ID'),
             'secret' => env('SHOPEE_AFFILIATE_SECRET'),
+            'pid' => env('SHOPEE_AFFILIATE_PID', 'an_18380670344'),
         ],
         'mercadolivre' => [
             'app_id' => env('MERCADOLIVRE_AFFILIATE_APP_ID'),
