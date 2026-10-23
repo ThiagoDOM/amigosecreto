@@ -155,6 +155,8 @@ class AffiliateLinkService
         }
 
         $tag = config('services.affiliates.mercadolivre.tag');
+        $word = config('services.affiliates.mercadolivre.word');
+
         if (empty($tag)) {
             return $url;
         }
@@ -169,6 +171,10 @@ class AffiliateLinkService
             parse_str($parsed['query'], $query);
         }
         $query['matt_tool'] = $tag;
+        if (! empty($word)) {
+            $query['matt_word'] = $word;
+        }
+        $query['forceInApp'] = 'true';
 
         $scheme = $parsed['scheme'] ?? 'https';
         $host = $parsed['host'];
