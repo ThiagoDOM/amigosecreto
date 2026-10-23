@@ -84,6 +84,12 @@ const addParticipantForm = useForm({
     dislikes: '',
 });
 
+function onAddParticipantPhoneInput(e) {
+    const masked = maskPhone(e.target.value);
+    addParticipantForm.phone = masked;
+    e.target.value = masked;
+}
+
 const addExclusionForm = useForm({
     participant_id: '',
     excluded_participant_id: '',
@@ -873,8 +879,9 @@ const revealedCount = computed(() => {
                             <label class="block text-xs font-bold uppercase tracking-wider text-slate-200 mb-1">WhatsApp / Telefone</label>
                             <input
                                 :value="addParticipantForm.phone"
-                                @input="addParticipantForm.phone = maskPhone($event.target.value)"
-                                type="text"
+                                @input="onAddParticipantPhoneInput"
+                                maxlength="15"
+                                type="tel"
                                 placeholder="(11) 98765-4321"
                                 class="w-full px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-950 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-rose-500"
                             />

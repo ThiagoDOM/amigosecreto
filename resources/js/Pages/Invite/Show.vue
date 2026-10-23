@@ -37,6 +37,12 @@ const form = useForm({
     dislikes: '',
 });
 
+function onPhoneInput(e) {
+    const masked = maskPhone(e.target.value);
+    form.phone = masked;
+    e.target.value = masked;
+}
+
 function submit() {
     form.post(route('invite.join', props.event.code));
 }
@@ -165,8 +171,9 @@ function submit() {
                         <input
                             id="phone"
                             :value="form.phone"
-                            @input="form.phone = maskPhone($event.target.value)"
-                            type="text"
+                            @input="onPhoneInput"
+                            maxlength="15"
+                            type="tel"
                             placeholder="(11) 98765-4321"
                             class="w-full px-4 py-3 rounded-2xl bg-slate-800/90 border border-slate-700 text-white placeholder-slate-400 text-sm focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
                         />
