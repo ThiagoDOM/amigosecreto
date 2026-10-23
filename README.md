@@ -29,48 +29,78 @@
 
 ---
 
-## 📸 Demonstração Visual
+## 📸 Demonstração Visual Completa do Sistema
 
-### 1. Página Inicial & Apresentação (Desktop)
-![GiftMatch Home Hero](docs/screenshots/home-hero.png)
-
-### 2. Recursos & Regras de Restrição para Casais
-![GiftMatch Recursos](docs/screenshots/features.png)
-
-### 3. Ideias de Presentes & Monetização Integrada (Shopee & Mercado Livre)
-![GiftMatch Monetização e Passos](docs/screenshots/affiliate-and-steps.png)
-
-### 4. Cadastro Responsivo com Aceite de Termos e LGPD
-![GiftMatch Cadastro e Termos](docs/screenshots/register.png)
+### 1. Painel Principal do Organizador (Dashboard)
+Visão consolidada de todos os eventos ativos, status do sorteio, contagem de participantes e atalhos rápidos de gestão.
+![GiftMatch Dashboard](docs/screenshots/01-dashboard.png)
 
 ---
 
-## ✨ Principais Diferenciais e Funcionalidades
+### 2. Criação de Novo Amigo Secreto
+Cadastro rápido com valor sugerido, data da confraternização, data do sorteio, local e orientações aos participantes.
+![GiftMatch Criar Evento](docs/screenshots/02-event-create.png)
+
+---
+
+### 3. Painel de Gestão do Evento e Participantes
+Visualização da lista completa de participantes, link exclusivo de convite, status do sorteio, botão de envio direto no WhatsApp e links secretos de revelação.
+![GiftMatch Gestão de Evento](docs/screenshots/03-event-management.png)
+
+---
+
+### 4. Configuração de Regras de Restrição (Casais & Família)
+Interface para configurar exclusões mútuas com apenas um clique (ex: impedir que parceiros, irmãos ou pessoas que já se tiraram no ano anterior tirem um ao outro).
+![GiftMatch Restrições de Casais](docs/screenshots/04-couple-restrictions.png)
+
+---
+
+### 5. Página Pública de Inscrição & Lista de Desejos (Convidados)
+Sem exigir criação de senha, os convidados acessam pelo WhatsApp, confirmam presença, informam tamanhos de roupa, calçado, preferências e cadastram sua lista de presentes com links.
+![GiftMatch Convite e Inscrição](docs/screenshots/05-guest-invite.png)
+
+---
+
+### 6. Tela Mágica de Revelação Secreta com Ideias de Presentes
+Ao abrir o link secreto, o participante descobre seu amigo secreto, confere os tamanhos, o que a pessoa gosta/não gosta e tem acesso à lista de presentes com botões inteligentes da **Shopee** e **Mercado Livre**.
+![GiftMatch Revelação Secreta com Afiliados](docs/screenshots/06-secret-reveal.png)
+
+---
+
+### 7. Tela de Suspense Pré-Revelação
+Animação e contagem regressiva para criar o clima festivo antes de revelar quem foi sorteado.
+![GiftMatch Suspense Pré-Revelação](docs/screenshots/07-secret-suspense.png)
+
+---
+
+### 8. Landing Page / Apresentação Institucional
+Design responsivo em Dark Mode nativo com iluminação ambiente e alta performance para dispositivos móveis e desktop.
+![GiftMatch Home Hero](docs/screenshots/home-hero.png)
+
+---
+
+## ✨ Principais Diferenciais e Funcionalidades Técnicas
 
 ### 🎲 1. Algoritmo Inteligente de Sorteio com Restrições
-* **Algoritmo de Derangement:** Garante matematicamente que ninguém tire a si mesmo.
-* **Matriz de Exclusões:** Permite definir restrições com 1 clique (ex: casais não se tirarem, irmãos, familiares diretos ou quem já se tirou no ano anterior).
-* **Prevenção de Impasses:** Algoritmo determinístico com limite de tentativas e backtracking para identificar cenários sem solução antes de iniciar o sorteio.
+* **Algoritmo de Derangement:** Garante matematicamente que ninguém tire a si mesmo ($f(x) \neq x$).
+* **Matriz de Exclusões Bidirecionais:** Permite definir regras restritivas complexas (ex: casais, familiares diretos ou desafetos) sem gerar ciclos inválidos.
+* **Prevenção de Impasses e Deadlocks:** Validação prévia da viabilidade do grafo de sorteio com algoritmo de backtracking e limite estocástico, informando ao organizador caso as restrições tornem o sorteio impossível.
 
 ### 📱 2. Experiência Zero-Friction via WhatsApp
-* **Sem exigência de senha para convidados:** O organizador cria o grupo e compartilha o link de convite único pelo WhatsApp.
-* **Ficha de Presentes Completa:** Cada convidado entra, preenche tamanhos de roupa, calçado, o que gosta/não gosta e adiciona itens à sua lista de desejos.
-* **Token Criptográfico Individual:** Cada participante recebe uma URL única e segura para consultar quem tirou quando quiser.
+* **Acesso Sem Senha para Convidados:** Participantes entram pelo link de convite e interagem sem atritos de cadastro demorado.
+* **Ficha de Presentes Completa:** Tamanho de vestuário, calçado, gostos, aversões/alergias e lista com suporte a links externos.
+* **Tokens Criptográficos Individuais:** Cada participante possui uma chave de acesso segura de 32 caracteres (alfanumérico aleatório) para conferir seu amigo secreto a qualquer momento.
 
-### 🎁 3. Tela de Revelação Secreta Festiva
-* Revelação com botão de suspense e animação em confetes com `canvas-confetti`.
-* Acesso imediato à lista de presentes, tamanhos e preferências do amigo secreto sorteado.
+### 🛍️ 3. Motor de Monetização Integrada (Shopee & Mercado Livre)
+* **Busca Contextual Inteligente:** Botões automáticos em cada presente da lista apontando para a busca correspondente na Shopee e no Mercado Livre já com parâmetros de afiliado injetados (`matt_tool`, `matt_word`, `utm_source`, `mmp_pid`).
+* **Conversor de Links no Backend:** O serviço [AffiliateLinkService.php](app/Services/AffiliateLinkService.php) intercepta links colados pelos convidados e adiciona os identificadores de afiliado de forma transparente.
+* **Transparência & Compliance:** Mensagens explícitas de transparência nos termos da legislação brasileira (CDC, LGPD e diretrizes do CONAR).
+* **Google AdSense:** Carregamento assíncrono não invasivo com componentes Vue preparados.
 
-### 🛍️ 4. Motor de Monetização Híbrida (AdSense & Afiliados)
-* **Shopee & Mercado Livre Deeplinking:** Botões contextuais de busca de presentes com injeção automática de parâmetros oficiais de afiliados (`matt_tool`, `matt_word`, `mmp_pid`, `utm_source`).
-* **Conversor Automático de Links:** Serviço no backend ([AffiliateLinkService.php](app/Services/AffiliateLinkService.php)) que intercepta links colados pelos usuários e anexa as tags de afiliado.
-* **Aviso de Transparência:** Total conformidade com as diretrizes do CONAR, LGPD e políticas de afiliados.
-* **Google AdSense:** Componente assíncrono nativo pronto para monetização de tráfego.
-
-### ⚡ 5. Alta Performance & Otimização Core Web Vitals
-* **Google Fonts Não-Bloqueante:** Carregamento assíncrono via `preload` com `font-display: swap`, eliminando bloqueios de renderização.
-* **Vite & Rollup Manual Chunking:** Agrupamento unificado de ícones e módulos em bundles cacheados, reduzindo latência de rede e cascatas de requisições.
-* **Score PageSpeed:** Estrutura semântica rigorosa (`h1` → `h2` → `h3`), acessibilidade A11y 100 e tags Open Graph dinâmicas com banners dedicados para WhatsApp/Facebook.
+### ⚡ 4. Alta Performance & Otimização Core Web Vitals
+* **Google Fonts Assíncrono:** Preload com `media="print" onload="this.media='all'"` e `display: swap`, eliminando bloqueios de renderização e derrubando FCP/LCP para menos de 1 segundo.
+* **Vite / Rollup Manual Chunks:** Unificação de micro-arquivos da biblioteca de ícones em pacote único cacheável (`vendor-icons.js`), eliminando dezenas de requisições encadeadas da cascata de rede.
+* **SEO e Compartilhamento Social:** Metatags Open Graph dinâmicas com geração de previews temáticos no WhatsApp, Facebook e Twitter.
 
 ---
 
@@ -78,13 +108,14 @@
 
 | Camada | Tecnologia | Descrição |
 | :--- | :--- | :--- |
-| **Backend** | [PHP 8.4](https://www.php.net/) + [Laravel 12](https://laravel.com/) | Arquitetura MVC moderna, Form Requests, Services e Eloquent ORM |
+| **Backend** | [PHP 8.4](https://www.php.net/) + [Laravel 12](https://laravel.com/) | Arquitetura MVC, Form Requests, Services e Eloquent ORM |
 | **Frontend** | [Vue 3](https://vuejs.org/) (`<script setup>`) | Composition API reativa e componentes modulares |
 | **Ponte SPA** | [Inertia.js v2](https://inertiajs.com/) | Roteamento SPA fluido sem sobrecarga de APIs GraphQL/REST manuais |
 | **Estilização** | [Tailwind CSS v3](https://tailwindcss.com/) | Design System festivo e moderno em Dark Theme nativo |
 | **Banco de Dados**| [PostgreSQL (Neon)](https://neon.tech/) / [SQLite](https://sqlite.org/) | Migrações relacionais e suporte a múltiplos drivers |
 | **E-mails** | [Resend](https://resend.com/) / SMTP | Notificações transacionais seguras |
-| **Testes** | [PHPUnit](https://phpunit.de/) | 35 testes automatizados de Feature e Unit cobrindo 100% dos fluxos vitais |
+| **Efeitos Visuais**| [Canvas-Confetti](https://www.npmjs.com/package/canvas-confetti) | Animações de celebração na revelação |
+| **Testes** | [PHPUnit](https://phpunit.de/) | 35 testes automatizados cobrindo autenticação, restrições e sorteio |
 
 ---
 
@@ -120,10 +151,11 @@
    php artisan key:generate
    ```
 
-5. **Execute as migrações do banco de dados:**
+5. **Execute as migrações e popule o banco de dados com dados de teste:**
    ```bash
-   php artisan migrate
+   php artisan migrate --seed
    ```
+   > O seeder cria automaticamente o usuário `thiago@giftmatch.online` (senha: `password`) com 2 eventos configurados, participantes, restrições de casais e listas de presentes para demonstração imediata!
 
 6. **Inicie o servidor de desenvolvimento:**
    * Em um terminal:
@@ -142,13 +174,13 @@
 
 ## 🧪 Suíte de Testes Automatizados
 
-O projeto conta com testes cobrindo autenticação, criação de eventos, regras de restrição de casais, validação de tokens e algoritmo de sorteio:
+O projeto conta com suíte de testes cobrindo autenticação, ciclo de vida dos eventos, restrições de casais, validação de tokens e algoritmo de sorteio:
 
 ```bash
 php artisan test --compact
 ```
 
-Exemplo de saída:
+Exemplo de resultado:
 ```json
 {"tool":"phpunit","result":"passed","tests":35,"passed":35,"assertions":120}
 ```
@@ -157,10 +189,10 @@ Exemplo de saída:
 
 ## 🔒 Segurança & Privacidade
 
-* **Tokens Não Sequenciais:** Participantes recebem tokens alfanuméricos criptograficamente aleatórios.
+* **Tokens Não Sequenciais:** Participantes recebem tokens alfanuméricos criptograficamente seguros.
 * **Proteção contra SQL Injection & Mass Assignment:** Validações rigorosas via Form Requests e Eloquent ORM.
 * **Sanitização de URLs:** Proteção contra ataques XSS em links de presentes externos.
-* **LGPD e Termos de Uso:** Páginas jurídicas institucionais em conformidade com as normas brasileiras.
+* **LGPD e Termos de Uso:** Páginas jurídicas institucionais com consentimento de cookies e tratamento de dados em conformidade com as normas brasileiras.
 
 ---
 
