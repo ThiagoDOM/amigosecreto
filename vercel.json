@@ -16,7 +16,7 @@
       }
     },
     {
-      "src": "/(favicon.*|apple-touch-icon.*|og-.*|robots.txt|ads.txt)",
+      "src": "/(favicon.*|apple-touch-icon.*|og-.*|robots.txt|ads.txt|sitemap.xml)",
       "dest": "/$1"
     },
     {
