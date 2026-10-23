@@ -9,7 +9,6 @@ import { formatDate, formatCurrency, parseWishlist } from '@/Utils/formatters';
 import confetti from 'canvas-confetti';
 import { 
     Gift, 
-    Sparkles, 
     DollarSign, 
     Calendar, 
     MapPin, 
@@ -200,14 +199,14 @@ function downloadCardImage() {
     ctx.fill();
     ctx.restore();
 
-    // Festive sparkles / stars
+    // Festive golden stars
     ctx.save();
-    const sparkles = [
+    const goldenStars = [
         [80, 220, 3], [140, 380, 2], [220, 140, 4], [720, 180, 3], [780, 340, 2],
         [830, 220, 4], [100, 750, 3], [160, 900, 2], [760, 780, 4], [820, 650, 3],
         [280, 960, 3], [650, 920, 2], [70, 520, 2], [840, 480, 3]
     ];
-    sparkles.forEach(([x, y, r]) => {
+    goldenStars.forEach(([x, y, r]) => {
         ctx.fillStyle = 'rgba(253, 224, 71, 0.8)';
         ctx.beginPath();
         ctx.arc(x, y, r, 0, Math.PI * 2);
@@ -500,7 +499,6 @@ onMounted(() => {
             <div class="rounded-3xl bg-slate-900/90 border border-slate-800 p-6 sm:p-8 shadow-2xl backdrop-blur-xl space-y-4">
                 <div class="flex items-center justify-between flex-wrap gap-2">
                     <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30">
-                        <Sparkles class="w-3.5 h-3.5 text-amber-400" />
                         Espaço Exclusivo
                     </div>
 
@@ -564,7 +562,6 @@ onMounted(() => {
                 >
                     <div class="space-y-2">
                         <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">
-                            <Sparkles class="w-3.5 h-3.5" />
                             Sorteio Finalizado!
                         </div>
                         <h2 class="text-3xl font-extrabold font-display text-white">
@@ -619,7 +616,6 @@ onMounted(() => {
                     <!-- Header -->
                     <div class="flex items-center justify-between">
                         <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                            <Sparkles class="w-3.5 h-3.5" />
                             Revelado com Sucesso!
                         </div>
 

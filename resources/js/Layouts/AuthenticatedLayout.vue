@@ -7,35 +7,35 @@ import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import ToastNotification from '@/Components/ToastNotification.vue';
 import { Link } from '@inertiajs/vue3';
-import { PlusCircle, Calendar, User, LogOut, Sparkles } from 'lucide-vue-next';
+import { PlusCircle, Calendar, User, LogOut } from 'lucide-vue-next';
 
 const showingNavigationDropdown = ref(false);
 </script>
 
 <template>
-    <div class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans transition-colors duration-300">
+    <div class="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
         <!-- Toast Flash Notification -->
         <ToastNotification />
 
         <!-- Navigation Bar -->
-        <nav class="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800">
+        <nav class="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/80">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="flex h-16 justify-between items-center">
                     <div class="flex items-center gap-8">
                         <!-- Logo -->
-                        <Link :href="route('dashboard')" class="flex items-center transition-transform hover:scale-105">
+                        <Link :href="route('dashboard')" class="flex items-center transition-transform hover:scale-[1.02]">
                             <ApplicationLogo />
                         </Link>
 
                         <!-- Desktop Navigation Links -->
-                        <div class="hidden sm:flex items-center gap-4">
+                        <div class="hidden sm:flex items-center gap-2">
                             <NavLink
                                 :href="route('dashboard')"
                                 :active="route().current('dashboard') || route().current('events.show')"
-                                class="inline-flex items-center gap-2 text-sm font-semibold transition-colors"
+                                class="inline-flex items-center gap-2 text-xs uppercase tracking-wider font-bold transition-colors"
                             >
-                                <Calendar class="w-4 h-4" />
-                                Meus Eventos
+                                <Calendar class="w-4 h-4 text-slate-400" />
+                                <span>Meus Eventos</span>
                             </NavLink>
                         </div>
                     </div>
@@ -44,10 +44,10 @@ const showingNavigationDropdown = ref(false);
                     <div class="hidden sm:flex sm:items-center sm:gap-3">
                         <Link
                             :href="route('events.create')"
-                            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-rose-600 via-rose-500 to-amber-500 hover:from-rose-500 hover:to-amber-400 shadow-md shadow-rose-500/20 hover:shadow-lg hover:shadow-rose-500/30 transition-all duration-200"
+                            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-sm shadow-rose-900/30 transition-all active:scale-95"
                         >
                             <PlusCircle class="w-4 h-4" />
-                            Novo Evento
+                            <span>Novo Evento</span>
                         </Link>
 
                         <!-- User Profile Dropdown -->
@@ -56,28 +56,28 @@ const showingNavigationDropdown = ref(false);
                                 <template #trigger>
                                     <button
                                         type="button"
-                                        class="inline-flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/60 focus:outline-none transition-colors"
+                                        class="inline-flex items-center gap-2.5 rounded-xl border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs font-semibold text-slate-200 hover:border-slate-700 hover:bg-slate-800/70 focus:outline-none transition-all"
                                     >
-                                        <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-rose-500 to-amber-500 text-white font-bold flex items-center justify-center text-xs">
+                                        <div class="w-6 h-6 rounded-lg bg-rose-600/20 border border-rose-500/30 text-rose-300 font-bold flex items-center justify-center text-xs">
                                             {{ $page.props.auth.user.name.charAt(0).toUpperCase() }}
                                         </div>
                                         <span>{{ $page.props.auth.user.name }}</span>
-                                        <svg class="h-4 w-4 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <svg class="h-3.5 w-3.5 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                             <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                                         </svg>
                                     </button>
                                 </template>
 
                                 <template #content>
-                                    <div class="px-4 py-2 text-xs text-slate-400 border-b border-slate-100 dark:border-slate-700">
-                                        Conectado como <strong class="text-slate-700 dark:text-slate-200">{{ $page.props.auth.user.email }}</strong>
+                                    <div class="px-4 py-2 text-xs text-slate-400 border-b border-slate-800">
+                                        Conectado como <strong class="text-slate-200 block truncate">{{ $page.props.auth.user.email }}</strong>
                                     </div>
-                                    <DropdownLink :href="route('profile.edit')" class="flex items-center gap-2">
-                                        <User class="w-4 h-4" />
+                                    <DropdownLink :href="route('profile.edit')" class="flex items-center gap-2 text-xs">
+                                        <User class="w-3.5 h-3.5" />
                                         Meu Perfil
                                     </DropdownLink>
-                                    <DropdownLink :href="route('logout')" method="post" as="button" class="flex items-center gap-2 text-rose-600 dark:text-rose-400">
-                                        <LogOut class="w-4 h-4" />
+                                    <DropdownLink :href="route('logout')" method="post" as="button" class="flex items-center gap-2 text-xs text-rose-400 hover:text-rose-300">
+                                        <LogOut class="w-3.5 h-3.5" />
                                         Sair da Conta
                                     </DropdownLink>
                                 </template>
@@ -89,9 +89,9 @@ const showingNavigationDropdown = ref(false);
                     <div class="flex items-center sm:hidden">
                         <button
                             @click="showingNavigationDropdown = !showingNavigationDropdown"
-                            class="inline-flex items-center justify-center rounded-xl p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none"
+                            class="inline-flex items-center justify-center rounded-xl p-2 text-slate-400 hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800 focus:outline-none transition-colors"
                         >
-                            <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                            <svg class="h-5 w-5" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                                 <path
                                     :class="{ hidden: showingNavigationDropdown, 'inline-flex': !showingNavigationDropdown }"
                                     stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"
@@ -107,10 +107,10 @@ const showingNavigationDropdown = ref(false);
             </div>
 
             <!-- Mobile Navigation Menu -->
-            <div :class="{ block: showingNavigationDropdown, hidden: !showingNavigationDropdown }" class="sm:hidden border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 pt-2 pb-4 space-y-2">
+            <div :class="{ block: showingNavigationDropdown, hidden: !showingNavigationDropdown }" class="sm:hidden border-b border-slate-800 bg-slate-950 px-4 pt-3 pb-4 space-y-3">
                 <Link
                     :href="route('events.create')"
-                    class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-rose-600 to-amber-500 shadow-md shadow-rose-500/20"
+                    class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-sm transition-all"
                 >
                     <PlusCircle class="w-4 h-4" />
                     Novo Evento
@@ -120,17 +120,19 @@ const showingNavigationDropdown = ref(false);
                     Meus Eventos
                 </ResponsiveNavLink>
 
-                <div class="pt-3 border-t border-slate-200 dark:border-slate-800">
-                    <div class="text-sm font-semibold text-slate-800 dark:text-slate-200">
-                        {{ $page.props.auth.user.name }}
-                    </div>
-                    <div class="text-xs text-slate-500 mb-2">
-                        {{ $page.props.auth.user.email }}
+                <div class="pt-3 border-t border-slate-800 space-y-1">
+                    <div class="px-3 py-1">
+                        <div class="text-xs font-semibold text-white">
+                            {{ $page.props.auth.user.name }}
+                        </div>
+                        <div class="text-[11px] text-slate-400 truncate">
+                            {{ $page.props.auth.user.email }}
+                        </div>
                     </div>
                     <ResponsiveNavLink :href="route('profile.edit')">
                         Meu Perfil
                     </ResponsiveNavLink>
-                    <ResponsiveNavLink :href="route('logout')" method="post" as="button" class="text-rose-600 dark:text-rose-400">
+                    <ResponsiveNavLink :href="route('logout')" method="post" as="button" class="text-rose-400">
                         Sair da Conta
                     </ResponsiveNavLink>
                 </div>
@@ -138,25 +140,24 @@ const showingNavigationDropdown = ref(false);
         </nav>
 
         <!-- Page Sub-Header (Slot) -->
-        <header v-if="$slots.header" class="bg-white/60 dark:bg-slate-900/60 border-b border-slate-200/60 dark:border-slate-800/80 backdrop-blur-sm">
+        <header v-if="$slots.header" class="border-b border-slate-800/80 bg-slate-900/40">
             <div class="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
                 <slot name="header" />
             </div>
         </header>
 
         <!-- Main Body -->
-        <main class="flex-1 py-8">
-            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <main class="flex-1 py-8 px-4 sm:px-6 lg:px-8">
+            <div class="mx-auto max-w-7xl">
                 <slot />
             </div>
         </main>
 
         <!-- Clean Footer -->
-        <footer class="mt-auto py-6 border-t border-slate-200/80 dark:border-slate-800 text-center text-xs text-slate-500">
-            <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-                <div class="flex items-center gap-1.5 font-medium">
-                    <Sparkles class="w-3.5 h-3.5 text-amber-500" />
-                    <span>Amigo Secreto VIP &bull; Organize sem complicações</span>
+        <footer class="mt-auto py-5 border-t border-slate-800/80 text-xs text-slate-500 bg-slate-950">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+                <div class="font-medium text-slate-400">
+                    Amigo Secreto Online &bull; Painel do Organizador
                 </div>
                 <div>Gratuito, rápido e com envio direto no WhatsApp</div>
             </div>
