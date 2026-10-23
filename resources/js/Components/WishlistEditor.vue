@@ -35,7 +35,7 @@ function updateField(index, field, value) {
     <div class="space-y-3">
         <div class="flex items-center justify-between">
             <label class="block text-xs font-bold uppercase tracking-wider text-slate-200">
-                Lista de Presentes Desejados 🎁
+                Lista de Presentes Desejados
             </label>
             <button
                 type="button"

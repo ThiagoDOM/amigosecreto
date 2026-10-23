@@ -56,6 +56,7 @@ const showAddParticipantModal = ref(false);
 const showExclusionsModal = ref(false);
 const showEditEventModal = ref(false);
 const showWishlistModal = ref(false);
+const showParticipantDetailsModal = ref(false);
 const showDrawConfirmModal = ref(false);
 const showResetConfirmModal = ref(false);
 const showDeleteParticipantModal = ref(false);
@@ -64,7 +65,9 @@ const showShareModal = ref(false);
 const currentSharePayload = ref(null);
 const copiedPayloadLink = ref(false);
 const copiedFullMessage = ref(false);
+const copiedParticipantModalLink = ref(false);
 
+const selectedParticipant = ref(null);
 const selectedParticipantWishlist = ref(null);
 const participantToDelete = ref(null);
 const exclusionToDelete = ref(null);
@@ -131,11 +134,19 @@ const invitePayload = computed(() => {
 });
 
 function getParticipantSharePayload(p) {
-    const text = `🎉 Olá *${p.name}*!\n\n` +
-        `O sorteio do Amigo Secreto *${props.event.title}* foi realizado com sucesso!\n\n` +
-        `🎁 Descubra quem você tirou clicando no seu link exclusivo e secreto abaixo:\n` +
-        `${p.magic_url}\n\n` +
-        `🤫 Lembre-se: é segredo! Não conte para ninguém e confira a lista de desejos do seu amigo.`;
+    let text = '';
+    if (props.event.is_drawn) {
+        text = `🎉 Olá *${p.name}*!\n\n` +
+            `O sorteio do Amigo Secreto *${props.event.title}* foi realizado com sucesso!\n\n` +
+            `🎁 Descubra quem você tirou clicando no seu link exclusivo e secreto abaixo:\n` +
+            `${p.magic_url}\n\n` +
+            `🤫 Lembre-se: é segredo! Não conte para ninguém e confira a lista de desejos do seu amigo.`;
+    } else {
+        text = `🎁 Olá *${p.name}*!\n\n` +
+            `Aqui está o seu link de acesso exclusivo ao Amigo Secreto *${props.event.title}*:\n` +
+            `${p.magic_url}\n\n` +
+            `📝 Acesse para cadastrar seus presentes desejados, tamanhos e preferências antes do sorteio!`;
+    }
 
     return {
         title: `Amigo Secreto de ${p.name}`,
@@ -316,10 +327,26 @@ function submitEditEvent() {
     });
 }
 
-// Open Wishlist Modal
-function openWishlist(p) {
+// Open Participant Details Modal (Dados, Presentes e Link)
+function openParticipantDetails(p) {
+    selectedParticipant.value = p;
     selectedParticipantWishlist.value = p;
-    showWishlistModal.value = true;
+    copiedParticipantModalLink.value = false;
+    showParticipantDetailsModal.value = true;
+}
+
+function copyParticipantModalLink() {
+    if (!selectedParticipant.value) return;
+    navigator.clipboard.writeText(selectedParticipant.value.magic_url);
+    copiedParticipantModalLink.value = true;
+    setTimeout(() => {
+        copiedParticipantModalLink.value = false;
+    }, 2000);
+}
+
+// Open Wishlist Modal (alias)
+function openWishlist(p) {
+    openParticipantDetails(p);
 }
 
 const filteredParticipants = computed(() => {
@@ -574,13 +601,25 @@ const revealedCount = computed(() => {
                     >
                         <!-- Participant Info -->
                         <div class="flex items-center gap-3 min-w-0">
-                            <div class="w-9 h-9 rounded-lg bg-slate-800 border border-slate-700 text-rose-300 font-bold flex items-center justify-center text-xs shrink-0">
+                            <button
+                                type="button"
+                                @click="openParticipantDetails(p)"
+                                class="w-9 h-9 rounded-lg bg-slate-800 border border-slate-700 text-rose-300 font-bold flex items-center justify-center text-xs shrink-0 hover:border-rose-500 hover:text-white transition-colors cursor-pointer"
+                                :title="'Ver dados de ' + p.name"
+                            >
                                 {{ p.name.charAt(0).toUpperCase() }}
-                            </div>
+                            </button>
 
                             <div class="space-y-0.5 min-w-0">
                                 <div class="font-semibold text-xs sm:text-sm text-white flex items-center gap-2 truncate">
-                                    <span class="truncate">{{ p.name }}</span>
+                                    <button
+                                        type="button"
+                                        @click="openParticipantDetails(p)"
+                                        class="truncate hover:text-rose-400 text-left font-semibold transition-colors cursor-pointer focus:outline-none"
+                                        :title="'Ver detalhes, preferências e link de ' + p.name"
+                                    >
+                                        {{ p.name }}
+                                    </button>
                                     <span v-if="p.is_revealed" class="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-300 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/60 shrink-0">
                                         <Eye class="w-3 h-3" />
                                         <span>Já viu</span>
@@ -595,13 +634,12 @@ const revealedCount = computed(() => {
                                     <span v-if="p.phone">{{ formatPhone(p.phone) }}</span>
                                     <span v-if="p.email" class="truncate">{{ p.email }}</span>
                                     <button
-                                        v-if="p.wishlist || p.clothing_size || p.shoe_size || p.likes"
                                         type="button"
-                                        @click="openWishlist(p)"
-                                        class="text-rose-400 hover:underline font-semibold flex items-center gap-1"
+                                        @click="openParticipantDetails(p)"
+                                        class="text-rose-400 hover:underline font-semibold flex items-center gap-1 cursor-pointer"
                                     >
                                         <Gift class="w-3 h-3" />
-                                        <span>Ver Desejos</span>
+                                        <span>Ver Detalhes / Desejos</span>
                                     </button>
                                 </div>
                             </div>
@@ -609,12 +647,23 @@ const revealedCount = computed(() => {
 
                         <!-- Actions per Participant -->
                         <div class="flex items-center gap-1.5 self-end sm:self-center shrink-0">
+                            <!-- BOTAO DE OLHO: Visivel tanto antes quanto depois do sorteio -->
+                            <button
+                                type="button"
+                                @click="openParticipantDetails(p)"
+                                class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-200 hover:text-white hover:bg-slate-700 border border-slate-700 transition-colors cursor-pointer"
+                                title="Visualizar dados, escolhas de presentes e link deste participante"
+                            >
+                                <Eye class="w-3.5 h-3.5 text-rose-400" />
+                                <span class="hidden sm:inline">Ver dados</span>
+                            </button>
+
                             <!-- When Drawn: Magic Link, WhatsApp & Generic Share buttons -->
                             <template v-if="event.is_drawn">
                                 <button
                                     type="button"
                                     @click="copyMagicLink(p)"
-                                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-200 hover:text-white hover:bg-slate-700 border border-slate-700 transition-colors"
+                                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-200 hover:text-white hover:bg-slate-700 border border-slate-700 transition-colors cursor-pointer"
                                     :title="copiedMagic === p.id ? 'Copiado!' : 'Copiar link mágico'"
                                 >
                                     <Check v-if="copiedMagic === p.id" class="w-3 h-3 text-emerald-400" />
@@ -625,7 +674,7 @@ const revealedCount = computed(() => {
                                 <button
                                     type="button"
                                     @click="sendMagicLinkWhatsApp(p)"
-                                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-emerald-300 hover:text-white bg-emerald-950/60 hover:bg-emerald-900/60 border border-emerald-800/60 transition-colors"
+                                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-emerald-300 hover:text-white bg-emerald-950/60 hover:bg-emerald-900/60 border border-emerald-800/60 transition-colors cursor-pointer"
                                     title="Enviar link secreto pelo WhatsApp"
                                 >
                                     <MessageCircle class="w-3 h-3" />
@@ -635,7 +684,7 @@ const revealedCount = computed(() => {
                                 <button
                                     type="button"
                                     @click="shareParticipantGeneric(p)"
-                                    class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                                    class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
                                     title="Mais opções de envio"
                                 >
                                     <Share2 class="w-3.5 h-3.5" />
@@ -644,19 +693,38 @@ const revealedCount = computed(() => {
                                 <a
                                     :href="p.magic_url"
                                     target="_blank"
-                                    class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                                    class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
                                     title="Abrir página do amigo secreto"
                                 >
                                     <ExternalLink class="w-3.5 h-3.5" />
                                 </a>
                             </template>
 
-                            <!-- When Not Drawn: Delete button -->
+                            <!-- When Not Drawn: Fast link copy, WhatsApp share & Delete button -->
                             <template v-else>
                                 <button
                                     type="button"
+                                    @click="copyMagicLink(p)"
+                                    class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                                    :title="copiedMagic === p.id ? 'Copiado!' : 'Copiar link individual do participante'"
+                                >
+                                    <Check v-if="copiedMagic === p.id" class="w-4 h-4 text-emerald-400" />
+                                    <Copy v-else class="w-4 h-4" />
+                                </button>
+
+                                <button
+                                    type="button"
+                                    @click="sendMagicLinkWhatsApp(p)"
+                                    class="p-1.5 rounded-lg text-emerald-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                                    title="Enviar link de acesso pelo WhatsApp"
+                                >
+                                    <MessageCircle class="w-4 h-4" />
+                                </button>
+
+                                <button
+                                    type="button"
                                     @click="requestDeleteParticipant(p)"
-                                    class="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors"
+                                    class="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors cursor-pointer"
                                     title="Remover participante"
                                 >
                                     <Trash2 class="w-4 h-4" />
@@ -1071,63 +1139,176 @@ const revealedCount = computed(() => {
             </div>
         </div>
 
-        <!-- MODAL: Ver Desejos do Participante -->
-        <div v-if="showWishlistModal && selectedParticipantWishlist" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-            <div class="w-full max-w-lg rounded-2xl bg-slate-900 border border-slate-800 p-6 sm:p-7 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+        <!-- MODAL: Detalhes do Participante (Dados, Presentes e Link) -->
+        <div v-if="showParticipantDetailsModal && selectedParticipant" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+            <div class="w-full max-w-xl rounded-2xl bg-slate-900 border border-slate-800 p-6 sm:p-7 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
+                <!-- Header -->
                 <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-lg bg-slate-800 border border-slate-700 text-rose-300 font-bold flex items-center justify-center text-xs">
-                            {{ selectedParticipantWishlist.name.charAt(0).toUpperCase() }}
+                        <div class="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 text-rose-400 font-bold flex items-center justify-center text-sm shadow-inner">
+                            {{ selectedParticipant.name.charAt(0).toUpperCase() }}
                         </div>
                         <div>
-                            <h3 class="font-bold text-white text-sm sm:text-base">
-                                {{ selectedParticipantWishlist.name }}
+                            <h3 class="font-bold text-white text-base sm:text-lg flex items-center gap-2">
+                                <span>{{ selectedParticipant.name }}</span>
                             </h3>
-                            <p class="text-xs text-slate-400">Preferências e Lista de Presentes</p>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span v-if="selectedParticipant.is_revealed" class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/60">
+                                    <Eye class="w-3 h-3" />
+                                    <span>Já visualizou o amigo tirado</span>
+                                </span>
+                                <span v-else-if="event.is_drawn" class="inline-flex items-center gap-1 text-[11px] font-medium text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/60">
+                                    <EyeOff class="w-3 h-3" />
+                                    <span>Pendente de visualização</span>
+                                </span>
+                                <span v-else class="inline-flex items-center gap-1 text-[11px] font-medium text-indigo-300 bg-indigo-950/60 px-2 py-0.5 rounded border border-indigo-800/60">
+                                    <span>Inscrito • Aguardando sorteio</span>
+                                </span>
+                            </div>
                         </div>
                     </div>
-                    <button type="button" @click="showWishlistModal = false" class="text-slate-400 hover:text-white">
+                    <button type="button" @click="showParticipantDetailsModal = false" class="text-slate-400 hover:text-white p-1 rounded-lg">
                         <X class="w-5 h-5" />
                     </button>
                 </div>
 
-                <div class="space-y-4 text-xs">
-                    <!-- Wishlist Display with Links -->
-                    <div>
-                        <div class="font-bold uppercase tracking-wider text-slate-300 mb-2 flex items-center gap-1.5">
-                            <Gift class="w-4 h-4 text-rose-400" />
-                            <span>Presentes Desejados:</span>
-                        </div>
-                        <WishlistDisplay :wishlist="selectedParticipantWishlist.wishlist" />
+                <!-- Section 1: Link Mágico Exclusivo & Ações Rápidas -->
+                <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                            <Share2 class="w-3.5 h-3.5 text-rose-400" />
+                            <span>Link Individual de Acesso</span>
+                        </span>
+                        <span class="text-[11px] text-slate-400">Exclusivo de {{ selectedParticipant.name.split(' ')[0] }}</span>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3 pt-1">
-                        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
-                            <div class="text-slate-400 mb-0.5 font-medium">Tamanho de Roupa</div>
-                            <div class="text-white font-bold text-sm">{{ selectedParticipantWishlist.clothing_size || '-' }}</div>
-                        </div>
-                        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
-                            <div class="text-slate-400 mb-0.5 font-medium">Tamanho de Calçado</div>
-                            <div class="text-white font-bold text-sm">{{ selectedParticipantWishlist.shoe_size || '-' }}</div>
-                        </div>
+                    <!-- URL display input -->
+                    <div class="flex items-center gap-2">
+                        <input
+                            :value="selectedParticipant.magic_url"
+                            readonly
+                            class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-xs text-slate-200 select-all focus:outline-none"
+                        />
                     </div>
 
-                    <div v-if="selectedParticipantWishlist.likes" class="p-3 rounded-xl bg-slate-950 border border-slate-800">
-                        <div class="font-bold text-emerald-400 mb-0.5">O que adora:</div>
-                        <div class="text-slate-200">{{ selectedParticipantWishlist.likes }}</div>
-                    </div>
+                    <!-- Action buttons grid -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                        <button
+                            type="button"
+                            @click="copyParticipantModalLink"
+                            class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 transition-colors cursor-pointer"
+                        >
+                            <Check v-if="copiedParticipantModalLink" class="w-3.5 h-3.5 text-emerald-400" />
+                            <Copy v-else class="w-3.5 h-3.5 text-slate-400" />
+                            <span>{{ copiedParticipantModalLink ? 'Copiado!' : 'Copiar Link' }}</span>
+                        </button>
 
-                    <div v-if="selectedParticipantWishlist.dislikes" class="p-3 rounded-xl bg-slate-950 border border-slate-800">
-                        <div class="font-bold text-rose-400 mb-0.5">Não gosta / Alergia:</div>
-                        <div class="text-slate-200">{{ selectedParticipantWishlist.dislikes }}</div>
+                        <button
+                            type="button"
+                            @click="sendMagicLinkWhatsApp(selectedParticipant)"
+                            class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-emerald-950/60 hover:bg-emerald-900/60 text-emerald-300 border border-emerald-800/60 transition-colors cursor-pointer"
+                        >
+                            <MessageCircle class="w-3.5 h-3.5" />
+                            <span>WhatsApp</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            @click="shareParticipantGeneric(selectedParticipant)"
+                            class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors cursor-pointer"
+                        >
+                            <Share2 class="w-3.5 h-3.5 text-indigo-400" />
+                            <span>Compartilhar</span>
+                        </button>
+
+                        <a
+                            :href="selectedParticipant.magic_url"
+                            target="_blank"
+                            class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors cursor-pointer"
+                        >
+                            <ExternalLink class="w-3.5 h-3.5 text-amber-400" />
+                            <span>Abrir Link</span>
+                        </a>
                     </div>
                 </div>
 
-                <div class="pt-2 text-right border-t border-slate-800">
+                <!-- Section 2: Dados de Contato -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                        <div class="text-slate-400 mb-0.5 font-medium flex items-center gap-1.5">
+                            <MessageCircle class="w-3.5 h-3.5 text-emerald-400" />
+                            <span>WhatsApp / Telefone</span>
+                        </div>
+                        <div class="text-white font-bold">
+                            {{ selectedParticipant.phone ? formatPhone(selectedParticipant.phone) : 'Não informado' }}
+                        </div>
+                    </div>
+
+                    <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                        <div class="text-slate-400 mb-0.5 font-medium flex items-center gap-1.5">
+                            <Mail class="w-3.5 h-3.5 text-indigo-400" />
+                            <span>E-mail</span>
+                        </div>
+                        <div class="text-white font-bold truncate">
+                            {{ selectedParticipant.email || 'Não informado' }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Tamanhos & Preferências -->
+                <div class="space-y-3 text-xs">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                            <div class="text-slate-400 mb-0.5 font-medium">Tamanho de Roupa</div>
+                            <div class="text-white font-bold text-sm">{{ selectedParticipant.clothing_size || 'Não informado' }}</div>
+                        </div>
+                        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                            <div class="text-slate-400 mb-0.5 font-medium">Tamanho de Calçado</div>
+                            <div class="text-white font-bold text-sm">{{ selectedParticipant.shoe_size || 'Não informado' }}</div>
+                        </div>
+                    </div>
+
+                    <div v-if="selectedParticipant.likes" class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                        <div class="font-bold text-emerald-400 mb-0.5">O que adora:</div>
+                        <div class="text-slate-200">{{ selectedParticipant.likes }}</div>
+                    </div>
+
+                    <div v-if="selectedParticipant.dislikes" class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                        <div class="font-bold text-rose-400 mb-0.5">Não gosta / Alergia:</div>
+                        <div class="text-slate-200">{{ selectedParticipant.dislikes }}</div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Lista de Presentes / Desejos -->
+                <div class="space-y-2 text-xs">
+                    <div class="font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                        <Gift class="w-4 h-4 text-rose-400" />
+                        <span>Escolhas de Presentes:</span>
+                    </div>
+                    <WishlistDisplay :wishlist="selectedParticipant.wishlist" />
+                </div>
+
+                <!-- Section 5: (Se sorteado) Informação do Amigo Tirado (Organizador) -->
+                <div v-if="event.is_drawn && selectedParticipant.drawn_friend" class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs space-y-1">
+                    <div class="font-bold text-amber-300 flex items-center gap-1.5">
+                        <Gift class="w-3.5 h-3.5 text-amber-400" />
+                        <span>Amigo Secreto Sorteado:</span>
+                    </div>
+                    <p class="text-slate-200 font-medium">
+                        {{ selectedParticipant.name }} tirou <strong class="text-white">{{ selectedParticipant.drawn_friend.name }}</strong>
+                    </p>
+                    <p class="text-[11px] text-amber-400/80">
+                        * Informação confidencial visível apenas para você (organizador) para ajudar participantes com dúvidas.
+                    </p>
+                </div>
+
+                <!-- Footer -->
+                <div class="pt-3 flex items-center justify-between border-t border-slate-800">
+                    <span class="text-[11px] text-slate-500">Cadastrado em {{ selectedParticipant.created_at }}</span>
                     <button
                         type="button"
-                        @click="showWishlistModal = false"
-                        class="px-4 py-2 rounded-xl text-xs font-bold text-slate-300 bg-slate-800 hover:bg-slate-700"
+                        @click="showParticipantDetailsModal = false"
+                        class="px-5 py-2 rounded-xl text-xs font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white transition-colors cursor-pointer"
                     >
                         Fechar
                     </button>
