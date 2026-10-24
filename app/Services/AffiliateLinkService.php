@@ -108,37 +108,57 @@ class AffiliateLinkService
         $appId = config('services.affiliates.shopee.app_id');
         $secret = config('services.affiliates.shopee.secret');
 
-        if (empty($appId) || empty($secret)) {
-            return $url;
+        if (! empty($appId) && ! empty($secret)) {
+            try {
+                $timestamp = time();
+                $payload = json_encode([
+                    'query' => 'mutation GenerateShortLink($originUrl: String!) { generateShortLink(input: { originUrl: $originUrl }) { shortLink } }',
+                    'variables' => [
+                        'originUrl' => $url,
+                    ],
+                ]);
+
+                $signature = hash('sha256', $appId.$timestamp.$payload.$secret);
+
+                $response = Http::timeout(3)
+                    ->withHeaders([
+                        'Content-Type' => 'application/json',
+                        'Authorization' => "SHA256 Credential={$appId}, Timestamp={$timestamp}, Signature={$signature}",
+                    ])
+                    ->withBody($payload, 'application/json')
+                    ->post('https://open-api.affiliate.shopee.com.br/graphql');
+
+                if ($response->successful()) {
+                    $shortLink = $response->json('data.generateShortLink.shortLink');
+                    if (! empty($shortLink)) {
+                        return $shortLink;
+                    }
+                }
+            } catch (Throwable $e) {
+                Log::debug('Shopee Affiliate API conversion skipped: '.$e->getMessage());
+            }
         }
 
-        try {
-            $timestamp = time();
-            $payload = json_encode([
-                'query' => 'mutation GenerateShortLink($originUrl: String!) { generateShortLink(input: { originUrl: $originUrl }) { shortLink } }',
-                'variables' => [
-                    'originUrl' => $url,
-                ],
-            ]);
-
-            $signature = hash('sha256', $appId.$timestamp.$payload.$secret);
-
-            $response = Http::timeout(3)
-                ->withHeaders([
-                    'Content-Type' => 'application/json',
-                    'Authorization' => "SHA256 Credential={$appId}, Timestamp={$timestamp}, Signature={$signature}",
-                ])
-                ->withBody($payload, 'application/json')
-                ->post('https://open-api.affiliate.shopee.com.br/graphql');
-
-            if ($response->successful()) {
-                $shortLink = $response->json('data.generateShortLink.shortLink');
-                if (! empty($shortLink)) {
-                    return $shortLink;
+        // Fallback: append Shopee affiliate tracking parameters
+        $pid = config('services.affiliates.shopee.pid');
+        if (! empty($pid)) {
+            $parsed = parse_url($url);
+            if ($parsed && isset($parsed['host'])) {
+                $query = [];
+                if (! empty($parsed['query'])) {
+                    parse_str($parsed['query'], $query);
                 }
+                $query['utm_source'] = $pid;
+                $query['utm_medium'] = 'affiliates';
+                $query['mmp_pid'] = $pid;
+
+                $scheme = $parsed['scheme'] ?? 'https';
+                $host = $parsed['host'];
+                $path = $parsed['path'] ?? '';
+                $newQuery = http_build_query($query);
+
+                return "{$scheme}://{$host}{$path}?{$newQuery}";
             }
-        } catch (Throwable $e) {
-            Log::debug('Shopee Affiliate API conversion skipped: '.$e->getMessage());
         }
 
         return $url;
