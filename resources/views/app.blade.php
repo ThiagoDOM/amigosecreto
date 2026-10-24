@@ -1,88 +1,99 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        @php
-            $component = $page['component'] ?? '';
-            $props = $page['props'] ?? [];
-            $event = $props['event'] ?? null;
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-            // Ensure HTTPS when in production, on shardweb.app, or on giftmatch.online
-            $isSecure = request()->isSecure()
-                || request()->header('x-forwarded-proto') === 'https'
-                || str_contains(request()->getHost(), 'shardweb.app')
-                || str_contains(request()->getHost(), 'giftmatch.online')
-                || app()->environment('production');
+    @php
+        $component = $page['component'] ?? '';
+        $props = $page['props'] ?? [];
+        $event = $props['event'] ?? null;
 
-            $currentUrl = url(request()->getRequestUri(), [], $isSecure);
+        // Ensure HTTPS when in production, on shardweb.app, or on giftmatch.online
+        $isSecure =
+            request()->isSecure() ||
+            request()->header('x-forwarded-proto') === 'https' ||
+            str_contains(request()->getHost(), 'shardweb.app') ||
+            str_contains(request()->getHost(), 'giftmatch.online') ||
+            app()->environment('production');
 
-            if ($component === 'Invite/Show' && !empty($event['title'])) {
-                $metaTitle = "Convite: {$event['title']} 🎁 - GiftMatch";
-                $organizer = $event['organizer_name'] ?? 'o organizador';
-                $descParts = ["Você foi convidado(a) por {$organizer} para o Amigo Secreto \"{$event['title']}\" no GiftMatch!"];
-                if (!empty($event['event_date'])) {
-                    $descParts[] = "Confraternização: {$event['event_date']}.";
-                }
-                if (!empty($event['budget_limit'])) {
-                    $descParts[] = "Valor sugerido: R$ " . number_format((float) $event['budget_limit'], 2, ',', '.') . ".";
-                }
-                $descParts[] = "Clique aqui para confirmar sua presença, indicar seus presentes desejados e participar do sorteio.";
-                $metaDesc = implode(' ', $descParts);
-                $metaImage = url('og-invite.jpg', [], $isSecure);
-            } elseif ($component === 'Secret/Show') {
-                $metaTitle = "Meu Amigo Secreto 🎁 - GiftMatch";
-                $metaDesc = "Descubra quem você tirou no Amigo Secreto no GiftMatch, confira a lista de desejos e prepare o seu presente!";
-                $metaImage = url('og-home.jpg', [], $isSecure);
-            } else {
-                $metaTitle = "GiftMatch 🎁 - Amigo Secreto Online Inteligente e Grátis";
-                $metaDesc = "Organize seu Amigo Secreto no GiftMatch de forma simples, rápida e gratuita! Sorteio automático sem ninguém tirar a si mesmo, regras para casais, lista de desejos e envio direto no WhatsApp.";
-                $metaImage = url('og-home.jpg', [], $isSecure);
+        $currentUrl = url(request()->getRequestUri(), [], $isSecure);
+
+        if ($component === 'Invite/Show' && !empty($event['title'])) {
+            $metaTitle = "Convite: {$event['title']} - GiftMatch";
+            $organizer = $event['organizer_name'] ?? 'o organizador';
+            $descParts = [
+                "Você foi convidado(a) por {$organizer} para o Amigo Secreto \"{$event['title']}\" no GiftMatch!",
+            ];
+            if (!empty($event['event_date'])) {
+                $descParts[] = "Confraternização: {$event['event_date']}.";
             }
-        @endphp
+            if (!empty($event['budget_limit'])) {
+                $descParts[] = "Valor sugerido: R$ " . number_format((float) $event['budget_limit'], 2, ',', '.') . '.';
+            }
+            $descParts[] =
+                'Clique aqui para confirmar sua presença, indicar seus presentes desejados e participar do sorteio.';
+            $metaDesc = implode(' ', $descParts);
+            $metaImage = url('og-invite.jpg', [], $isSecure);
+        } elseif ($component === 'Secret/Show') {
+            $metaTitle = 'Meu Amigo Secreto - GiftMatch';
+            $metaDesc =
+                'Descubra quem você tirou no Amigo Secreto no GiftMatch, confira a lista de desejos e prepare o seu presente!';
+            $metaImage = url('og-home.jpg', [], $isSecure);
+        } else {
+            $metaTitle = 'GiftMatch - Amigo Secreto Online Inteligente e Grátis';
+            $metaDesc =
+                'Organize seu Amigo Secreto no GiftMatch de forma simples, rápida e gratuita! Sorteio automático sem ninguém tirar a si mesmo, regras para casais, lista de desejos e envio direto no WhatsApp.';
+            $metaImage = url('og-home.jpg', [], $isSecure);
+        }
+    @endphp
 
-        <title inertia>{{ $metaTitle }}</title>
-        <meta name="description" content="{{ $metaDesc }}">
-        <link rel="canonical" href="{{ $currentUrl }}">
+    <title inertia>{{ $metaTitle }}</title>
+    <meta name="description" content="{{ $metaDesc }}">
+    <link rel="canonical" href="{{ $currentUrl }}">
 
-        <!-- Open Graph / Facebook / WhatsApp -->
-        <meta property="og:type" content="website">
-        <meta property="og:site_name" content="GiftMatch">
-        <meta property="og:title" content="{{ $metaTitle }}">
-        <meta property="og:description" content="{{ $metaDesc }}">
-        <meta property="og:url" content="{{ $currentUrl }}">
-        <meta property="og:image" content="{{ $metaImage }}">
-        <meta property="og:image:secure_url" content="{{ $metaImage }}">
-        <meta property="og:image:type" content="image/jpeg">
-        <meta property="og:image:width" content="1200">
-        <meta property="og:image:height" content="630">
-        <meta property="og:image:alt" content="{{ $metaTitle }}">
+    <!-- Open Graph / Facebook / WhatsApp -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="GiftMatch">
+    <meta property="og:title" content="{{ $metaTitle }}">
+    <meta property="og:description" content="{{ $metaDesc }}">
+    <meta property="og:url" content="{{ $currentUrl }}">
+    <meta property="og:image" content="{{ $metaImage }}">
+    <meta property="og:image:secure_url" content="{{ $metaImage }}">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="{{ $metaTitle }}">
 
-        <!-- Twitter Cards -->
-        <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="{{ $metaTitle }}">
-        <meta name="twitter:description" content="{{ $metaDesc }}">
-        <meta name="twitter:image" content="{{ $metaImage }}">
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $metaTitle }}">
+    <meta name="twitter:description" content="{{ $metaDesc }}">
+    <meta name="twitter:image" content="{{ $metaImage }}">
 
-        <!-- Favicons & App Icons -->
-        <link rel="icon" type="image/svg+xml" href="{{ url('favicon.svg', [], $isSecure) }}">
-        <link rel="icon" type="image/png" sizes="32x32" href="{{ url('favicon-32x32.png', [], $isSecure) }}">
-        <link rel="icon" type="image/png" sizes="16x16" href="{{ url('favicon-16x16.png', [], $isSecure) }}">
-        <link rel="apple-touch-icon" sizes="180x180" href="{{ url('apple-touch-icon.png', [], $isSecure) }}">
-        <link rel="shortcut icon" href="{{ url('favicon.ico', [], $isSecure) }}">
+    <!-- Favicons & App Icons -->
+    <link rel="icon" type="image/svg+xml" href="{{ url('favicon.svg', [], $isSecure) }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url('favicon-32x32.png', [], $isSecure) }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url('favicon-16x16.png', [], $isSecure) }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url('apple-touch-icon.png', [], $isSecure) }}">
+    <link rel="shortcut icon" href="{{ url('favicon.ico', [], $isSecure) }}">
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
 
-        <!-- Scripts -->
-        @routes
-        @vite(['resources/js/app.js', "resources/js/Pages/{$page['component']}.vue"])
-        @inertiaHead
-    </head>
-    <body class="font-sans antialiased bg-slate-950 text-slate-100 selection:bg-rose-500 selection:text-white">
-        @inertia
-    </body>
+    <!-- Scripts -->
+    @routes
+    @vite(['resources/js/app.js', "resources/js/Pages/{$page['component']}.vue"])
+    @inertiaHead
+</head>
+
+<body class="font-sans antialiased bg-slate-950 text-slate-100 selection:bg-rose-500 selection:text-white">
+    @inertia
+</body>
+
 </html>
