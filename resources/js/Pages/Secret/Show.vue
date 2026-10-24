@@ -161,7 +161,7 @@ function handleAddToHomeScreen() {
 
 function handleShareWhatsApp() {
     showSaveDropdown.value = false;
-    const msg = `🎁 Meu link de acesso ao Amigo Secreto (${props.event.title}):\n${window.location.href}\n\nGuarde esta mensagem para consultar seu amigo secreto e a lista de presentes!`;
+    const msg = `Meu link de acesso ao Amigo Secreto (${props.event.title}):\n${window.location.href}\n\nGuarde esta mensagem para consultar seu amigo secreto e a lista de presentes!`;
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
@@ -189,7 +189,7 @@ async function requestBrowserNotifications() {
             localStorage.setItem('notif_granted_' + props.participant.token, '1');
             showToast('🔔 Notificações ativadas com sucesso!');
             
-            new Notification('GiftMatch 🎁', {
+            new Notification('GiftMatch ', {
                 body: `Notificações ativadas para "${props.event.title}". Lembrete ativado com sucesso!`,
                 icon: '/favicon.ico',
             });
@@ -424,7 +424,7 @@ function downloadCardImage() {
         if (friendWishes && friendWishes.length > 0) {
             ctx.font = 'bold 16px sans-serif';
             ctx.fillStyle = '#f8fafc';
-            ctx.fillText(`🎁 Sugestão de presente: ${friendWishes[0].title}`, 450, 660);
+            ctx.fillText(`Sugestão de presente: ${friendWishes[0].title}`, 450, 660);
         }
         ctx.restore();
     } else {
@@ -557,7 +557,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <Head :title="'GiftMatch 🎁 - ' + participant.name" />
+    <Head :title="'GiftMatch - ' + participant.name" />
 
     <div class="min-h-screen bg-slate-950 text-slate-100 relative overflow-hidden font-sans py-12 px-4 sm:px-6">
         <ToastNotification />
@@ -1059,7 +1059,7 @@ onMounted(() => {
                         </div>
                         <div>
                             <h3 class="text-lg sm:text-xl font-bold font-display text-white">
-                                Guarde o Seu Link Exclusivo! 🎁
+                                Guarde o Seu Link Exclusivo! 
                             </h3>
                             <p class="text-xs text-slate-300">
                                 Olá, <strong class="text-white">{{ participant.name }}</strong>! É por este link que você saberá quem tirou.

@@ -44,15 +44,15 @@ function submit() {
 
 <template>
     <Head>
-        <title>{{ 'Convite: ' + event.title + ' 🎁 - GiftMatch' }}</title>
+        <title>{{ 'Convite: ' + event.title + ' - GiftMatch' }}</title>
         <meta name="description" :content="'Você foi convidado(a) por ' + (event.organizer_name || 'um amigo') + ' para o Amigo Secreto &quot;' + event.title + '&quot; no GiftMatch! Confirme sua participação, escolha seus presentes e participe do sorteio.'" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="GiftMatch" />
-        <meta property="og:title" :content="'Convite para o Amigo Secreto: ' + event.title + ' 🎁 - GiftMatch'" />
+        <meta property="og:title" :content="'Convite para o Amigo Secreto: ' + event.title + ' - GiftMatch'" />
         <meta property="og:description" :content="'Você foi convidado(a) por ' + (event.organizer_name || 'um amigo') + ' para o Amigo Secreto &quot;' + event.title + '&quot; no GiftMatch! Clique aqui para confirmar sua presença, indicar seus presentes e participar do sorteio.'" />
         <meta property="og:image" content="/og-invite.jpg" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" :content="'Convite para o Amigo Secreto: ' + event.title + ' 🎁 - GiftMatch'" />
+        <meta name="twitter:title" :content="'Convite para o Amigo Secreto: ' + event.title + ' - GiftMatch'" />
         <meta name="twitter:description" :content="'Você foi convidado(a) por ' + (event.organizer_name || 'um amigo') + ' para o Amigo Secreto &quot;' + event.title + '&quot; no GiftMatch! Confirme sua presença e adicione seus presentes.'" />
         <meta name="twitter:image" content="/og-invite.jpg" />
     </Head>
