@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link, useForm, router, usePage } from '@inertiajs/vue3';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import CookieConsent from '@/Components/CookieConsent.vue';
 import GoogleAd from '@/Components/GoogleAd.vue';
@@ -32,7 +32,10 @@ import {
     MessageCircle,
     Bell,
     BellRing,
-    CheckCircle2
+    CheckCircle2,
+    Clock,
+    Sparkles,
+    Eye
 } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -58,6 +61,7 @@ const copiedPageLink = ref(false);
 const showSaveDropdown = ref(false);
 const showHomeScreenModal = ref(false);
 const showOnboardingSaveModal = ref(false);
+const showNotificationsModal = ref(false);
 const notificationsEnabled = ref(false);
 const notificationSupported = ref(false);
 const clientToast = ref('');
@@ -200,6 +204,141 @@ async function requestBrowserNotifications() {
         console.error(e);
     }
 }
+
+function sendTestNotification() {
+    if (!('Notification' in window) || Notification.permission !== 'granted') {
+        requestBrowserNotifications();
+        return;
+    }
+    try {
+        new Notification('GiftMatch 🎁 ' + props.event.title, {
+            body: 'Tudo pronto! As notificações estão ativas e funcionando perfeitamente.',
+            icon: '/favicon.ico',
+        });
+        showToast('🔔 Notificação de teste enviada com sucesso!');
+    } catch (e) {
+        console.error(e);
+        showToast('Não foi possível disparar o teste.');
+    }
+}
+
+const eventNotifications = computed(() => {
+    const list = [];
+
+    // 1. Inscrição / Cadastro no Evento
+    list.push({
+        id: 'registration',
+        title: 'Você entrou no Amigo Secreto',
+        description: `Seu cadastro como participante de "${props.event.title}" foi confirmado com sucesso.`,
+        date: props.participant.created_at || 'Confirmado',
+        status: 'completed',
+        badge: 'Confirmado',
+        icon: 'check',
+        colorClass: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30',
+        badgeClass: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+    });
+
+    // 2. Status das Notificações do Navegador
+    if (notificationsEnabled.value) {
+        list.push({
+            id: 'notifications_status',
+            title: 'Notificações do navegador ativadas',
+            description: 'Você receberá avisos diretos neste dispositivo quando o sorteio acontecer ou novas atualizações forem publicadas.',
+            date: 'Ativo',
+            status: 'completed',
+            badge: 'Ativado',
+            icon: 'bell-ring',
+            colorClass: 'text-amber-400 bg-amber-500/10 border-amber-500/30',
+            badgeClass: 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+        });
+    } else {
+        list.push({
+            id: 'notifications_status',
+            title: 'Notificações pendentes de ativação',
+            description: 'Ative os avisos no navegador para ser notificado imediatamente assim que o organizador realizar o sorteio.',
+            date: 'Pendente',
+            status: 'action_required',
+            badge: 'Pendente',
+            action: 'activate_notifications',
+            icon: 'bell',
+            colorClass: 'text-amber-400 bg-amber-500/10 border-amber-500/30',
+            badgeClass: 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+        });
+    }
+
+    // 3. Sorteio do Amigo Secreto
+    if (props.event.is_drawn) {
+        list.push({
+            id: 'draw_status',
+            title: 'Sorteio realizado com sucesso!',
+            description: 'O organizador realizou o sorteio das duplas secretas. O seu amigo secreto já foi definido!',
+            date: props.event.drawn_at || 'Sorteio finalizado',
+            status: 'completed',
+            badge: 'Realizado',
+            icon: 'gift',
+            colorClass: 'text-rose-400 bg-rose-500/10 border-rose-500/30',
+            badgeClass: 'bg-rose-500/15 text-rose-300 border-rose-500/30'
+        });
+    } else {
+        list.push({
+            id: 'draw_status',
+            title: 'Aguardando sorteio do organizador',
+            description: props.event.draw_date
+                ? `Sorteio previsto para ${props.event.draw_date}. O organizador realizará o sorteio em breve.`
+                : 'O organizador realizará o sorteio assim que todos os participantes entrarem.',
+            date: props.event.draw_date ? `Previsto: ${props.event.draw_date}` : 'Aguardando',
+            status: 'pending',
+            badge: 'Aguardando',
+            icon: 'clock',
+            colorClass: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/30',
+            badgeClass: 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30'
+        });
+    }
+
+    // 4. Visualização / Revelação do Amigo Secreto
+    if (isRevealed.value) {
+        list.push({
+            id: 'reveal_status',
+            title: 'Você visualizou seu amigo secreto',
+            description: 'Você abriu o cartão e descobriu quem é o seu amigo secreto! A lista de presentes dele(a) está disponível.',
+            date: props.participant.revealed_at || 'Visualizado',
+            status: 'completed',
+            badge: 'Visualizado',
+            icon: 'eye',
+            colorClass: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30',
+            badgeClass: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+        });
+    } else if (props.event.is_drawn) {
+        list.push({
+            id: 'reveal_status',
+            title: 'Seu amigo secreto está pronto para ser revelado!',
+            description: 'Você ainda não abriu sua cartinha secreta. Toque no botão "Revelar Amigo Secreto" na página para descobrir!',
+            date: 'Disponível agora',
+            status: 'action_required',
+            badge: 'Pronto para abrir',
+            icon: 'sparkles',
+            colorClass: 'text-rose-400 bg-rose-500/10 border-rose-500/30',
+            badgeClass: 'bg-rose-500/15 text-rose-300 border-rose-500/30'
+        });
+    }
+
+    // 5. Data da Confraternização / Evento
+    if (props.event.event_date) {
+        list.push({
+            id: 'event_date',
+            title: 'Data da confraternização se aproximando',
+            description: `A confraternização acontecerá no dia ${props.event.event_date}${props.event.location ? ' no local: ' + props.event.location : ''}. Não se esqueça de comprar o presente com antecedência!`,
+            date: props.event.event_date,
+            status: 'info',
+            badge: 'Confraternização',
+            icon: 'party',
+            colorClass: 'text-amber-400 bg-amber-500/10 border-amber-500/30',
+            badgeClass: 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+        });
+    }
+
+    return list;
+});
 
 function addToGoogleCalendar() {
     const title = `Sorteio Amigo Secreto: ${props.event.title}`;
@@ -569,100 +708,162 @@ onMounted(() => {
         <div class="absolute -bottom-32 left-1/3 w-[500px] h-[500px] bg-emerald-500/15 rounded-full blur-[140px] pointer-events-none"></div>
 
         <div class="relative z-10 max-w-2xl mx-auto space-y-8">
-            <!-- Brand & Page Link Bookmark Dropdown -->
+            <!-- Brand & Actions (Notificações + Salvar Acesso) -->
             <div class="flex items-center justify-between">
                 <Link :href="route('home')" class="transition-transform hover:scale-105">
                     <ApplicationLogo />
                 </Link>
 
-                <!-- Dropdown Salvar Acesso -->
-                <div class="relative">
+                <div class="flex items-center gap-2">
+                    <!-- Botão de Notificações / Central de Avisos -->
                     <button
-                        @click="showSaveDropdown = !showSaveDropdown"
-                        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 hover:border-slate-600 text-slate-100 hover:text-white transition-all shadow-md active:scale-95"
+                        id="btn-open-notifications"
+                        @click="showNotificationsModal = true"
+                        type="button"
+                        class="relative inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 hover:border-slate-600 text-slate-100 hover:text-white transition-all shadow-md active:scale-95 cursor-pointer"
+                        title="Ver avisos e linha do tempo do evento"
                     >
-                        <Bookmark class="w-4 h-4 text-rose-400" />
-                        <span>Salvar Acesso</span>
-                        <ChevronDown class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" :class="{ 'rotate-180': showSaveDropdown }" />
+                        <BellRing v-if="!notificationsEnabled" class="w-4 h-4 text-amber-400" />
+                        <Bell v-else class="w-4 h-4 text-amber-400" />
+                        <span>Avisos</span>
+                        <!-- Pulsing indicator if notifications pending -->
+                        <span v-if="!notificationsEnabled" class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                        </span>
                     </button>
 
-                    <!-- Backdrop overlay to close dropdown -->
-                    <div
-                        v-if="showSaveDropdown"
-                        @click="showSaveDropdown = false"
-                        class="fixed inset-0 z-40"
-                    ></div>
-
-                    <!-- Dropdown Content -->
-                    <div
-                        v-if="showSaveDropdown"
-                        class="absolute right-0 mt-2 w-72 rounded-2xl bg-slate-900/95 border border-slate-700/80 p-2 shadow-2xl backdrop-blur-xl z-50 space-y-1 animate-in fade-in zoom-in-95"
-                    >
-                        <div class="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800">
-                            Opções para não perder
-                        </div>
-
-                        <!-- 1. Copiar Link -->
+                    <!-- Dropdown Salvar Acesso -->
+                    <div class="relative">
                         <button
-                            @click="handleCopyLink"
-                            class="w-full flex items-start gap-3 p-2.5 rounded-xl text-left hover:bg-slate-800/80 transition-colors group"
+                            @click="showSaveDropdown = !showSaveDropdown"
+                            class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 hover:border-slate-600 text-slate-100 hover:text-white transition-all shadow-md active:scale-95 cursor-pointer"
                         >
-                            <div class="w-8 h-8 rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                                <Check v-if="copiedPageLink" class="w-4 h-4 text-emerald-400" />
-                                <Copy v-else class="w-4 h-4" />
+                            <Bookmark class="w-4 h-4 text-rose-400" />
+                            <span>Salvar Acesso</span>
+                            <ChevronDown class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" :class="{ 'rotate-180': showSaveDropdown }" />
+                        </button>
+
+                        <!-- Backdrop overlay to close dropdown -->
+                        <div
+                            v-if="showSaveDropdown"
+                            @click="showSaveDropdown = false"
+                            class="fixed inset-0 z-40"
+                        ></div>
+
+                        <!-- Dropdown Content -->
+                        <div
+                            v-if="showSaveDropdown"
+                            class="absolute right-0 mt-2 w-72 rounded-2xl bg-slate-900/95 border border-slate-700/80 p-2 shadow-2xl backdrop-blur-xl z-50 space-y-1 animate-in fade-in zoom-in-95"
+                        >
+                            <div class="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800">
+                                Opções para não perder
                             </div>
-                            <div>
-                                <div class="text-xs font-bold text-white flex items-center gap-1.5">
-                                    {{ copiedPageLink ? 'Link Copiado!' : 'Copiar link' }}
-                                    <span v-if="copiedPageLink" class="text-[10px] text-emerald-400 font-semibold">(Copiado)</span>
+
+                            <!-- 1. Copiar Link -->
+                            <button
+                                @click="handleCopyLink"
+                                class="w-full flex items-start gap-3 p-2.5 rounded-xl text-left hover:bg-slate-800/80 transition-colors group"
+                            >
+                                <div class="w-8 h-8 rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                                    <Check v-if="copiedPageLink" class="w-4 h-4 text-emerald-400" />
+                                    <Copy v-else class="w-4 h-4" />
                                 </div>
-                                <div class="text-[11px] text-slate-400 font-medium leading-tight">Copie a URL para abrir quando quiser</div>
-                            </div>
-                        </button>
+                                <div>
+                                    <div class="text-xs font-bold text-white flex items-center gap-1.5">
+                                        {{ copiedPageLink ? 'Link Copiado!' : 'Copiar link' }}
+                                        <span v-if="copiedPageLink" class="text-[10px] text-emerald-400 font-semibold">(Copiado)</span>
+                                    </div>
+                                    <div class="text-[11px] text-slate-400 font-medium leading-tight">Copie a URL para abrir quando quiser</div>
+                                </div>
+                            </button>
 
-                        <!-- 2. Salvar Imagem -->
-                        <button
-                            @click="handleDownloadImage"
-                            class="w-full flex items-start gap-3 p-2.5 rounded-xl text-left hover:bg-slate-800/80 transition-colors group"
-                        >
-                            <div class="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                                <Download class="w-4 h-4" />
-                            </div>
-                            <div>
-                                <div class="text-xs font-bold text-white">Salvar imagem do cartão</div>
-                                <div class="text-[11px] text-slate-400 font-medium leading-tight">Baixe um lindo cartão para a galeria</div>
-                            </div>
-                        </button>
+                            <!-- 2. Salvar Imagem -->
+                            <button
+                                @click="handleDownloadImage"
+                                class="w-full flex items-start gap-3 p-2.5 rounded-xl text-left hover:bg-slate-800/80 transition-colors group"
+                            >
+                                <div class="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                                    <Download class="w-4 h-4" />
+                                </div>
+                                <div>
+                                    <div class="text-xs font-bold text-white">Salvar imagem do cartão</div>
+                                    <div class="text-[11px] text-slate-400 font-medium leading-tight">Baixe um lindo cartão para a galeria</div>
+                                </div>
+                            </button>
 
-                        <!-- 3. Adicionar à tela inicial -->
-                        <button
-                            @click="handleAddToHomeScreen"
-                            class="w-full flex items-start gap-3 p-2.5 rounded-xl text-left hover:bg-slate-800/80 transition-colors group"
-                        >
-                            <div class="w-8 h-8 rounded-lg bg-indigo-500/15 border border-indigo-500/30 text-indigo-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                                <Smartphone class="w-4 h-4" />
-                            </div>
-                            <div>
-                                <div class="text-xs font-bold text-white">Adicionar à tela inicial</div>
-                                <div class="text-[11px] text-slate-400 font-medium leading-tight">Crie um ícone de app no celular</div>
-                            </div>
-                        </button>
+                            <!-- 3. Adicionar à tela inicial -->
+                            <button
+                                @click="handleAddToHomeScreen"
+                                class="w-full flex items-start gap-3 p-2.5 rounded-xl text-left hover:bg-slate-800/80 transition-colors group"
+                            >
+                                <div class="w-8 h-8 rounded-lg bg-indigo-500/15 border border-indigo-500/30 text-indigo-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                                    <Smartphone class="w-4 h-4" />
+                                </div>
+                                <div>
+                                    <div class="text-xs font-bold text-white">Adicionar à tela inicial</div>
+                                    <div class="text-[11px] text-slate-400 font-medium leading-tight">Crie um ícone de app no celular</div>
+                                </div>
+                            </button>
 
-                        <!-- 4. Guardar no WhatsApp -->
-                        <button
-                            @click="handleShareWhatsApp"
-                            class="w-full flex items-start gap-3 p-2.5 rounded-xl text-left hover:bg-slate-800/80 transition-colors group"
-                        >
-                            <div class="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                                <MessageCircle class="w-4 h-4" />
-                            </div>
-                            <div>
-                                <div class="text-xs font-bold text-white">Guardar no WhatsApp</div>
-                                <div class="text-[11px] text-slate-400 font-medium leading-tight">Envie o link para você no WhatsApp</div>
-                            </div>
-                        </button>
+                            <!-- 4. Guardar no WhatsApp -->
+                            <button
+                                @click="handleShareWhatsApp"
+                                class="w-full flex items-start gap-3 p-2.5 rounded-xl text-left hover:bg-slate-800/80 transition-colors group"
+                            >
+                                <div class="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                                    <MessageCircle class="w-4 h-4" />
+                                </div>
+                                <div>
+                                    <div class="text-xs font-bold text-white">Guardar no WhatsApp</div>
+                                    <div class="text-[11px] text-slate-400 font-medium leading-tight">Envie o link para você no WhatsApp</div>
+                                </div>
+                            </button>
+
+                            <!-- 5. Avisos e Linha do Tempo -->
+                            <button
+                                @click="showSaveDropdown = false; showNotificationsModal = true;"
+                                class="w-full flex items-start gap-3 p-2.5 rounded-xl text-left hover:bg-slate-800/80 transition-colors group cursor-pointer"
+                            >
+                                <div class="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                                    <Bell class="w-4 h-4" />
+                                </div>
+                                <div>
+                                    <div class="text-xs font-bold text-white flex items-center gap-1.5">
+                                        <span>Avisos e Linha do Tempo</span>
+                                        <span v-if="!notificationsEnabled" class="w-2 h-2 rounded-full bg-amber-500"></span>
+                                    </div>
+                                    <div class="text-[11px] text-slate-400 font-medium leading-tight">
+                                        {{ notificationsEnabled ? 'Ver avisos e notificações' : 'Ativar avisos no navegador' }}
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Banner: Ativar Notificações se pendente -->
+            <div
+                v-if="!notificationsEnabled && notificationSupported"
+                class="flex items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-amber-200 text-xs backdrop-blur-sm animate-in fade-in"
+            >
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+                        <BellRing class="w-4 h-4 animate-bounce" />
+                    </div>
+                    <div class="truncate">
+                        <span class="font-bold text-white block truncate">Ative as notificações deste amigo secreto</span>
+                        <span class="text-[11px] text-amber-200/80 block truncate">Receba avisos instantâneos quando o sorteio for realizado</span>
+                    </div>
+                </div>
+                <button
+                    id="btn-banner-notifications"
+                    @click="showNotificationsModal = true"
+                    class="px-3.5 py-1.5 rounded-xl font-bold text-xs bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors shrink-0 cursor-pointer shadow-md"
+                >
+                    Ver Avisos
+                </button>
             </div>
 
             <!-- Greeting Card -->
@@ -1206,6 +1407,170 @@ onMounted(() => {
                         class="w-full py-3 rounded-2xl font-bold text-xs sm:text-sm text-white bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 shadow-xl shadow-rose-950/40 transition-all active:scale-95 cursor-pointer"
                     >
                         Entendido, Já Salvei Meu Link! 👍
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL: Central de Notificações e Linha do Tempo -->
+        <div v-if="showNotificationsModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200">
+            <div class="w-full max-w-lg rounded-3xl bg-slate-900 border border-slate-700/80 p-6 sm:p-7 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200 max-h-[92vh] overflow-y-auto">
+                <!-- Header -->
+                <div class="flex items-start justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-500 to-rose-500 text-white flex items-center justify-center shadow-lg shadow-amber-900/30 shrink-0">
+                            <Bell class="w-6 h-6" />
+                        </div>
+                        <div>
+                            <h3 class="text-lg sm:text-xl font-bold font-display text-white">
+                                Avisos e Notificações
+                            </h3>
+                            <p class="text-xs text-slate-300">
+                                Evento: <strong class="text-white">{{ event.title }}</strong>
+                            </p>
+                        </div>
+                    </div>
+                    <button @click="showNotificationsModal = false" class="text-slate-400 hover:text-white p-1 rounded-lg shrink-0 cursor-pointer">
+                        <X class="w-5 h-5" />
+                    </button>
+                </div>
+
+                <!-- Banner de Ativação / Status do Navegador -->
+                <div 
+                    class="p-4 rounded-2xl border transition-all"
+                    :class="notificationsEnabled 
+                        ? 'bg-emerald-950/40 border-emerald-500/30 text-emerald-200' 
+                        : 'bg-amber-500/10 border-amber-500/30 text-amber-200'"
+                >
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="space-y-1 min-w-0">
+                            <div class="font-bold flex items-center gap-2 text-white text-sm">
+                                <CheckCircle2 v-if="notificationsEnabled" class="w-4 h-4 text-emerald-400 shrink-0" />
+                                <BellRing v-else class="w-4 h-4 text-amber-400 shrink-0 animate-bounce" />
+                                <span>{{ notificationsEnabled ? 'Notificações Ativadas neste Navegador' : 'Ativar Notificações no Navegador' }}</span>
+                            </div>
+                            <p class="text-xs text-slate-300 leading-relaxed">
+                                {{ notificationsEnabled 
+                                    ? 'Você receberá avisos automáticos de sorteio e novidades deste evento diretamente no seu dispositivo.' 
+                                    : 'Não perca o momento do sorteio! Ative para ser notificado assim que o organizador realizar o sorteio.' }}
+                            </p>
+                        </div>
+
+                        <!-- Botão de Ação -->
+                        <div class="shrink-0 pt-0.5">
+                            <button
+                                v-if="!notificationsEnabled"
+                                type="button"
+                                @click="requestBrowserNotifications"
+                                class="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-950 bg-amber-400 hover:bg-amber-300 shadow-md transition-all active:scale-95 cursor-pointer flex items-center gap-1.5"
+                            >
+                                <Bell class="w-3.5 h-3.5" />
+                                <span>Ativar Agora</span>
+                            </button>
+                            <button
+                                v-else
+                                type="button"
+                                @click="sendTestNotification"
+                                class="px-3 py-1.5 rounded-xl text-xs font-semibold text-emerald-300 bg-emerald-900/60 hover:bg-emerald-800/80 border border-emerald-700/60 transition-colors cursor-pointer flex items-center gap-1"
+                            >
+                                <span>Testar</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Linha do Tempo de Eventos -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-400 px-1">
+                        <span>Linha do Tempo</span>
+                        <span class="text-[11px] text-slate-500 font-normal">Histórico de Acontecimentos</span>
+                    </div>
+
+                    <div class="relative pl-6 space-y-3 before:absolute before:left-2.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-slate-800">
+                        <div 
+                            v-for="item in eventNotifications" 
+                            :key="item.id" 
+                            class="relative group"
+                        >
+                            <!-- Timeline Dot / Icon -->
+                            <div 
+                                class="absolute -left-6 top-1.5 w-5 h-5 rounded-full border-2 border-slate-900 flex items-center justify-center shrink-0"
+                                :class="item.colorClass"
+                            >
+                                <CheckCircle2 v-if="item.icon === 'check'" class="w-3 h-3" />
+                                <BellRing v-else-if="item.icon === 'bell-ring'" class="w-3 h-3" />
+                                <Bell v-else-if="item.icon === 'bell'" class="w-3 h-3" />
+                                <Gift v-else-if="item.icon === 'gift'" class="w-3 h-3" />
+                                <Clock v-else-if="item.icon === 'clock'" class="w-3 h-3" />
+                                <Eye v-else-if="item.icon === 'eye'" class="w-3 h-3" />
+                                <Sparkles v-else-if="item.icon === 'sparkles'" class="w-3 h-3" />
+                                <PartyPopper v-else class="w-3 h-3" />
+                            </div>
+
+                            <!-- Timeline Content Card -->
+                            <div class="p-3.5 rounded-2xl bg-slate-800/70 border border-slate-700/70 space-y-1.5 hover:border-slate-600 transition-colors">
+                                <div class="flex items-center justify-between gap-2 flex-wrap">
+                                    <h4 class="text-xs font-bold text-white flex items-center gap-1.5">
+                                        {{ item.title }}
+                                    </h4>
+                                    <span 
+                                        class="px-2 py-0.5 rounded-full text-[10px] font-bold border"
+                                        :class="item.badgeClass"
+                                    >
+                                        {{ item.badge }}
+                                    </span>
+                                </div>
+                                <p class="text-xs text-slate-300 leading-relaxed">
+                                    {{ item.description }}
+                                </p>
+                                <div class="flex items-center justify-between pt-1 text-[11px] text-slate-400">
+                                    <span>{{ item.date }}</span>
+                                    <button
+                                        v-if="item.action === 'activate_notifications' && !notificationsEnabled"
+                                        type="button"
+                                        @click="requestBrowserNotifications"
+                                        class="text-amber-400 hover:text-amber-300 font-bold underline cursor-pointer"
+                                    >
+                                        Ativar Notificações &rarr;
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lembrete no Calendário (Ações Rápidas) -->
+                <div class="p-3.5 rounded-2xl bg-slate-800/50 border border-slate-700/60 space-y-2">
+                    <div class="flex items-center gap-2 text-xs font-bold text-slate-200">
+                        <Calendar class="w-4 h-4 text-amber-400" />
+                        <span>Adicionar lembrete no calendário</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <button
+                            type="button"
+                            @click="addToGoogleCalendar"
+                            class="py-2 px-3 rounded-xl text-xs font-semibold text-slate-200 bg-slate-700 hover:bg-slate-600 border border-slate-600 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                        >
+                            <span>📅 Google Agenda</span>
+                        </button>
+                        <button
+                            type="button"
+                            @click="downloadCalendarIcs"
+                            class="py-2 px-3 rounded-xl text-xs font-semibold text-slate-200 bg-slate-700 hover:bg-slate-600 border border-slate-600 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                        >
+                            <span>📲 Apple / Celular (.ics)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Close button -->
+                <div>
+                    <button
+                        type="button"
+                        @click="showNotificationsModal = false"
+                        class="w-full py-2.5 rounded-2xl font-bold text-xs sm:text-sm text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-colors cursor-pointer"
+                    >
+                        Fechar
                     </button>
                 </div>
             </div>
