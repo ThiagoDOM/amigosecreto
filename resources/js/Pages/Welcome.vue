@@ -1,9 +1,10 @@
 <script setup>
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, defineAsyncComponent } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
-import CookieConsent from '@/Components/CookieConsent.vue';
-import GoogleAd from '@/Components/GoogleAd.vue';
+
+const CookieConsent = defineAsyncComponent(() => import('@/Components/CookieConsent.vue'));
+const GoogleAd = defineAsyncComponent(() => import('@/Components/GoogleAd.vue'));
 import { 
     Gift, 
     ArrowRight, 
