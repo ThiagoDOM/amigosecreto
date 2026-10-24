@@ -39,4 +39,19 @@ return [
         'client_id' => env('GOOGLE_ADSENSE_CLIENT_ID', env('VITE_GOOGLE_ADSENSE_ID')),
     ],
 
+    'affiliates' => [
+        'shopee' => [
+            'app_id' => env('SHOPEE_AFFILIATE_APP_ID'),
+            'secret' => env('SHOPEE_AFFILIATE_SECRET'),
+        ],
+        'mercadolivre' => [
+            'app_id' => env('MERCADOLIVRE_AFFILIATE_APP_ID'),
+            'secret' => env('MERCADOLIVRE_AFFILIATE_SECRET'),
+            'tag' => env('MERCADOLIVRE_AFFILIATE_TAG'),
+        ],
+        'amazon' => [
+            'tag' => env('AMAZON_AFFILIATE_TAG'),
+        ],
+    ],
+
 ];
