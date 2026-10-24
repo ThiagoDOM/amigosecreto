@@ -120,7 +120,7 @@ function copyMagicLink(p) {
 // Shared invite payload
 const invitePayload = computed(() => {
     const text = `🎁 *Convite para o Amigo Secreto: ${props.event.title}*!\n\n` +
-        `Olá! Estou organizando nosso amigo secreto no Amigo Secreto.\n` +
+        `Olá! Estou organizando nosso amigo secreto no GiftMatch.\n` +
         (props.event.budget_limit ? `💰 *Valor sugerido:* ${formatCurrency(props.event.budget_limit)}\n` : '') +
         (props.event.event_date ? `📅 *Data da confraternização:* ${formatDate(props.event.event_date)}\n` : '') +
         (props.event.location ? `📍 *Local:* ${props.event.location}\n` : '') +

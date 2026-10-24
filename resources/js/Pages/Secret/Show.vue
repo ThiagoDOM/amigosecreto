@@ -186,7 +186,7 @@ async function requestBrowserNotifications() {
             localStorage.setItem('notif_granted_' + props.participant.token, '1');
             showToast('🔔 Notificações ativadas com sucesso!');
             
-            new Notification('Amigo Secreto 🎁', {
+            new Notification('GiftMatch 🎁', {
                 body: `Notificações ativadas para "${props.event.title}". Lembrete ativado com sucesso!`,
                 icon: '/favicon.ico',
             });
@@ -245,11 +245,11 @@ function downloadCalendarIcs() {
     const icsContent = [
         'BEGIN:VCALENDAR',
         'VERSION:2.0',
-        'PRODID:-//Amigo Secreto//PT',
+        'PRODID:-//GiftMatch//PT',
         'CALSCALE:GREGORIAN',
         'METHOD:PUBLISH',
         'BEGIN:VEVENT',
-        `UID:${props.participant.token}@amigosecreto`,
+        `UID:${props.participant.token}@giftmatch.online`,
         `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z`,
         `DTSTART:${startDate}`,
         `DTEND:${endDate}`,
@@ -351,7 +351,7 @@ function downloadCardImage() {
     ctx.font = 'bold 16px sans-serif';
     ctx.fillStyle = '#fecdd3';
     ctx.textAlign = 'center';
-    ctx.fillText('AMIGO SECRETO', 450, 88);
+    ctx.fillText('GIFTMATCH', 450, 88);
     ctx.restore();
 
     // Event Title
@@ -502,7 +502,7 @@ function downloadCardImage() {
     ctx.font = '13px sans-serif';
     ctx.fillStyle = '#94a3b8';
     ctx.fillText('Você pode voltar a esta página a qualquer momento para ver detalhes.', 450, 915);
-    ctx.fillText('Organizado com carinho pelo Amigo Secreto Online 🎄', 450, 945);
+    ctx.fillText('Organizado com carinho pelo GiftMatch 🎄', 450, 945);
     ctx.restore();
 
     // Footer copyright
@@ -510,7 +510,7 @@ function downloadCardImage() {
     ctx.font = '13px sans-serif';
     ctx.fillStyle = '#64748b';
     ctx.textAlign = 'center';
-    ctx.fillText('Gerado automaticamente • Amigo Secreto', 450, 1030);
+    ctx.fillText('Gerado automaticamente • GiftMatch (giftmatch.online)', 450, 1030);
     ctx.restore();
 
     // Download trigger
@@ -518,7 +518,7 @@ function downloadCardImage() {
     const a = document.createElement('a');
     a.href = dataUrl;
     const safeName = (props.participant.name || 'amigo').toLowerCase().replace(/[^a-z0-9]/g, '-');
-    a.download = `amigo-secreto-${safeName}.png`;
+    a.download = `giftmatch-${safeName}.png`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -554,7 +554,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <Head :title="'Amigo Secreto de ' + participant.name" />
+    <Head :title="'GiftMatch 🎁 - ' + participant.name" />
 
     <div class="min-h-screen bg-slate-950 text-slate-100 relative overflow-hidden font-sans py-12 px-4 sm:px-6">
         <ToastNotification />

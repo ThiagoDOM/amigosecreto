@@ -39,16 +39,16 @@ function goToInvite() {
 
 <template>
     <Head>
-        <title>Amigo Secreto Online 🎁 - Sorteio Grátis com Regras e Desejos</title>
-        <meta name="description" content="Organize seu Amigo Secreto de forma simples, rápida e gratuita! Sorteio automático sem ninguém tirar a si mesmo, regras para casais, lista de desejos e envio direto no WhatsApp." />
+        <title>GiftMatch 🎁 - Amigo Secreto Online Inteligente</title>
+        <meta name="description" content="Organize seu Amigo Secreto no GiftMatch de forma simples, rápida e 100% gratuita! Sorteio automático sem ninguém tirar a si mesmo, regras para casais, lista de desejos e envio direto no WhatsApp." />
         <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="Amigo Secreto Online" />
-        <meta property="og:title" content="Amigo Secreto Online 🎁 - Sorteio Grátis com Regras e Desejos" />
-        <meta property="og:description" content="Organize seu Amigo Secreto de forma simples, rápida e gratuita! Sorteio automático com regras para casais, lista de desejos e envio direto no WhatsApp." />
+        <meta property="og:site_name" content="GiftMatch" />
+        <meta property="og:title" content="GiftMatch 🎁 - Amigo Secreto Online Inteligente" />
+        <meta property="og:description" content="Organize seu Amigo Secreto no GiftMatch de forma simples, rápida e 100% gratuita! Sorteio automático com regras para casais, lista de desejos e envio direto no WhatsApp." />
         <meta property="og:image" content="/og-home.jpg" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Amigo Secreto Online 🎁 - Sorteio Grátis com Regras e Desejos" />
-        <meta name="twitter:description" content="Organize seu Amigo Secreto de forma simples, rápida e gratuita! Sorteio automático com regras para casais, lista de desejos e envio direto no WhatsApp." />
+        <meta name="twitter:title" content="GiftMatch 🎁 - Amigo Secreto Online Inteligente" />
+        <meta name="twitter:description" content="Organize seu Amigo Secreto no GiftMatch de forma simples, rápida e 100% gratuita! Sorteio automático com regras para casais, lista de desejos e envio direto no WhatsApp." />
         <meta name="twitter:image" content="/og-home.jpg" />
     </Head>
 
@@ -286,7 +286,7 @@ function goToInvite() {
                     <ApplicationLogo />
                 </div>
                 <div>
-                    Amigo Secreto Online &bull; Organize sem complicações
+                    GiftMatch &bull; Amigo Secreto Online sem complicações
                 </div>
             </div>
         </footer>

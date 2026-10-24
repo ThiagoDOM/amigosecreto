@@ -9,18 +9,19 @@
             $props = $page['props'] ?? [];
             $event = $props['event'] ?? null;
 
-            // Ensure HTTPS when in production or on shardweb.app
+            // Ensure HTTPS when in production, on shardweb.app, or on giftmatch.online
             $isSecure = request()->isSecure()
                 || request()->header('x-forwarded-proto') === 'https'
                 || str_contains(request()->getHost(), 'shardweb.app')
+                || str_contains(request()->getHost(), 'giftmatch.online')
                 || app()->environment('production');
 
             $currentUrl = url(request()->getRequestUri(), [], $isSecure);
 
             if ($component === 'Invite/Show' && !empty($event['title'])) {
-                $metaTitle = "Convite: {$event['title']} 🎁 - Amigo Secreto";
+                $metaTitle = "Convite: {$event['title']} 🎁 - GiftMatch";
                 $organizer = $event['organizer_name'] ?? 'o organizador';
-                $descParts = ["Você foi convidado(a) por {$organizer} para o Amigo Secreto \"{$event['title']}\"!"];
+                $descParts = ["Você foi convidado(a) por {$organizer} para o Amigo Secreto \"{$event['title']}\" no GiftMatch!"];
                 if (!empty($event['event_date'])) {
                     $descParts[] = "Confraternização: {$event['event_date']}.";
                 }
@@ -31,12 +32,12 @@
                 $metaDesc = implode(' ', $descParts);
                 $metaImage = url('og-invite.jpg', [], $isSecure);
             } elseif ($component === 'Secret/Show') {
-                $metaTitle = "Meu Amigo Secreto 🎁 - Link Exclusivo";
-                $metaDesc = "Descubra quem você tirou no Amigo Secreto, confira a lista de desejos e prepare o seu presente!";
+                $metaTitle = "Meu Amigo Secreto 🎁 - GiftMatch";
+                $metaDesc = "Descubra quem você tirou no Amigo Secreto no GiftMatch, confira a lista de desejos e prepare o seu presente!";
                 $metaImage = url('og-home.jpg', [], $isSecure);
             } else {
-                $metaTitle = "Amigo Secreto Online 🎁 - Sorteio Grátis com Regras e Desejos";
-                $metaDesc = "Organize seu Amigo Secreto de forma simples, rápida e gratuita! Sorteio automático sem ninguém tirar a si mesmo, regras para casais, lista de desejos e envio direto no WhatsApp.";
+                $metaTitle = "GiftMatch 🎁 - Amigo Secreto Online Inteligente e Grátis";
+                $metaDesc = "Organize seu Amigo Secreto no GiftMatch de forma simples, rápida e gratuita! Sorteio automático sem ninguém tirar a si mesmo, regras para casais, lista de desejos e envio direto no WhatsApp.";
                 $metaImage = url('og-home.jpg', [], $isSecure);
             }
         @endphp
@@ -47,7 +48,7 @@
 
         <!-- Open Graph / Facebook / WhatsApp -->
         <meta property="og:type" content="website">
-        <meta property="og:site_name" content="Amigo Secreto Online">
+        <meta property="og:site_name" content="GiftMatch">
         <meta property="og:title" content="{{ $metaTitle }}">
         <meta property="og:description" content="{{ $metaDesc }}">
         <meta property="og:url" content="{{ $currentUrl }}">
