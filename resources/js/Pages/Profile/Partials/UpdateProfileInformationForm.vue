@@ -24,11 +24,11 @@ const form = useForm({
 <template>
     <section>
         <header>
-            <h2 class="text-lg font-bold font-display text-slate-900 dark:text-white">
+            <h2 class="text-base font-bold font-display text-white">
                 Informações do Perfil
             </h2>
 
-            <p class="mt-1 text-xs text-slate-600 dark:text-slate-300">
+            <p class="mt-1 text-xs text-slate-400">
                 Atualize seus dados pessoais e endereço de e-mail de organizador.
             </p>
         </header>
@@ -38,12 +38,12 @@ const form = useForm({
             class="mt-6 space-y-4"
         >
             <div>
-                <InputLabel for="name" value="Nome Completo" class="text-slate-800 dark:text-slate-200 font-bold text-xs uppercase tracking-wider" />
+                <InputLabel for="name" value="Nome Completo" class="text-slate-300 font-bold text-xs uppercase tracking-wider" />
 
                 <TextInput
                     id="name"
                     type="text"
-                    class="mt-1 block w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+                    class="mt-1 block w-full px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-950 text-white text-sm focus:outline-none focus:border-rose-500"
                     v-model="form.name"
                     required
                     autofocus
@@ -54,12 +54,12 @@ const form = useForm({
             </div>
 
             <div>
-                <InputLabel for="email" value="Endereço de E-mail" class="text-slate-800 dark:text-slate-200 font-bold text-xs uppercase tracking-wider" />
+                <InputLabel for="email" value="Endereço de E-mail" class="text-slate-300 font-bold text-xs uppercase tracking-wider" />
 
                 <TextInput
                     id="email"
                     type="email"
-                    class="mt-1 block w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+                    class="mt-1 block w-full px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-950 text-white text-sm focus:outline-none focus:border-rose-500"
                     v-model="form.email"
                     required
                     autocomplete="username"
@@ -69,13 +69,13 @@ const form = useForm({
             </div>
 
             <div v-if="mustVerifyEmail && user.email_verified_at === null">
-                <p class="mt-2 text-xs text-slate-800 dark:text-slate-200">
+                <p class="mt-2 text-xs text-slate-300">
                     Seu endereço de e-mail ainda não foi verificado.
                     <Link
                         :href="route('verification.send')"
                         method="post"
                         as="button"
-                        class="rounded-md text-xs text-rose-600 dark:text-rose-400 underline font-semibold hover:text-rose-700"
+                        class="rounded-md text-xs text-rose-400 underline font-semibold hover:text-rose-300"
                     >
                         Clique aqui para reenviar o e-mail de verificação.
                     </Link>
@@ -83,7 +83,7 @@ const form = useForm({
 
                 <div
                     v-show="status === 'verification-link-sent'"
-                    class="mt-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400"
+                    class="mt-2 text-xs font-semibold text-emerald-400"
                 >
                     Um novo link de verificação foi enviado para o seu e-mail.
                 </div>
@@ -93,7 +93,7 @@ const form = useForm({
                 <button
                     type="submit"
                     :disabled="form.processing"
-                    class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-rose-600 to-amber-500 shadow-md shadow-rose-500/20 hover:from-rose-500 hover:to-amber-400 transition-all disabled:opacity-50"
+                    class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-sm transition-all disabled:opacity-50 active:scale-95"
                 >
                     Salvar Alterações
                 </button>
@@ -106,7 +106,7 @@ const form = useForm({
                 >
                     <p
                         v-if="form.recentlySuccessful"
-                        class="text-xs font-semibold text-emerald-600 dark:text-emerald-400"
+                        class="text-xs font-semibold text-emerald-400"
                     >
                         ✓ Dados salvos com sucesso.
                     </p>
