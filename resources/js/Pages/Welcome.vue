@@ -180,6 +180,15 @@ function goToInvite() {
 
             <!-- Feature Cards Section -->
             <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div class="text-center max-w-2xl mx-auto mb-10">
+                    <h2 class="text-2xl sm:text-3xl font-extrabold font-display text-white">
+                        Tudo o que você precisa em um só lugar
+                    </h2>
+                    <p class="mt-2 text-slate-400 text-xs sm:text-sm">
+                        Desenvolvido para ser a forma mais rápida e elegante de fazer seu amigo secreto.
+                    </p>
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <!-- Feature 1 -->
                     <div class="p-6 sm:p-7 rounded-2xl bg-slate-900/80 border border-slate-800 transition-all hover:border-slate-700 space-y-4">
@@ -233,7 +242,7 @@ function goToInvite() {
                         <div class="w-10 h-10 rounded-full bg-rose-600 text-white font-bold text-sm flex items-center justify-center shadow-md shadow-rose-900/40">
                             1
                         </div>
-                        <h4 class="text-base font-bold text-white">Cadastre o Evento</h4>
+                        <h3 class="text-base font-bold text-white">Cadastre o Evento</h3>
                         <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
                             Defina o nome do grupo, valor sugerido, data da confraternização e local do evento.
                         </p>
@@ -244,7 +253,7 @@ function goToInvite() {
                         <div class="w-10 h-10 rounded-full bg-amber-500 text-slate-950 font-bold text-sm flex items-center justify-center shadow-md shadow-amber-900/40">
                             2
                         </div>
-                        <h4 class="text-base font-bold text-white">Envie o Link no WhatsApp</h4>
+                        <h3 class="text-base font-bold text-white">Envie o Link no WhatsApp</h3>
                         <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
                             Compartilhe o convite. Cada participante entra e adiciona os presentes que gostaria de ganhar.
                         </p>
@@ -255,7 +264,7 @@ function goToInvite() {
                         <div class="w-10 h-10 rounded-full bg-emerald-500 text-white font-bold text-sm flex items-center justify-center shadow-md shadow-emerald-900/40">
                             3
                         </div>
-                        <h4 class="text-base font-bold text-white">Realize o Sorteio</h4>
+                        <h3 class="text-base font-bold text-white">Realize o Sorteio</h3>
                         <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
                             Com um clique, o sistema sorteia respeitando as restrições e disponibiliza os links de revelação para cada amigo.
                         </p>

@@ -56,9 +56,9 @@ function acceptEssential() {
                         <ShieldCheck class="w-4 h-4" />
                     </div>
                     <div>
-                        <h3 class="text-xs font-bold text-white uppercase tracking-wider">
+                        <p class="text-xs font-bold text-white uppercase tracking-wider">
                             Sua Privacidade & Cookies
-                        </h3>
+                        </p>
                         <p class="text-[10px] text-slate-400">
                             Em conformidade com a LGPD e Google AdSense
                         </p>
