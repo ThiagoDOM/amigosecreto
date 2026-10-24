@@ -4,23 +4,27 @@ import { ref } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import { 
     Gift, 
-    Sparkles, 
-    Share2, 
-    ShieldCheck, 
-    Sliders, 
     ArrowRight, 
+    Share2, 
+    Sliders, 
+    PartyPopper, 
     CheckCircle2, 
-    HeartHandshake,
-    PartyPopper,
-    Send
+    ShieldCheck, 
+    Smartphone,
+    Users,
+    Calendar,
+    MessageCircle,
+    Check
 } from 'lucide-vue-next';
 
 defineProps({
     canLogin: {
         type: Boolean,
+        default: true,
     },
     canRegister: {
         type: Boolean,
+        default: true,
     },
 });
 
@@ -34,28 +38,28 @@ function goToInvite() {
 </script>
 
 <template>
-    <Head title="Amigo Secreto Online - Crie seu sorteio gratuitamente" />
+    <Head title="Amigo Secreto Online - Sorteio Gratuito e Descomplicado" />
 
-    <div class="min-h-screen bg-slate-950 text-slate-100 selection:bg-rose-500 selection:text-white relative overflow-hidden font-sans">
-        <!-- Ambient Glowing Background Blobs -->
-        <div class="absolute -top-32 -left-32 w-[550px] h-[550px] bg-rose-600/20 rounded-full blur-[140px] pointer-events-none"></div>
-        <div class="absolute top-1/3 -right-32 w-[600px] h-[600px] bg-amber-500/15 rounded-full blur-[160px] pointer-events-none"></div>
-        <div class="absolute -bottom-40 left-1/4 w-[500px] h-[500px] bg-emerald-500/15 rounded-full blur-[140px] pointer-events-none"></div>
+    <div class="min-h-screen bg-slate-950 text-slate-100 selection:bg-rose-500 selection:text-white font-sans antialiased relative overflow-hidden flex flex-col justify-between">
+        <!-- Ambient lighting (subtle & elegant) -->
+        <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-b from-rose-600/15 via-rose-500/5 to-transparent rounded-full blur-[120px] pointer-events-none"></div>
+        <div class="absolute top-1/3 -right-40 w-[500px] h-[500px] bg-amber-500/10 rounded-full blur-[140px] pointer-events-none"></div>
+        <div class="absolute bottom-10 -left-40 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[140px] pointer-events-none"></div>
 
         <!-- Header / Navigation -->
-        <header class="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div class="flex items-center justify-between">
-                <Link :href="route('home')" class="flex items-center gap-2">
+        <header class="relative z-20 border-b border-slate-800/80 bg-slate-950/70 backdrop-blur-md sticky top-0">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+                <Link :href="route('home')" class="flex items-center gap-2 transition-transform hover:scale-[1.02]">
                     <ApplicationLogo />
                 </Link>
 
-                <div class="flex items-center gap-3">
+                <nav class="flex items-center gap-3">
                     <template v-if="$page.props.auth.user">
                         <Link
                             :href="route('dashboard')"
-                            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-white/10 hover:bg-white/20 border border-white/10 text-white backdrop-blur-md transition-all shadow-sm"
+                            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-rose-600 hover:bg-rose-500 text-white transition-all shadow-md shadow-rose-900/30"
                         >
-                            Acessar Meu Painel
+                            <span>Meu Painel</span>
                             <ArrowRight class="w-4 h-4" />
                         </Link>
                     </template>
@@ -63,71 +67,73 @@ function goToInvite() {
                         <Link
                             v-if="canLogin"
                             :href="route('login')"
-                            class="px-4 py-2 text-sm font-semibold text-slate-300 hover:text-white transition-colors"
+                            class="px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-300 hover:text-white transition-colors"
                         >
                             Entrar
                         </Link>
                         <Link
                             v-if="canRegister"
                             :href="route('register')"
-                            class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-rose-600 via-rose-500 to-amber-500 hover:from-rose-500 hover:to-amber-400 shadow-lg shadow-rose-600/30 transition-all hover:scale-[1.02]"
+                            class="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-md shadow-rose-900/30 transition-all hover:scale-[1.02]"
                         >
-                            Criar Conta Grátis
+                            <span>Criar Conta</span>
                         </Link>
                     </template>
-                </div>
+                </nav>
             </div>
         </header>
 
-        <!-- Hero Section -->
-        <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-20 lg:pt-16">
-            <div class="text-center max-w-3xl mx-auto space-y-6">
+        <!-- Main Content -->
+        <main class="relative z-10 flex-grow">
+            <!-- Hero Section -->
+            <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-20 sm:pt-20 sm:pb-24 text-center">
                 <!-- Badge -->
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs sm:text-sm font-semibold tracking-wide">
-                    <Sparkles class="w-4 h-4 text-amber-400 animate-spin-slow" />
-                    <span>O Amigo Secreto mais prático e moderno do Brasil</span>
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-slate-300 text-xs font-semibold mb-6 shadow-sm">
+                    <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                    <span>Sorteio de Amigo Secreto Online & 100% Gratuito</span>
                 </div>
 
-                <!-- Main Heading -->
-                <h1 class="text-4xl sm:text-6xl font-black font-display tracking-tight text-white leading-tight sm:leading-tight">
-                    Sorteie seu <span class="bg-gradient-to-r from-rose-500 via-pink-400 to-amber-400 bg-clip-text text-transparent">Amigo Secreto</span> sem complicação
+                <!-- Main Title -->
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black font-display tracking-tight text-white leading-tight max-w-4xl mx-auto">
+                    Organize o seu sorteio de final de ano <span class="bg-gradient-to-r from-rose-400 via-rose-300 to-amber-300 bg-clip-text text-transparent">sem complicações</span>
                 </h1>
 
                 <!-- Subtitle -->
-                <p class="text-lg sm:text-xl text-slate-300 font-normal leading-relaxed max-w-2xl mx-auto">
-                    Crie o evento grátis, envie o link de convite pelo WhatsApp e realize o sorteio com regras de casais e revelação interativa com confetes!
+                <p class="mt-6 text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl mx-auto font-normal">
+                    Crie o evento, envie o link de convite no WhatsApp e deixe cada amigo cadastrar sua lista de presentes. Simples, rápido e sem exigir cadastro dos participantes.
                 </p>
 
                 <!-- Primary CTAs -->
-                <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+                <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3.5 max-w-md mx-auto sm:max-w-none">
                     <Link
                         :href="$page.props.auth.user ? route('events.create') : route('register')"
-                        class="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 rounded-2xl text-base font-bold text-white bg-gradient-to-r from-rose-600 via-rose-500 to-amber-500 hover:from-rose-500 hover:to-amber-400 shadow-xl shadow-rose-600/30 hover:shadow-rose-600/50 hover:scale-[1.02] transition-all"
+                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl text-sm sm:text-base font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-lg shadow-rose-600/25 transition-all hover:scale-[1.01]"
                     >
                         <Gift class="w-5 h-5" />
-                        Criar Meu Amigo Secreto Grátis
+                        <span>Criar Amigo Secreto Grátis</span>
                     </Link>
 
                     <a
                         href="#como-funciona"
-                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl text-base font-semibold text-slate-300 hover:text-white bg-slate-900/80 hover:bg-slate-800/80 border border-slate-800 transition-all"
+                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-sm sm:text-base font-semibold text-slate-300 hover:text-white bg-slate-900 border border-slate-800 hover:border-slate-700 transition-colors"
                     >
-                        Ver como funciona
+                        <span>Como funciona</span>
                     </a>
                 </div>
 
                 <!-- Fast Join by Invite Code -->
-                <div class="pt-6 max-w-md mx-auto">
+                <div class="mt-10 max-w-md mx-auto">
                     <form @submit.prevent="goToInvite" class="relative flex items-center">
                         <input
                             v-model="inviteCodeInput"
                             type="text"
-                            placeholder="Tem um código de convite? Ex: AS8K92LM"
-                            class="w-full pl-5 pr-28 py-3.5 rounded-2xl bg-slate-900/90 border border-slate-700 text-white placeholder-slate-400 text-sm focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 uppercase tracking-wider font-mono shadow-inner"
+                            placeholder="Tem um código de convite? Ex: AS8K92"
+                            class="w-full pl-4 pr-24 py-3 rounded-xl bg-slate-900/90 border border-slate-800 text-white placeholder-slate-500 text-xs sm:text-sm focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 uppercase tracking-wider font-mono transition-all"
                         />
                         <button
                             type="submit"
-                            class="absolute right-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-rose-600 to-amber-500 hover:from-rose-500 hover:to-amber-400 transition-all flex items-center gap-1 shadow-sm"
+                            :disabled="!inviteCodeInput.trim()"
+                            class="absolute right-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 disabled:opacity-40 transition-all flex items-center gap-1"
                         >
                             <span>Entrar</span>
                             <ArrowRight class="w-3.5 h-3.5" />
@@ -135,124 +141,126 @@ function goToInvite() {
                     </form>
                 </div>
 
-                <!-- Trust Badges -->
-                <div class="pt-4 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-400">
-                    <span class="inline-flex items-center gap-1.5">
-                        <CheckCircle2 class="w-4 h-4 text-emerald-400" />
-                        100% Gratuito
-                    </span>
-                    <span class="inline-flex items-center gap-1.5">
-                        <CheckCircle2 class="w-4 h-4 text-emerald-400" />
-                        Sem login para convidados
-                    </span>
-                    <span class="inline-flex items-center gap-1.5">
-                        <CheckCircle2 class="w-4 h-4 text-emerald-400" />
-                        Envio no WhatsApp
-                    </span>
-                    <span class="inline-flex items-center gap-1.5">
-                        <CheckCircle2 class="w-4 h-4 text-emerald-400" />
-                        Regras de restrições
-                    </span>
-                </div>
-            </div>
-
-            <!-- Features Cards Grid -->
-            <div class="mt-24 grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Card 1 -->
-                <div class="p-8 rounded-3xl bg-slate-900/60 border border-slate-800/80 hover:border-rose-500/30 transition-all hover:-translate-y-1 group">
-                    <div class="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 mb-6 group-hover:scale-110 transition-transform">
-                        <Share2 class="w-6 h-6" />
+                <!-- Value Highlights -->
+                <div class="mt-10 flex flex-wrap items-center justify-center gap-6 sm:gap-8 text-xs font-medium text-slate-400">
+                    <div class="flex items-center gap-2">
+                        <CheckCircle2 class="w-4 h-4 text-emerald-400 shrink-0" />
+                        <span>100% Gratuito</span>
                     </div>
-                    <h3 class="text-xl font-bold font-display text-white mb-2">Convite Fácil por WhatsApp</h3>
-                    <p class="text-slate-400 text-sm leading-relaxed">
-                        Gere um link exclusivo do seu evento. Seus amigos entram e preenchem o nome e lista de desejos direto pelo celular, sem precisar de senha!
-                    </p>
-                </div>
-
-                <!-- Card 2 -->
-                <div class="p-8 rounded-3xl bg-slate-900/60 border border-slate-800/80 hover:border-amber-500/30 transition-all hover:-translate-y-1 group">
-                    <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-6 group-hover:scale-110 transition-transform">
-                        <Sliders class="w-6 h-6" />
+                    <div class="flex items-center gap-2">
+                        <CheckCircle2 class="w-4 h-4 text-emerald-400 shrink-0" />
+                        <span>Sem senha para convidados</span>
                     </div>
-                    <h3 class="text-xl font-bold font-display text-white mb-2">Restrições & Casais</h3>
-                    <p class="text-slate-400 text-sm leading-relaxed">
-                        Configure quem não pode tirar quem com apenas um clique! Perfeito para casais, irmãos ou amigos que já se presenteiam todo ano.
-                    </p>
-                </div>
-
-                <!-- Card 3 -->
-                <div class="p-8 rounded-3xl bg-slate-900/60 border border-slate-800/80 hover:border-emerald-500/30 transition-all hover:-translate-y-1 group">
-                    <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-6 group-hover:scale-110 transition-transform">
-                        <PartyPopper class="w-6 h-6" />
+                    <div class="flex items-center gap-2">
+                        <CheckCircle2 class="w-4 h-4 text-emerald-400 shrink-0" />
+                        <span>Link direto via WhatsApp</span>
                     </div>
-                    <h3 class="text-xl font-bold font-display text-white mb-2">Revelação Mágica Interativa</h3>
-                    <p class="text-slate-400 text-sm leading-relaxed">
-                        Cada participante recebe seu link mágico secreto. Ao abrir, uma animação interativa com confetes revela o amigo e sua lista de presentes!
-                    </p>
+                    <div class="flex items-center gap-2">
+                        <CheckCircle2 class="w-4 h-4 text-emerald-400 shrink-0" />
+                        <span>Regras para casais & restrições</span>
+                    </div>
                 </div>
-            </div>
+            </section>
+
+            <!-- Feature Cards Section -->
+            <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Feature 1 -->
+                    <div class="p-6 sm:p-7 rounded-2xl bg-slate-900/80 border border-slate-800 transition-all hover:border-slate-700 space-y-4">
+                        <div class="w-11 h-11 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
+                            <Share2 class="w-5 h-5" />
+                        </div>
+                        <h3 class="text-lg font-bold font-display text-white">Convite Prático por Link</h3>
+                        <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                            Basta colar o link no WhatsApp do grupo. Os participantes entram, preenchem o nome, telefone e lista de desejos direto pelo smartphone.
+                        </p>
+                    </div>
+
+                    <!-- Feature 2 -->
+                    <div class="p-6 sm:p-7 rounded-2xl bg-slate-900/80 border border-slate-800 transition-all hover:border-slate-700 space-y-4">
+                        <div class="w-11 h-11 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+                            <Sliders class="w-5 h-5" />
+                        </div>
+                        <h3 class="text-lg font-bold font-display text-white">Regras de Restrição (Casais)</h3>
+                        <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                            Defina quem não pode tirar quem com apenas um clique. Ideal para casais, familiares diretos ou quem já se presenteia todo ano.
+                        </p>
+                    </div>
+
+                    <!-- Feature 3 -->
+                    <div class="p-6 sm:p-7 rounded-2xl bg-slate-900/80 border border-slate-800 transition-all hover:border-slate-700 space-y-4">
+                        <div class="w-11 h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                            <PartyPopper class="w-5 h-5" />
+                        </div>
+                        <h3 class="text-lg font-bold font-display text-white">Revelação Mágica Secreta</h3>
+                        <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                            Cada um recebe seu link individual e secreto. Ao abrir, uma animação festiva com confetes revela o amigo sorteado e as sugestões de presentes.
+                        </p>
+                    </div>
+                </div>
+            </section>
 
             <!-- How It Works Section -->
-            <section id="como-funciona" class="mt-28 pt-8">
-                <div class="text-center max-w-2xl mx-auto mb-16">
-                    <h2 class="text-3xl sm:text-4xl font-extrabold font-display text-white mb-4">
-                        Como funciona em 3 passos simples
+            <section id="como-funciona" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+                <div class="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
+                    <h2 class="text-2xl sm:text-3xl font-extrabold font-display text-white">
+                        Como funciona em 3 passos
                     </h2>
-                    <p class="text-slate-400 text-base">
-                        Organize tudo pelo computador ou smartphone em menos de 2 minutos.
+                    <p class="mt-2 text-slate-400 text-xs sm:text-sm">
+                        O organizador cria o grupo e todo o processo flui naturalmente.
                     </p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <!-- Step 1 -->
-                    <div class="relative p-6 rounded-3xl bg-slate-900/40 border border-slate-800 text-center flex flex-col items-center">
-                        <div class="w-12 h-12 rounded-full bg-rose-600 text-white font-bold text-lg flex items-center justify-center shadow-lg shadow-rose-600/40 mb-4">
+                    <div class="p-6 rounded-2xl bg-slate-900/50 border border-slate-800 text-center flex flex-col items-center space-y-3">
+                        <div class="w-10 h-10 rounded-full bg-rose-600 text-white font-bold text-sm flex items-center justify-center shadow-md shadow-rose-900/40">
                             1
                         </div>
-                        <h4 class="text-lg font-bold text-white mb-2">Crie o Evento</h4>
-                        <p class="text-slate-400 text-sm leading-relaxed">
-                            Defina o nome do grupo, o valor sugerido de presente, data da festa e instruções adicionais.
+                        <h4 class="text-base font-bold text-white">Cadastre o Evento</h4>
+                        <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                            Defina o nome do grupo, valor sugerido, data da confraternização e local do evento.
                         </p>
                     </div>
 
                     <!-- Step 2 -->
-                    <div class="relative p-6 rounded-3xl bg-slate-900/40 border border-slate-800 text-center flex flex-col items-center">
-                        <div class="w-12 h-12 rounded-full bg-amber-500 text-slate-950 font-bold text-lg flex items-center justify-center shadow-lg shadow-amber-500/40 mb-4">
+                    <div class="p-6 rounded-2xl bg-slate-900/50 border border-slate-800 text-center flex flex-col items-center space-y-3">
+                        <div class="w-10 h-10 rounded-full bg-amber-500 text-slate-950 font-bold text-sm flex items-center justify-center shadow-md shadow-amber-900/40">
                             2
                         </div>
-                        <h4 class="text-lg font-bold text-white mb-2">Compartilhe no WhatsApp</h4>
-                        <p class="text-slate-400 text-sm leading-relaxed">
-                            Envie o link de convite no grupo da família ou da empresa. Acompanhe em tempo real quem confirmou presença.
+                        <h4 class="text-base font-bold text-white">Envie o Link no WhatsApp</h4>
+                        <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                            Compartilhe o convite. Cada participante entra e adiciona os presentes que gostaria de ganhar.
                         </p>
                     </div>
 
                     <!-- Step 3 -->
-                    <div class="relative p-6 rounded-3xl bg-slate-900/40 border border-slate-800 text-center flex flex-col items-center">
-                        <div class="w-12 h-12 rounded-full bg-emerald-500 text-white font-bold text-lg flex items-center justify-center shadow-lg shadow-emerald-500/40 mb-4">
+                    <div class="p-6 rounded-2xl bg-slate-900/50 border border-slate-800 text-center flex flex-col items-center space-y-3">
+                        <div class="w-10 h-10 rounded-full bg-emerald-500 text-white font-bold text-sm flex items-center justify-center shadow-md shadow-emerald-900/40">
                             3
                         </div>
-                        <h4 class="text-lg font-bold text-white mb-2">Sorteie e Comemore!</h4>
-                        <p class="text-slate-400 text-sm leading-relaxed">
-                            Clique em sortear! Envie os links mágicos individuais e veja a mágica da confraternização acontecer.
+                        <h4 class="text-base font-bold text-white">Realize o Sorteio</h4>
+                        <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                            Com um clique, o sistema sorteia respeitando as restrições e disponibiliza os links de revelação para cada amigo.
                         </p>
                     </div>
                 </div>
 
                 <!-- Call to action card -->
-                <div class="mt-16 p-8 sm:p-12 rounded-3xl bg-gradient-to-r from-rose-900/60 via-slate-900 to-amber-950/60 border border-rose-500/30 text-center space-y-6">
-                    <h3 class="text-2xl sm:text-3xl font-extrabold font-display text-white">
-                        Pronto para organizar o seu Amigo Secreto?
+                <div class="mt-14 p-8 sm:p-10 rounded-2xl bg-slate-900 border border-slate-800 text-center space-y-5">
+                    <h3 class="text-xl sm:text-2xl font-bold font-display text-white">
+                        Pronto para organizar seu amigo secreto?
                     </h3>
-                    <p class="text-slate-300 text-base max-w-xl mx-auto">
-                        Junte a família, amigos ou colegas de trabalho agora mesmo. É totalmente gratuito!
+                    <p class="text-slate-400 text-xs sm:text-sm max-w-xl mx-auto">
+                        Crie seu grupo gratuitamente em menos de 2 minutos e comece a convidar os amigos.
                     </p>
                     <div>
                         <Link
                             :href="$page.props.auth.user ? route('events.create') : route('register')"
-                            class="inline-flex items-center gap-2 px-8 py-4 rounded-2xl text-base font-bold text-white bg-gradient-to-r from-rose-600 via-rose-500 to-amber-500 hover:from-rose-500 hover:to-amber-400 shadow-xl shadow-rose-600/30 transition-all hover:scale-[1.02]"
+                            class="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-md shadow-rose-900/30 transition-all hover:scale-[1.01]"
                         >
-                            <Gift class="w-5 h-5" />
-                            Começar Gratuitamente
+                            <Gift class="w-4 h-4" />
+                            <span>Começar Agora Gratuitamente</span>
                         </Link>
                     </div>
                 </div>
@@ -260,13 +268,13 @@ function goToInvite() {
         </main>
 
         <!-- Footer -->
-        <footer class="relative z-10 border-t border-slate-800 py-8 text-center text-xs text-slate-500">
-            <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <footer class="relative z-10 border-t border-slate-800/80 py-6 text-xs text-slate-500 bg-slate-950">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div class="flex items-center gap-2">
                     <ApplicationLogo />
                 </div>
                 <div>
-                    Feito com carinho para as suas melhores confraternizações &bull; 2026
+                    Amigo Secreto Online &bull; Organize sem complicações
                 </div>
             </div>
         </footer>

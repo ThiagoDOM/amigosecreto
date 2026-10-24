@@ -10,7 +10,6 @@ import {
     DollarSign, 
     MapPin, 
     User, 
-    Sparkles, 
     CheckCircle2, 
     AlertCircle 
 } from 'lucide-vue-next';
@@ -61,7 +60,6 @@ function submit() {
             <!-- Event Card Banner -->
             <div class="rounded-3xl bg-slate-900/90 border border-slate-800 p-6 sm:p-8 shadow-2xl backdrop-blur-xl space-y-4">
                 <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30">
-                    <Sparkles class="w-3.5 h-3.5 text-amber-400" />
                     Você foi convidado(a)!
                 </div>
 

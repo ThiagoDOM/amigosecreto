@@ -23,13 +23,12 @@ import {
     AlertTriangle, 
     X, 
     Edit, 
-    Sparkles, 
     ExternalLink, 
     Search,
-    HelpCircle,
     MessageCircle,
     Send,
-    Mail
+    Mail,
+    CheckCircle2
 } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -118,7 +117,7 @@ function copyMagicLink(p) {
 // Shared invite payload
 const invitePayload = computed(() => {
     const text = `🎁 *Convite para o Amigo Secreto: ${props.event.title}*!\n\n` +
-        `Olá pessoal! Estou organizando nosso amigo secreto no site Amigo Secreto.\n` +
+        `Olá! Estou organizando nosso amigo secreto no Amigo Secreto.\n` +
         (props.event.budget_limit ? `💰 *Valor sugerido:* ${formatCurrency(props.event.budget_limit)}\n` : '') +
         (props.event.event_date ? `📅 *Data da confraternização:* ${formatDate(props.event.event_date)}\n` : '') +
         (props.event.location ? `📍 *Local:* ${props.event.location}\n` : '') +
@@ -139,26 +138,25 @@ function getParticipantSharePayload(p) {
         `🤫 Lembre-se: é segredo! Não conte para ninguém e confira a lista de desejos do seu amigo.`;
 
     return {
-        title: `Amigo Secreto de ${p.name} (${props.event.title})`,
+        title: `Amigo Secreto de ${p.name}`,
         text: text,
         url: p.magic_url,
-        phone: p.clean_phone || '',
+        phone: p.phone ? p.phone.replace(/\D/g, '') : null,
     };
 }
 
-// WhatsApp Share for the Invite Link
 function shareInviteWhatsApp() {
-    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(invitePayload.value.text)}`, '_blank');
+    const text = encodeURIComponent(invitePayload.value.text);
+    window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
 }
 
-// WhatsApp Send Individual Secret Friend Magic Link
 function sendMagicLinkWhatsApp(p) {
-    const phoneParam = p.clean_phone ? `phone=${p.clean_phone}&` : '';
     const payload = getParticipantSharePayload(p);
-    window.open(`https://api.whatsapp.com/send?${phoneParam}text=${encodeURIComponent(payload.text)}`, '_blank');
+    const text = encodeURIComponent(payload.text);
+    const phoneParam = payload.phone ? `phone=${payload.phone}&` : '';
+    window.open(`https://api.whatsapp.com/send?${phoneParam}text=${text}`, '_blank');
 }
 
-// Open Multi-Channel Share Modal
 function openShareModal(payload) {
     currentSharePayload.value = payload;
     copiedPayloadLink.value = false;
@@ -166,7 +164,6 @@ function openShareModal(payload) {
     showShareModal.value = true;
 }
 
-// Generic Share for Invite (Native Web Share with Fallback to Modal)
 async function shareInviteGeneric() {
     const payload = invitePayload.value;
     if (navigator.share) {
@@ -184,7 +181,6 @@ async function shareInviteGeneric() {
     openShareModal(payload);
 }
 
-// Generic Share for Participant Magic Link (Native Web Share with Fallback to Modal)
 async function shareParticipantGeneric(p) {
     const payload = getParticipantSharePayload(p);
     if (navigator.share) {
@@ -320,12 +316,12 @@ function submitEditEvent() {
     });
 }
 
+// Open Wishlist Modal
 function openWishlist(p) {
     selectedParticipantWishlist.value = p;
     showWishlistModal.value = true;
 }
 
-// Filtered Participants
 const filteredParticipants = computed(() => {
     if (!searchQuery.value.trim()) return props.participants;
     const q = searchQuery.value.toLowerCase();
@@ -341,61 +337,61 @@ const revealedCount = computed(() => {
     <Head :title="event.title + ' - Painel do Evento'" />
 
     <AuthenticatedLayout>
-        <div class="space-y-8">
+        <div class="space-y-6">
             <!-- Event Header Card -->
-            <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 shadow-sm">
-                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div class="rounded-2xl bg-slate-900 border border-slate-800 p-5 sm:p-7 shadow-sm space-y-5">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                     <!-- Left: Title & Details -->
-                    <div class="space-y-3">
-                        <div class="flex flex-wrap items-center gap-3">
+                    <div class="space-y-2.5">
+                        <div class="flex flex-wrap items-center gap-2.5">
                             <span
                                 v-if="event.is_drawn"
-                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30"
+                                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
                             >
-                                <Sparkles class="w-3.5 h-3.5" />
-                                Sorteio Realizado em {{ formatDate(event.drawn_at) }}
+                                <CheckCircle2 class="w-3.5 h-3.5" />
+                                <span>Sorteio Realizado em {{ formatDate(event.drawn_at) }}</span>
                             </span>
                             <span
                                 v-else
-                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30"
+                                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30"
                             >
-                                <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                                Inscrições Abertas (Aguardando Sorteio)
+                                <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                                <span>Inscrições Abertas</span>
                             </span>
 
-                            <span class="text-xs font-mono font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700">
-                                Código: #{{ event.code }}
+                            <span class="text-xs font-mono font-bold text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700">
+                                #{{ event.code }}
                             </span>
                         </div>
 
-                        <h1 class="text-3xl font-black font-display text-slate-900 dark:text-white">
+                        <h1 class="text-2xl sm:text-3xl font-black font-display text-white">
                             {{ event.title }}
                         </h1>
 
-                        <p v-if="event.description" class="text-sm text-slate-700 dark:text-slate-200 max-w-2xl leading-relaxed">
+                        <p v-if="event.description" class="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
                             {{ event.description }}
                         </p>
 
                         <!-- Meta Badges -->
-                        <div class="pt-2 flex flex-wrap gap-3 text-xs">
-                            <div v-if="event.budget_limit" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 font-bold border border-slate-200 dark:border-slate-700">
-                                <DollarSign class="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                                Valor sugerido: {{ formatCurrency(event.budget_limit) }}
+                        <div class="pt-1 flex flex-wrap gap-2 text-xs">
+                            <div v-if="event.budget_limit" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800/80 text-slate-200 border border-slate-700 font-medium">
+                                <DollarSign class="w-3.5 h-3.5 text-emerald-400" />
+                                <span>Valor sugerido: {{ formatCurrency(event.budget_limit) }}</span>
                             </div>
 
-                            <div v-if="event.event_date" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 font-bold border border-slate-200 dark:border-slate-700">
-                                <Calendar class="w-4 h-4 text-rose-500" />
-                                Confraternização: {{ formatDate(event.event_date) }}
+                            <div v-if="event.event_date" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800/80 text-slate-200 border border-slate-700 font-medium">
+                                <Calendar class="w-3.5 h-3.5 text-rose-400" />
+                                <span>Festa: {{ formatDate(event.event_date) }}</span>
                             </div>
 
-                            <div v-if="event.draw_date" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 font-bold border border-slate-200 dark:border-slate-700">
-                                <Calendar class="w-4 h-4 text-amber-500" />
-                                Sorteio previsto: {{ formatDate(event.draw_date) }}
+                            <div v-if="event.draw_date" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800/80 text-slate-200 border border-slate-700 font-medium">
+                                <Calendar class="w-3.5 h-3.5 text-amber-400" />
+                                <span>Sorteio: {{ formatDate(event.draw_date) }}</span>
                             </div>
 
-                            <div v-if="event.location" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 font-bold border border-slate-200 dark:border-slate-700">
-                                <MapPin class="w-4 h-4 text-indigo-500" />
-                                {{ event.location }}
+                            <div v-if="event.location" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800/80 text-slate-200 border border-slate-700 font-medium">
+                                <MapPin class="w-3.5 h-3.5 text-indigo-400" />
+                                <span>{{ event.location }}</span>
                             </div>
                         </div>
                     </div>
@@ -403,93 +399,100 @@ const revealedCount = computed(() => {
                     <!-- Right: Quick Edit button -->
                     <div class="flex items-center gap-2 self-start lg:self-center">
                         <button
+                            type="button"
                             @click="showEditEventModal = true"
-                            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors border border-slate-200 dark:border-slate-700"
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-colors"
                         >
                             <Edit class="w-3.5 h-3.5" />
-                            Editar Evento
+                            <span>Editar Detalhes</span>
                         </button>
                     </div>
                 </div>
 
                 <!-- Invite Link Box -->
-                <div class="mt-8 p-4 rounded-2xl bg-gradient-to-r from-rose-500/10 via-amber-500/5 to-emerald-500/10 border border-rose-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div class="space-y-1">
-                        <div class="text-xs font-bold uppercase tracking-wider text-rose-700 dark:text-rose-400 flex items-center gap-1.5">
+                        <div class="text-[11px] font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
                             <Share2 class="w-3.5 h-3.5" />
-                            Link de Convite para Participantes
+                            <span>Link de Convite para Participantes</span>
                         </div>
-                        <div class="text-xs text-slate-700 dark:text-slate-200 font-medium">
-                            Envie este link para as pessoas entrarem no grupo e adicionarem suas listas de presentes:
+                        <div class="text-xs text-slate-300">
+                            Compartilhe para seus amigos entrarem no grupo:
                         </div>
-                        <div class="text-xs font-mono font-bold text-slate-900 dark:text-slate-100 select-all truncate max-w-lg">
+                        <div class="text-xs font-mono font-bold text-white select-all truncate max-w-lg">
                             {{ event.invite_url }}
                         </div>
                     </div>
 
-                    <div class="flex flex-wrap items-center gap-2 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2 shrink-0">
                         <button
+                            type="button"
                             @click="copyInviteLink"
-                            class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
+                            class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-200 hover:text-white hover:bg-slate-700 border border-slate-700 transition-colors"
                             title="Copiar link do convite"
                         >
-                            <Check v-if="copiedInvite" class="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                            <Copy v-else class="w-4 h-4 text-slate-500" />
-                            <span>{{ copiedInvite ? 'Copiado!' : 'Copiar Link' }}</span>
+                            <Check v-if="copiedInvite" class="w-3.5 h-3.5 text-emerald-400" />
+                            <Copy v-else class="w-3.5 h-3.5 text-slate-400" />
+                            <span>{{ copiedInvite ? 'Copiado!' : 'Copiar' }}</span>
                         </button>
 
                         <button
+                            type="button"
                             @click="shareInviteWhatsApp"
-                            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 transition-colors shadow-sm shadow-emerald-600/30"
-                            title="Enviar convite diretamente no WhatsApp"
+                            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-500 transition-colors shadow-sm"
+                            title="Enviar convite no WhatsApp"
                         >
-                            <MessageCircle class="w-4 h-4" />
+                            <MessageCircle class="w-3.5 h-3.5" />
                             <span>WhatsApp</span>
                         </button>
 
                         <button
+                            type="button"
                             @click="shareInviteGeneric"
-                            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-100 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 transition-colors shadow-sm"
-                            title="Compartilhar por outros aplicativos (Telegram, E-mail, etc.)"
+                            class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-colors"
+                            title="Mais opções de envio"
                         >
-                            <Share2 class="w-4 h-4 text-rose-500" />
-                            <span>Compartilhar</span>
+                            <Share2 class="w-3.5 h-3.5 text-slate-400" />
+                            <span>Mais</span>
                         </button>
                     </div>
                 </div>
             </div>
 
             <!-- Action & Controls Bar -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div class="flex flex-wrap items-center gap-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex flex-wrap items-center gap-2.5">
                     <!-- Add Manual Participant -->
                     <button
                         v-if="!event.is_drawn"
+                        type="button"
                         @click="showAddParticipantModal = true"
-                        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 shadow-sm transition-colors"
+                        class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-900 border border-slate-800 text-slate-200 hover:text-white hover:bg-slate-800 transition-colors"
                     >
-                        <PlusCircle class="w-4 h-4 text-rose-500" />
-                        Adicionar Participante Manual
+                        <PlusCircle class="w-4 h-4 text-rose-400" />
+                        <span>Adicionar Manual</span>
                     </button>
 
                     <!-- Exclusions / Restrictions -->
                     <button
                         v-if="!event.is_drawn"
+                        type="button"
                         @click="showExclusionsModal = true"
-                        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 shadow-sm transition-colors"
+                        class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-900 border border-slate-800 text-slate-200 hover:text-white hover:bg-slate-800 transition-colors"
                     >
-                        <Sliders class="w-4 h-4 text-amber-500" />
-                        Restrições de Casais ({{ exclusions.length }})
+                        <Sliders class="w-4 h-4 text-amber-400" />
+                        <span>Regras de Casais ({{ exclusions.length }})</span>
                     </button>
 
                     <!-- Reset Draw -->
                     <button
                         v-if="event.is_drawn"
+                        type="button"
                         @click="showResetConfirmModal = true"
-                        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-900 hover:bg-rose-100 transition-colors"
+                        class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-900 border border-rose-900/40 text-rose-300 hover:bg-rose-950/40 transition-colors"
                     >
-                        <RefreshCw class="w-4 h-4" />
-                        Reiniciar / Sortear Novamente
+                        <RefreshCw class="w-3.5 h-3.5" />
+                        <span>Sortear Novamente</span>
                     </button>
                 </div>
 
@@ -497,157 +500,163 @@ const revealedCount = computed(() => {
                 <div>
                     <button
                         v-if="!event.is_drawn"
+                        type="button"
                         @click="requestDraw"
                         :disabled="!event.can_draw"
-                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-2xl text-sm font-black uppercase tracking-wider text-white shadow-lg transition-all"
+                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white transition-all shadow-sm"
                         :class="event.can_draw 
-                            ? 'bg-gradient-to-r from-rose-600 via-rose-500 to-amber-500 hover:from-rose-500 hover:to-amber-400 shadow-rose-600/30 hover:shadow-rose-600/50 hover:scale-[1.02]' 
-                            : 'bg-slate-300 dark:bg-slate-800 text-slate-500 cursor-not-allowed shadow-none'"
+                            ? 'bg-rose-600 hover:bg-rose-500 shadow-rose-900/30 active:scale-95' 
+                            : 'bg-slate-800 text-slate-500 cursor-not-allowed'"
                     >
-                        <Sparkles class="w-5 h-5 text-amber-300" />
-                        <span>Realizar Sorteio Agora! 🎲</span>
+                        <Gift class="w-4 h-4" />
+                        <span>Realizar Sorteio Agora</span>
                     </button>
 
-                    <div v-if="!event.can_draw && !event.is_drawn" class="text-right text-xs text-amber-700 dark:text-amber-400 mt-1 font-semibold">
-                        * Mínimo de 3 participantes para sortear (atualmente: {{ participants.length }})
+                    <div v-if="!event.can_draw && !event.is_drawn" class="text-right text-[11px] text-amber-400 mt-1 font-medium">
+                        * Mínimo de 3 participantes (atualmente: {{ participants.length }})
                     </div>
                 </div>
             </div>
 
             <!-- Participants Section -->
-            <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 shadow-sm space-y-6">
+            <div class="rounded-2xl bg-slate-900 border border-slate-800 p-5 sm:p-6 shadow-sm space-y-4">
                 <!-- Participants List Header -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
                     <div>
-                        <h2 class="text-xl font-bold font-display text-slate-900 dark:text-white flex items-center gap-2">
-                            <Users class="w-5 h-5 text-rose-500" />
-                            <span>Participantes Confirmados ({{ participants.length }})</span>
+                        <h2 class="text-base font-bold font-display text-white flex items-center gap-2">
+                            <Users class="w-4 h-4 text-rose-400" />
+                            <span>Participantes ({{ participants.length }})</span>
                         </h2>
-                        <p v-if="event.is_drawn" class="text-xs text-slate-700 dark:text-slate-300 mt-0.5">
-                            Status de visualização: <strong class="text-emerald-700 dark:text-emerald-400 font-bold">{{ revealedCount }} de {{ participants.length }}</strong> já descobriram quem tiraram.
+                        <p v-if="event.is_drawn" class="text-xs text-slate-400 mt-0.5">
+                            Status de visualização: <strong class="text-emerald-400">{{ revealedCount }} de {{ participants.length }}</strong> já descobriram quem tiraram.
                         </p>
                     </div>
 
                     <!-- Search Input -->
-                    <div class="relative w-full sm:w-64">
-                        <Search class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <div class="relative w-full sm:w-60">
+                        <Search class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                         <input
                             v-model="searchQuery"
                             type="text"
-                            placeholder="Buscar participante..."
-                            class="w-full pl-9 pr-4 py-2 rounded-xl text-xs border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-rose-500"
+                            placeholder="Buscar amigo..."
+                            class="w-full pl-8 pr-3 py-1.5 rounded-xl text-xs border border-slate-700 bg-slate-950 text-white placeholder-slate-500 focus:outline-none focus:border-rose-500"
                         />
                     </div>
                 </div>
 
                 <!-- Empty Participants State -->
-                <div v-if="participants.length === 0" class="py-12 text-center space-y-4">
-                    <div class="w-16 h-16 rounded-2xl bg-rose-500/10 text-rose-500 flex items-center justify-center mx-auto">
-                        <Users class="w-8 h-8" />
+                <div v-if="participants.length === 0" class="py-12 text-center space-y-3">
+                    <div class="w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 text-slate-400 flex items-center justify-center mx-auto">
+                        <Users class="w-6 h-6" />
                     </div>
                     <div>
-                        <h4 class="font-bold text-slate-900 dark:text-white">Nenhum amigo entrou ainda</h4>
-                        <p class="text-xs text-slate-600 dark:text-slate-300 max-w-sm mx-auto mt-1">
-                            Compartilhe o link de convite no grupo do WhatsApp ou adicione participantes manualmente.
+                        <h4 class="font-bold text-white text-sm">Nenhum amigo entrou ainda</h4>
+                        <p class="text-xs text-slate-400 max-w-sm mx-auto mt-0.5">
+                            Compartilhe o link de convite no WhatsApp ou adicione participantes manualmente.
                         </p>
                     </div>
                     <button
+                        type="button"
                         @click="shareInviteWhatsApp"
-                        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 transition-colors shadow-sm"
+                        class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-500 transition-colors shadow-sm"
                     >
-                        <Share2 class="w-4 h-4" />
-                        Convidar Pelo WhatsApp
+                        <MessageCircle class="w-3.5 h-3.5" />
+                        <span>Convidar Pelo WhatsApp</span>
                     </button>
                 </div>
 
-                <!-- Participants Table / List -->
-                <div v-else class="divide-y divide-slate-100 dark:divide-slate-800">
+                <!-- Participants List -->
+                <div v-else class="divide-y divide-slate-800/80">
                     <div
                         v-for="p in filteredParticipants"
                         :key="p.id"
-                        class="py-4 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 rounded-2xl px-3 transition-colors"
+                        class="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-800/40 rounded-xl px-2.5 transition-colors"
                     >
                         <!-- Participant Info -->
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-rose-500 to-amber-500 text-white font-extrabold flex items-center justify-center text-sm shadow-sm flex-shrink-0">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-9 h-9 rounded-lg bg-slate-800 border border-slate-700 text-rose-300 font-bold flex items-center justify-center text-xs shrink-0">
                                 {{ p.name.charAt(0).toUpperCase() }}
                             </div>
 
-                            <div class="space-y-0.5">
-                                <div class="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
-                                    <span>{{ p.name }}</span>
-                                    <span v-if="p.is_revealed" class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-500/15 px-2 py-0.5 rounded-md">
+                            <div class="space-y-0.5 min-w-0">
+                                <div class="font-semibold text-xs sm:text-sm text-white flex items-center gap-2 truncate">
+                                    <span class="truncate">{{ p.name }}</span>
+                                    <span v-if="p.is_revealed" class="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-300 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/60 shrink-0">
                                         <Eye class="w-3 h-3" />
-                                        Já viu o amigo
+                                        <span>Já viu</span>
                                     </span>
-                                    <span v-else-if="event.is_drawn" class="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
+                                    <span v-else-if="event.is_drawn" class="inline-flex items-center gap-1 text-[10px] font-medium text-slate-400 bg-slate-800 px-2 py-0.5 rounded shrink-0">
                                         <EyeOff class="w-3 h-3" />
-                                        Ainda não abriu
+                                        <span>Pendente</span>
                                     </span>
                                 </div>
 
-                                <div class="text-xs text-slate-600 dark:text-slate-300 flex flex-wrap items-center gap-3 font-medium">
+                                <div class="text-[11px] text-slate-400 flex flex-wrap items-center gap-2">
                                     <span v-if="p.phone">{{ formatPhone(p.phone) }}</span>
-                                    <span v-if="p.email">{{ p.email }}</span>
+                                    <span v-if="p.email" class="truncate">{{ p.email }}</span>
                                     <button
                                         v-if="p.wishlist || p.clothing_size || p.shoe_size || p.likes"
+                                        type="button"
                                         @click="openWishlist(p)"
-                                        class="text-rose-600 dark:text-rose-400 hover:underline font-bold flex items-center gap-1"
+                                        class="text-rose-400 hover:underline font-semibold flex items-center gap-1"
                                     >
                                         <Gift class="w-3 h-3" />
-                                        Ver Desejos
+                                        <span>Ver Desejos</span>
                                     </button>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Actions per Participant -->
-                        <div class="flex flex-wrap items-center gap-2 self-end md:self-center">
+                        <div class="flex items-center gap-1.5 self-end sm:self-center shrink-0">
                             <!-- When Drawn: Magic Link, WhatsApp & Generic Share buttons -->
                             <template v-if="event.is_drawn">
                                 <button
+                                    type="button"
                                     @click="copyMagicLink(p)"
-                                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
-                                    :title="copiedMagic === p.id ? 'Copiado!' : 'Copiar link mágico individual'"
+                                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-200 hover:text-white hover:bg-slate-700 border border-slate-700 transition-colors"
+                                    :title="copiedMagic === p.id ? 'Copiado!' : 'Copiar link mágico'"
                                 >
-                                    <Check v-if="copiedMagic === p.id" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                                    <Copy v-else class="w-3.5 h-3.5 text-slate-400" />
+                                    <Check v-if="copiedMagic === p.id" class="w-3 h-3 text-emerald-400" />
+                                    <Copy v-else class="w-3 h-3 text-slate-400" />
                                     <span>{{ copiedMagic === p.id ? 'Copiado!' : 'Copiar' }}</span>
                                 </button>
 
                                 <button
+                                    type="button"
                                     @click="sendMagicLinkWhatsApp(p)"
-                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 transition-colors shadow-sm shadow-emerald-600/20"
-                                    title="Enviar link secreto individual pelo WhatsApp"
+                                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-emerald-300 hover:text-white bg-emerald-950/60 hover:bg-emerald-900/60 border border-emerald-800/60 transition-colors"
+                                    title="Enviar link secreto pelo WhatsApp"
                                 >
-                                    <MessageCircle class="w-3.5 h-3.5" />
+                                    <MessageCircle class="w-3 h-3" />
                                     <span>WhatsApp</span>
                                 </button>
 
                                 <button
+                                    type="button"
                                     @click="shareParticipantGeneric(p)"
-                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 transition-colors"
-                                    title="Compartilhar link por outros aplicativos ou canais"
+                                    class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                                    title="Mais opções de envio"
                                 >
-                                    <Share2 class="w-3.5 h-3.5 text-indigo-500" />
-                                    <span>Compartilhar</span>
+                                    <Share2 class="w-3.5 h-3.5" />
                                 </button>
 
                                 <a
                                     :href="p.magic_url"
                                     target="_blank"
-                                    class="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors"
-                                    title="Abrir página do participante em nova aba"
+                                    class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                                    title="Abrir página do amigo secreto"
                                 >
-                                    <ExternalLink class="w-4 h-4" />
+                                    <ExternalLink class="w-3.5 h-3.5" />
                                 </a>
                             </template>
 
                             <!-- When Not Drawn: Delete button -->
                             <template v-else>
                                 <button
+                                    type="button"
                                     @click="requestDeleteParticipant(p)"
-                                    class="p-2 rounded-xl text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
+                                    class="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors"
                                     title="Remover participante"
                                 >
                                     <Trash2 class="w-4 h-4" />
@@ -659,18 +668,18 @@ const revealedCount = computed(() => {
             </div>
         </div>
 
-        <!-- MODAL: Confirmação de Sorteio (Sem alert/confirm nativo) -->
-        <div v-if="showDrawConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
-            <div class="w-full max-w-md rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-2xl space-y-5 text-center">
-                <div class="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto">
-                    <Sparkles class="w-8 h-8" />
+        <!-- MODAL: Confirmação de Sorteio -->
+        <div v-if="showDrawConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+            <div class="w-full max-w-md rounded-2xl bg-slate-900 border border-slate-800 p-6 sm:p-7 shadow-2xl space-y-4 text-center">
+                <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mx-auto">
+                    <Gift class="w-6 h-6" />
                 </div>
 
-                <div class="space-y-1">
-                    <h3 class="text-xl font-bold font-display text-slate-900 dark:text-white">
+                <div class="space-y-1.5">
+                    <h3 class="text-lg font-bold font-display text-white">
                         Realizar o Sorteio Agora?
                     </h3>
-                    <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                    <p class="text-xs text-slate-400 leading-relaxed">
                         O algoritmo sorteará aleatoriamente os amigos secretos, respeitando as regras de restrições. Cada participante receberá seu link secreto exclusivo.
                     </p>
                 </div>
@@ -679,34 +688,34 @@ const revealedCount = computed(() => {
                     <button
                         type="button"
                         @click="showDrawConfirmModal = false"
-                        class="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                        class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800"
                     >
                         Cancelar
                     </button>
                     <button
                         type="button"
                         @click="executeDraw"
-                        class="px-6 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-rose-600 to-amber-500 shadow-md shadow-rose-600/30"
+                        class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-sm"
                     >
-                        Confirmar e Sortear!
+                        Confirmar e Sortear
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- MODAL: Confirmação de Exclusão de Participante (Sem confirm nativo) -->
-        <div v-if="showDeleteParticipantModal && participantToDelete" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
-            <div class="w-full max-w-md rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-2xl space-y-5 text-center">
-                <div class="w-14 h-14 rounded-2xl bg-rose-500/10 text-rose-500 flex items-center justify-center mx-auto">
-                    <Trash2 class="w-8 h-8" />
+        <!-- MODAL: Confirmação de Exclusão de Participante -->
+        <div v-if="showDeleteParticipantModal && participantToDelete" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+            <div class="w-full max-w-md rounded-2xl bg-slate-900 border border-slate-800 p-6 sm:p-7 shadow-2xl space-y-4 text-center">
+                <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
+                    <Trash2 class="w-6 h-6" />
                 </div>
 
-                <div class="space-y-1">
-                    <h3 class="text-lg font-bold font-display text-slate-900 dark:text-white">
+                <div class="space-y-1.5">
+                    <h3 class="text-base font-bold font-display text-white">
                         Remover {{ participantToDelete.name }}?
                     </h3>
-                    <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                        Tem certeza de que deseja remover este participante do amigo secreto?
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Tem certeza de que deseja remover este participante do grupo?
                     </p>
                 </div>
 
@@ -714,14 +723,14 @@ const revealedCount = computed(() => {
                     <button
                         type="button"
                         @click="showDeleteParticipantModal = false"
-                        class="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                        class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800"
                     >
                         Cancelar
                     </button>
                     <button
                         type="button"
                         @click="executeDeleteParticipant"
-                        class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-md shadow-rose-600/30"
+                        class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-sm"
                     >
                         Sim, Remover
                     </button>
@@ -729,18 +738,18 @@ const revealedCount = computed(() => {
             </div>
         </div>
 
-        <!-- MODAL: Confirmação de Exclusão de Regra de Restrição (Sem confirm nativo) -->
-        <div v-if="showDeleteExclusionModal && exclusionToDelete" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
-            <div class="w-full max-w-md rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-2xl space-y-5 text-center">
-                <div class="w-14 h-14 rounded-2xl bg-rose-500/10 text-rose-500 flex items-center justify-center mx-auto">
-                    <AlertTriangle class="w-8 h-8" />
+        <!-- MODAL: Confirmação de Exclusão de Regra -->
+        <div v-if="showDeleteExclusionModal && exclusionToDelete" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+            <div class="w-full max-w-md rounded-2xl bg-slate-900 border border-slate-800 p-6 sm:p-7 shadow-2xl space-y-4 text-center">
+                <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
+                    <AlertTriangle class="w-6 h-6" />
                 </div>
 
-                <div class="space-y-1">
-                    <h3 class="text-lg font-bold font-display text-slate-900 dark:text-white">
+                <div class="space-y-1.5">
+                    <h3 class="text-base font-bold font-display text-white">
                         Remover Restrição?
                     </h3>
-                    <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                    <p class="text-xs text-slate-400 leading-relaxed">
                         Deseja remover a regra de que <strong>{{ exclusionToDelete.participant_name }}</strong> não pode tirar <strong>{{ exclusionToDelete.excluded_participant_name }}</strong>?
                     </p>
                 </div>
@@ -749,14 +758,14 @@ const revealedCount = computed(() => {
                     <button
                         type="button"
                         @click="showDeleteExclusionModal = false"
-                        class="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                        class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800"
                     >
                         Cancelar
                     </button>
                     <button
                         type="button"
                         @click="executeDeleteExclusion"
-                        class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-md shadow-rose-600/30"
+                        class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-sm"
                     >
                         Sim, Remover Regra
                     </button>
@@ -764,94 +773,94 @@ const revealedCount = computed(() => {
             </div>
         </div>
 
-        <!-- MODAL: Adicionar Participante Manual com Lista de Desejos Estruturada -->
-        <div v-if="showAddParticipantModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
-            <div class="w-full max-w-xl rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-xl font-bold font-display text-slate-900 dark:text-white flex items-center gap-2">
-                        <PlusCircle class="w-5 h-5 text-rose-500" />
-                        Adicionar Participante Manual
+        <!-- MODAL: Adicionar Participante Manual -->
+        <div v-if="showAddParticipantModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+            <div class="w-full max-w-xl rounded-2xl bg-slate-900 border border-slate-800 p-6 sm:p-7 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h3 class="text-base font-bold font-display text-white flex items-center gap-2">
+                        <PlusCircle class="w-4 h-4 text-rose-400" />
+                        <span>Adicionar Participante Manual</span>
                     </h3>
-                    <button @click="showAddParticipantModal = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-white">
+                    <button type="button" @click="showAddParticipantModal = false" class="text-slate-400 hover:text-white">
                         <X class="w-5 h-5" />
                     </button>
                 </div>
 
                 <form @submit.prevent="submitAddParticipant" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200 mb-1">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-200 mb-1">
                             Nome Completo <span class="text-rose-500">*</span>
                         </label>
                         <input
                             v-model="addParticipantForm.name"
                             type="text"
                             placeholder="Ex: Tio Roberto"
-                            class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+                            class="w-full px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-950 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-rose-500"
                             required
                         />
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200 mb-1">WhatsApp / Telefone</label>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-200 mb-1">WhatsApp / Telefone</label>
                             <input
                                 :value="addParticipantForm.phone"
                                 @input="addParticipantForm.phone = maskPhone($event.target.value)"
                                 type="text"
                                 placeholder="(11) 98765-4321"
-                                class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-950 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-rose-500"
                             />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200 mb-1">E-mail (opcional)</label>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-200 mb-1">E-mail (opcional)</label>
                             <input
                                 v-model="addParticipantForm.email"
                                 type="email"
                                 placeholder="roberto@email.com"
-                                class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-950 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-rose-500"
                             />
                         </div>
                     </div>
 
                     <!-- Structured Wishlist Editor with Links -->
-                    <div class="pt-2">
+                    <div class="pt-1">
                         <WishlistEditor v-model="addParticipantForm.wishlist" />
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200 mb-1">Tamanho Roupa</label>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-200 mb-1">Tamanho Roupa</label>
                             <input
                                 v-model="addParticipantForm.clothing_size"
                                 type="text"
                                 placeholder="Ex: M ou 42"
-                                class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-950 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-rose-500"
                             />
                         </div>
                         <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200 mb-1">Calçado</label>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-200 mb-1">Calçado</label>
                             <input
                                 v-model="addParticipantForm.shoe_size"
                                 type="text"
                                 placeholder="Ex: 40"
-                                class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-950 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-rose-500"
                             />
                         </div>
                     </div>
 
-                    <div class="pt-4 flex items-center justify-end gap-3 border-t border-slate-100 dark:border-slate-800">
+                    <div class="pt-3 flex items-center justify-end gap-3 border-t border-slate-800">
                         <button
                             type="button"
                             @click="showAddParticipantModal = false"
-                            class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                            class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800"
                         >
                             Cancelar
                         </button>
                         <button
                             type="submit"
                             :disabled="addParticipantForm.processing"
-                            class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-rose-600 to-amber-500 shadow-md"
+                            class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-sm"
                         >
                             {{ addParticipantForm.processing ? 'Salvando...' : 'Adicionar Participante' }}
                         </button>
@@ -861,40 +870,41 @@ const revealedCount = computed(() => {
         </div>
 
         <!-- MODAL: Restrições de Casais -->
-        <div v-if="showExclusionsModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
-            <div class="w-full max-w-lg rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-xl font-bold font-display text-slate-900 dark:text-white flex items-center gap-2">
-                        <Sliders class="w-5 h-5 text-amber-500" />
-                        Regras de Restrição (Casais)
+        <div v-if="showExclusionsModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+            <div class="w-full max-w-lg rounded-2xl bg-slate-900 border border-slate-800 p-6 sm:p-7 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h3 class="text-base font-bold font-display text-white flex items-center gap-2">
+                        <Sliders class="w-4 h-4 text-amber-400" />
+                        <span>Regras de Restrição (Casais)</span>
                     </h3>
-                    <button @click="showExclusionsModal = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-white">
+                    <button type="button" @click="showExclusionsModal = false" class="text-slate-400 hover:text-white">
                         <X class="w-5 h-5" />
                     </button>
                 </div>
 
-                <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
-                    Evite que certas pessoas tirem umas às outras no sorteio (ex: casais, pais e filhos ou amigos que já se presenteiam todo ano).
+                <p class="text-xs text-slate-400 leading-relaxed font-normal">
+                    Evite que certas pessoas tirem umas às outras no sorteio (ex: casais, familiares ou amigos que já se presenteiam todo ano).
                 </p>
 
                 <!-- Existing Exclusions List -->
                 <div class="space-y-2">
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Restrições Atuais</h4>
-                    <div v-if="exclusions.length === 0" class="text-xs text-slate-600 dark:text-slate-300 py-3 text-center bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-300">Restrições Atuais</h4>
+                    <div v-if="exclusions.length === 0" class="text-xs text-slate-400 py-3 text-center bg-slate-950 rounded-xl border border-slate-800">
                         Nenhuma restrição configurada. Qualquer um pode tirar qualquer um.
                     </div>
                     <div v-else class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
                         <div
                             v-for="ex in exclusions"
                             :key="ex.id"
-                            class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 flex items-center justify-between text-xs"
+                            class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between text-xs"
                         >
-                            <span class="font-medium text-slate-800 dark:text-slate-200">
+                            <span class="text-slate-200">
                                 <strong>{{ ex.participant_name }}</strong> não pode tirar <strong>{{ ex.excluded_participant_name }}</strong>
                             </span>
                             <button
+                                type="button"
                                 @click="requestDeleteExclusion(ex)"
-                                class="text-slate-400 hover:text-rose-500 p-1 rounded"
+                                class="text-slate-400 hover:text-rose-400 p-1 rounded"
                                 title="Remover regra"
                             >
                                 <Trash2 class="w-3.5 h-3.5" />
@@ -903,36 +913,41 @@ const revealedCount = computed(() => {
                     </div>
                 </div>
 
-                <!-- Add Restriction Form -->
-                <form @submit.prevent="submitExclusion" class="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-3">
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Adicionar Nova Regra</h4>
+                <!-- Add Exclusion Form -->
+                <form @submit.prevent="submitExclusion" class="pt-3 border-t border-slate-800 space-y-3">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-300">Nova Restrição</h4>
 
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Participante A</label>
+                            <label class="block text-xs text-slate-300 mb-1">Participante:</label>
                             <select
                                 v-model="addExclusionForm.participant_id"
-                                class="w-full px-3 py-2 rounded-xl text-xs border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                                class="w-full px-3 py-2 rounded-xl text-xs border border-slate-700 bg-slate-950 text-white focus:outline-none focus:border-amber-500"
                                 required
                             >
-                                <option value="" disabled>Selecione...</option>
-                                <option v-for="p in participants" :key="p.id" :value="p.id">{{ p.name }}</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Não pode tirar B</label>
-                            <select
-                                v-model="addExclusionForm.excluded_participant_id"
-                                class="w-full px-3 py-2 rounded-xl text-xs border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-                                required
-                            >
-                                <option value="" disabled>Selecione...</option>
+                                <option value="" disabled>Selecione um amigo</option>
                                 <option
                                     v-for="p in participants"
                                     :key="p.id"
                                     :value="p.id"
-                                    :disabled="p.id === addExclusionForm.participant_id"
+                                >
+                                    {{ p.name }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs text-slate-300 mb-1">Não pode tirar:</label>
+                            <select
+                                v-model="addExclusionForm.excluded_participant_id"
+                                class="w-full px-3 py-2 rounded-xl text-xs border border-slate-700 bg-slate-950 text-white focus:outline-none focus:border-amber-500"
+                                required
+                            >
+                                <option value="" disabled>Selecione a restrição</option>
+                                <option
+                                    v-for="p in participants.filter(p => p.id !== addExclusionForm.participant_id)"
+                                    :key="p.id"
+                                    :value="p.id"
                                 >
                                     {{ p.name }}
                                 </option>
@@ -945,10 +960,10 @@ const revealedCount = computed(() => {
                             id="bidirectional"
                             v-model="addExclusionForm.bidirectional"
                             type="checkbox"
-                            class="rounded text-rose-600 focus:ring-rose-500"
+                            class="rounded border-slate-700 bg-slate-950 text-amber-500 focus:ring-amber-500/20"
                         />
-                        <label for="bidirectional" class="text-xs font-semibold text-slate-700 dark:text-slate-300 cursor-pointer">
-                            Regra Mútua (Casal: B também não pode tirar A)
+                        <label for="bidirectional" class="text-xs text-slate-300 cursor-pointer">
+                            Regra Mútua (Casal: ambos não podem tirar um ao outro)
                         </label>
                     </div>
 
@@ -956,7 +971,7 @@ const revealedCount = computed(() => {
                         <button
                             type="submit"
                             :disabled="addExclusionForm.processing || !addExclusionForm.participant_id || !addExclusionForm.excluded_participant_id"
-                            class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-amber-600 hover:bg-amber-500 transition-colors shadow-sm disabled:opacity-50"
+                            class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-amber-600 hover:bg-amber-500 transition-colors shadow-sm disabled:opacity-40"
                         >
                             {{ addExclusionForm.processing ? 'Adicionando...' : 'Adicionar Restrição' }}
                         </button>
@@ -966,88 +981,88 @@ const revealedCount = computed(() => {
         </div>
 
         <!-- MODAL: Editar Evento -->
-        <div v-if="showEditEventModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
-            <div class="w-full max-w-lg rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-xl font-bold font-display text-slate-900 dark:text-white flex items-center gap-2">
-                        <Edit class="w-5 h-5 text-rose-500" />
-                        Editar Evento
+        <div v-if="showEditEventModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+            <div class="w-full max-w-lg rounded-2xl bg-slate-900 border border-slate-800 p-6 sm:p-7 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h3 class="text-base font-bold font-display text-white flex items-center gap-2">
+                        <Edit class="w-4 h-4 text-rose-400" />
+                        <span>Editar Evento</span>
                     </h3>
-                    <button @click="showEditEventModal = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-white">
+                    <button type="button" @click="showEditEventModal = false" class="text-slate-400 hover:text-white">
                         <X class="w-5 h-5" />
                     </button>
                 </div>
 
                 <form @submit.prevent="submitEditEvent" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Nome do Evento</label>
+                        <label class="block text-xs font-bold text-slate-200 mb-1">Nome do Evento</label>
                         <input
                             v-model="editEventForm.title"
                             type="text"
-                            class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-900 dark:text-white"
+                            class="w-full px-4 py-2 rounded-xl border border-slate-700 bg-slate-950 text-sm text-white focus:outline-none focus:border-rose-500"
                             required
                         />
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Valor Sugerido (R$)</label>
+                        <label class="block text-xs font-bold text-slate-200 mb-1">Valor Sugerido (R$)</label>
                         <input
                             v-model="editEventForm.budget_limit"
                             type="number"
                             step="0.50"
-                            class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-900 dark:text-white"
+                            class="w-full px-4 py-2 rounded-xl border border-slate-700 bg-slate-950 text-sm text-white focus:outline-none focus:border-rose-500"
                         />
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Data Sorteio</label>
+                            <label class="block text-xs font-bold text-slate-200 mb-1">Data Sorteio</label>
                             <input
                                 v-model="editEventForm.draw_date"
                                 type="date"
-                                class="w-full px-3 py-2 rounded-xl text-xs border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                                class="w-full px-3 py-2 rounded-xl text-xs border border-slate-700 bg-slate-950 text-white focus:outline-none focus:border-rose-500"
                             />
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Data Festa</label>
+                            <label class="block text-xs font-bold text-slate-200 mb-1">Data Festa</label>
                             <input
                                 v-model="editEventForm.event_date"
                                 type="date"
-                                class="w-full px-3 py-2 rounded-xl text-xs border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                                class="w-full px-3 py-2 rounded-xl text-xs border border-slate-700 bg-slate-950 text-white focus:outline-none focus:border-rose-500"
                             />
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Local</label>
+                        <label class="block text-xs font-bold text-slate-200 mb-1">Local</label>
                         <input
                             v-model="editEventForm.location"
                             type="text"
-                            class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-900 dark:text-white"
+                            class="w-full px-4 py-2 rounded-xl border border-slate-700 bg-slate-950 text-sm text-white focus:outline-none focus:border-rose-500"
                         />
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Descrição e Regras</label>
+                        <label class="block text-xs font-bold text-slate-200 mb-1">Descrição e Regras</label>
                         <textarea
                             v-model="editEventForm.description"
                             rows="3"
-                            class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-900 dark:text-white"
+                            class="w-full px-4 py-2 rounded-xl border border-slate-700 bg-slate-950 text-sm text-white focus:outline-none focus:border-rose-500"
                         ></textarea>
                     </div>
 
-                    <div class="pt-4 flex items-center justify-end gap-3">
+                    <div class="pt-3 flex items-center justify-end gap-3 border-t border-slate-800">
                         <button
                             type="button"
                             @click="showEditEventModal = false"
-                            class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300"
+                            class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white"
                         >
                             Cancelar
                         </button>
                         <button
                             type="submit"
                             :disabled="editEventForm.processing"
-                            class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-md"
+                            class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-sm"
                         >
                             {{ editEventForm.processing ? 'Salvando...' : 'Salvar Alterações' }}
                         </button>
@@ -1056,22 +1071,22 @@ const revealedCount = computed(() => {
             </div>
         </div>
 
-        <!-- MODAL: Ver Desejos do Participante com WishlistDisplay -->
-        <div v-if="showWishlistModal && selectedParticipantWishlist" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
-            <div class="w-full max-w-lg rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
-                <div class="flex items-center justify-between">
+        <!-- MODAL: Ver Desejos do Participante -->
+        <div v-if="showWishlistModal && selectedParticipantWishlist" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+            <div class="w-full max-w-lg rounded-2xl bg-slate-900 border border-slate-800 p-6 sm:p-7 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-rose-500 to-amber-500 text-white font-bold flex items-center justify-center">
+                        <div class="w-9 h-9 rounded-lg bg-slate-800 border border-slate-700 text-rose-300 font-bold flex items-center justify-center text-xs">
                             {{ selectedParticipantWishlist.name.charAt(0).toUpperCase() }}
                         </div>
                         <div>
-                            <h3 class="font-bold text-slate-900 dark:text-white text-base">
+                            <h3 class="font-bold text-white text-sm sm:text-base">
                                 {{ selectedParticipantWishlist.name }}
                             </h3>
-                            <p class="text-xs text-slate-600 dark:text-slate-300">Preferências e Lista de Presentes</p>
+                            <p class="text-xs text-slate-400">Preferências e Lista de Presentes</p>
                         </div>
                     </div>
-                    <button @click="showWishlistModal = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-white">
+                    <button type="button" @click="showWishlistModal = false" class="text-slate-400 hover:text-white">
                         <X class="w-5 h-5" />
                     </button>
                 </div>
@@ -1079,39 +1094,40 @@ const revealedCount = computed(() => {
                 <div class="space-y-4 text-xs">
                     <!-- Wishlist Display with Links -->
                     <div>
-                        <div class="font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200 mb-2 flex items-center gap-1.5">
-                            <Gift class="w-4 h-4 text-rose-500" />
-                            Presentes Desejados:
+                        <div class="font-bold uppercase tracking-wider text-slate-300 mb-2 flex items-center gap-1.5">
+                            <Gift class="w-4 h-4 text-rose-400" />
+                            <span>Presentes Desejados:</span>
                         </div>
                         <WishlistDisplay :wishlist="selectedParticipantWishlist.wishlist" />
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3 pt-2">
-                        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60">
-                            <div class="font-bold text-slate-700 dark:text-slate-300 mb-0.5">Tamanho de Roupa</div>
-                            <div class="text-slate-900 dark:text-white font-bold text-sm">{{ selectedParticipantWishlist.clothing_size || '-' }}</div>
+                    <div class="grid grid-cols-2 gap-3 pt-1">
+                        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                            <div class="text-slate-400 mb-0.5 font-medium">Tamanho de Roupa</div>
+                            <div class="text-white font-bold text-sm">{{ selectedParticipantWishlist.clothing_size || '-' }}</div>
                         </div>
-                        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60">
-                            <div class="font-bold text-slate-700 dark:text-slate-300 mb-0.5">Tamanho de Calçado</div>
-                            <div class="text-slate-900 dark:text-white font-bold text-sm">{{ selectedParticipantWishlist.shoe_size || '-' }}</div>
+                        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                            <div class="text-slate-400 mb-0.5 font-medium">Tamanho de Calçado</div>
+                            <div class="text-white font-bold text-sm">{{ selectedParticipantWishlist.shoe_size || '-' }}</div>
                         </div>
                     </div>
 
-                    <div v-if="selectedParticipantWishlist.likes" class="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50">
-                        <div class="font-bold text-emerald-900 dark:text-emerald-200 mb-0.5">O que adora:</div>
-                        <div class="text-emerald-800 dark:text-emerald-100 font-medium">{{ selectedParticipantWishlist.likes }}</div>
+                    <div v-if="selectedParticipantWishlist.likes" class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                        <div class="font-bold text-emerald-400 mb-0.5">O que adora:</div>
+                        <div class="text-slate-200">{{ selectedParticipantWishlist.likes }}</div>
                     </div>
 
-                    <div v-if="selectedParticipantWishlist.dislikes" class="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/50">
-                        <div class="font-bold text-rose-900 dark:text-rose-200 mb-0.5">Não gosta / Alergia:</div>
-                        <div class="text-rose-800 dark:text-rose-100 font-medium">{{ selectedParticipantWishlist.dislikes }}</div>
+                    <div v-if="selectedParticipantWishlist.dislikes" class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                        <div class="font-bold text-rose-400 mb-0.5">Não gosta / Alergia:</div>
+                        <div class="text-slate-200">{{ selectedParticipantWishlist.dislikes }}</div>
                     </div>
                 </div>
 
-                <div class="pt-2 text-right border-t border-slate-100 dark:border-slate-800">
+                <div class="pt-2 text-right border-t border-slate-800">
                     <button
+                        type="button"
                         @click="showWishlistModal = false"
-                        class="px-5 py-2 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200"
+                        class="px-4 py-2 rounded-xl text-xs font-bold text-slate-300 bg-slate-800 hover:bg-slate-700"
                     >
                         Fechar
                     </button>
@@ -1120,17 +1136,17 @@ const revealedCount = computed(() => {
         </div>
 
         <!-- MODAL: Confirmação de Reinício de Sorteio -->
-        <div v-if="showResetConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
-            <div class="w-full max-w-md rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-2xl space-y-5 text-center">
-                <div class="w-14 h-14 rounded-2xl bg-rose-500/10 text-rose-500 flex items-center justify-center mx-auto">
-                    <AlertTriangle class="w-8 h-8" />
+        <div v-if="showResetConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+            <div class="w-full max-w-md rounded-2xl bg-slate-900 border border-slate-800 p-6 sm:p-7 shadow-2xl space-y-4 text-center">
+                <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
+                    <AlertTriangle class="w-6 h-6" />
                 </div>
 
-                <div class="space-y-1">
-                    <h3 class="text-lg font-bold font-display text-slate-900 dark:text-white">
-                        Tem certeza que deseja reiniciar o sorteio?
+                <div class="space-y-1.5">
+                    <h3 class="text-base font-bold font-display text-white">
+                        Reiniciar o Sorteio?
                     </h3>
-                    <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                    <p class="text-xs text-slate-400 leading-relaxed">
                         Ao reiniciar, os pares sorteados serão apagados e os participantes não conseguirão ver quem tiraram até que um novo sorteio seja feito.
                     </p>
                 </div>
@@ -1139,38 +1155,39 @@ const revealedCount = computed(() => {
                     <button
                         type="button"
                         @click="showResetConfirmModal = false"
-                        class="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                        class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800"
                     >
                         Cancelar
                     </button>
                     <button
                         type="button"
                         @click="executeResetDraw"
-                        class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-md shadow-rose-600/30"
+                        class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-sm"
                     >
                         Sim, Reiniciar Sorteio
                     </button>
                 </div>
             </div>
         </div>
-        <!-- MODAL: Compartilhar Genérico / Outras Opções -->
-        <div v-if="showShareModal && currentSharePayload" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm animate-in fade-in duration-200">
-            <div class="w-full max-w-lg rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-7 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shadow-inner">
-                            <Share2 class="w-5 h-5" />
+
+        <!-- MODAL: Compartilhar Genérico -->
+        <div v-if="showShareModal && currentSharePayload" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+            <div class="w-full max-w-lg rounded-2xl bg-slate-900 border border-slate-800 p-6 sm:p-7 shadow-2xl space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-9 h-9 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center">
+                            <Share2 class="w-4 h-4" />
                         </div>
                         <div>
-                            <h3 class="text-lg font-bold font-display text-slate-900 dark:text-white">
+                            <h3 class="text-sm sm:text-base font-bold font-display text-white">
                                 {{ currentSharePayload.title }}
                             </h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                                Escolha como deseja compartilhar ou copie a mensagem:
+                            <p class="text-xs text-slate-400">
+                                Escolha como deseja compartilhar:
                             </p>
                         </div>
                     </div>
-                    <button @click="showShareModal = false" class="text-slate-400 hover:text-slate-900 dark:hover:text-white p-1 rounded-lg">
+                    <button type="button" @click="showShareModal = false" class="text-slate-400 hover:text-white">
                         <X class="w-5 h-5" />
                     </button>
                 </div>
@@ -1179,81 +1196,86 @@ const revealedCount = computed(() => {
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                     <!-- WhatsApp -->
                     <button
+                        type="button"
                         @click="shareViaWhatsApp(currentSharePayload)"
-                        class="flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 border border-emerald-200 dark:border-emerald-800/80 transition-all group"
+                        class="flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 transition-all"
                     >
-                        <div class="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
                             <MessageCircle class="w-4 h-4" />
                         </div>
-                        <span class="text-xs font-bold text-emerald-800 dark:text-emerald-300">WhatsApp</span>
+                        <span class="text-xs font-semibold text-emerald-300">WhatsApp</span>
                     </button>
 
                     <!-- Telegram -->
                     <button
+                        type="button"
                         @click="shareViaTelegram(currentSharePayload)"
-                        class="flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl bg-sky-50 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-900/40 border border-sky-200 dark:border-sky-800/80 transition-all group"
+                        class="flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 transition-all"
                     >
-                        <div class="w-8 h-8 rounded-xl bg-sky-500 text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
+                        <div class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center">
                             <Send class="w-4 h-4" />
                         </div>
-                        <span class="text-xs font-bold text-sky-800 dark:text-sky-300">Telegram</span>
+                        <span class="text-xs font-semibold text-sky-300">Telegram</span>
                     </button>
 
                     <!-- Email -->
                     <button
+                        type="button"
                         @click="shareViaEmail(currentSharePayload)"
-                        class="flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 border border-indigo-200 dark:border-indigo-800/80 transition-all group"
+                        class="flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 transition-all"
                     >
-                        <div class="w-8 h-8 rounded-xl bg-indigo-500 text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center">
                             <Mail class="w-4 h-4" />
                         </div>
-                        <span class="text-xs font-bold text-indigo-800 dark:text-indigo-300">E-mail</span>
+                        <span class="text-xs font-semibold text-indigo-300">E-mail</span>
                     </button>
 
                     <!-- Copiar Link -->
                     <button
+                        type="button"
                         @click="copyPayloadUrl(currentSharePayload)"
-                        class="flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-all group"
+                        class="flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 transition-all"
                     >
-                        <div class="w-8 h-8 rounded-xl bg-slate-700 text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
+                        <div class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 flex items-center justify-center">
                             <Check v-if="copiedPayloadLink" class="w-4 h-4 text-emerald-400" />
                             <Copy v-else class="w-4 h-4" />
                         </div>
-                        <span class="text-xs font-bold text-slate-800 dark:text-slate-200">
+                        <span class="text-xs font-semibold text-slate-300">
                             {{ copiedPayloadLink ? 'Copiado!' : 'Copiar Link' }}
                         </span>
                     </button>
                 </div>
 
                 <!-- Preview Box with Copy Full Message Button -->
-                <div class="space-y-2">
+                <div class="space-y-1.5 pt-1">
                     <div class="flex items-center justify-between">
-                        <label class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
-                            Mensagem Pronta para Envio
+                        <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                            Mensagem Pronta
                         </label>
                         <button
+                            type="button"
                             @click="copyPayloadFullText(currentSharePayload)"
-                            class="inline-flex items-center gap-1 text-xs font-bold text-rose-600 dark:text-rose-400 hover:underline"
+                            class="inline-flex items-center gap-1 text-xs font-semibold text-rose-400 hover:text-rose-300"
                         >
-                            <Check v-if="copiedFullMessage" class="w-3.5 h-3.5 text-emerald-500" />
+                            <Check v-if="copiedFullMessage" class="w-3.5 h-3.5 text-emerald-400" />
                             <Copy v-else class="w-3.5 h-3.5" />
-                            <span>{{ copiedFullMessage ? 'Mensagem Copiada!' : 'Copiar Texto Completo' }}</span>
+                            <span>{{ copiedFullMessage ? 'Copiado!' : 'Copiar Texto' }}</span>
                         </button>
                     </div>
 
                     <textarea
                         readonly
-                        rows="5"
+                        rows="4"
                         :value="currentSharePayload.text"
-                        class="w-full text-xs font-sans rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 p-3.5 focus:outline-none select-all resize-none leading-relaxed"
+                        class="w-full text-xs font-sans rounded-xl bg-slate-950 border border-slate-800 text-slate-300 p-3 focus:outline-none select-all resize-none leading-relaxed"
                     ></textarea>
                 </div>
 
-                <div class="flex justify-end pt-1 border-t border-slate-200 dark:border-slate-800">
+                <div class="flex justify-end pt-2 border-t border-slate-800">
                     <button
                         type="button"
                         @click="showShareModal = false"
-                        class="px-5 py-2.5 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                        class="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-800"
                     >
                         Fechar
                     </button>
