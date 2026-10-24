@@ -6,6 +6,7 @@ import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import ToastNotification from '@/Components/ToastNotification.vue';
+import CookieConsent from '@/Components/CookieConsent.vue';
 import { Link } from '@inertiajs/vue3';
 import { PlusCircle, Calendar, User, LogOut } from 'lucide-vue-next';
 
@@ -14,8 +15,9 @@ const showingNavigationDropdown = ref(false);
 
 <template>
     <div class="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
-        <!-- Toast Flash Notification -->
+        <!-- Toast Flash Notification & Cookie Consent -->
         <ToastNotification />
+        <CookieConsent />
 
         <!-- Navigation Bar -->
         <nav class="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/80">
@@ -157,9 +159,13 @@ const showingNavigationDropdown = ref(false);
         <footer class="mt-auto py-5 border-t border-slate-800/80 text-xs text-slate-500 bg-slate-950">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
                 <div class="font-medium text-slate-400">
-                    Amigo Secreto Online &bull; Painel do Organizador
+                    GiftMatch &bull; Painel do Organizador
                 </div>
-                <div>Gratuito, rápido e com envio direto no WhatsApp</div>
+                <div class="flex items-center gap-3 text-slate-500">
+                    <Link :href="route('terms')" class="hover:text-rose-400 transition-colors">Termos de Uso</Link>
+                    <span>&bull;</span>
+                    <Link :href="route('privacy')" class="hover:text-rose-400 transition-colors">Política de Privacidade</Link>
+                </div>
             </div>
         </footer>
     </div>

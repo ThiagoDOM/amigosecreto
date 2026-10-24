@@ -17,6 +17,15 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
+// Institutional & Legal Pages (LGPD & AdSense compliance)
+Route::get('/politica-de-privacidade', function () {
+    return Inertia::render('Legal/PrivacyPolicy');
+})->name('privacy');
+
+Route::get('/termos-de-uso', function () {
+    return Inertia::render('Legal/TermsOfService');
+})->name('terms');
+
 // Public Invite Routes (No login required)
 Route::get('/convite/{code}', [InviteController::class, 'show'])->name('invite.show');
 Route::post('/convite/{code}', [InviteController::class, 'join'])->name('invite.join');

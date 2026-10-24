@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'adsense' => [
+        'client_id' => env('GOOGLE_ADSENSE_CLIENT_ID', env('VITE_GOOGLE_ADSENSE_ID')),
+    ],
+
 ];

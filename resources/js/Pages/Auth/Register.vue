@@ -11,6 +11,7 @@ const form = useForm({
     email: '',
     password: '',
     password_confirmation: '',
+    terms: false,
 });
 
 const submit = () => {
@@ -104,6 +105,25 @@ const submit = () => {
                     class="mt-1.5"
                     :message="form.errors.password_confirmation"
                 />
+            </div>
+
+            <!-- Terms of Use & Privacy Policy Acceptance -->
+            <div class="pt-1">
+                <label class="flex items-start gap-2.5 cursor-pointer select-none">
+                    <input
+                        type="checkbox"
+                        v-model="form.terms"
+                        required
+                        class="mt-0.5 w-4 h-4 rounded border-slate-700 bg-slate-950 text-rose-600 focus:ring-rose-500/30 focus:ring-offset-slate-900 transition-colors"
+                    />
+                    <span class="text-xs text-slate-300 leading-relaxed">
+                        Concordo com os
+                        <Link :href="route('terms')" target="_blank" class="font-bold text-rose-400 hover:text-rose-300 underline">Termos de Uso</Link>
+                        e a
+                        <Link :href="route('privacy')" target="_blank" class="font-bold text-rose-400 hover:text-rose-300 underline">Política de Privacidade</Link>.
+                    </span>
+                </label>
+                <InputError class="mt-1.5" :message="form.errors.terms" />
             </div>
 
             <div class="pt-2">

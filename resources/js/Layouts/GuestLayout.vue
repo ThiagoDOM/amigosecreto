@@ -1,5 +1,6 @@
 <script setup>
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
+import CookieConsent from '@/Components/CookieConsent.vue';
 import ToastNotification from '@/Components/ToastNotification.vue';
 import { Link } from '@inertiajs/vue3';
 </script>
@@ -7,6 +8,7 @@ import { Link } from '@inertiajs/vue3';
 <template>
     <div class="relative flex min-h-screen flex-col items-center justify-center bg-slate-950 py-10 px-4 sm:px-6 overflow-hidden font-sans text-slate-100">
         <ToastNotification />
+        <CookieConsent />
 
         <!-- Subtle background glow -->
         <div class="absolute -top-40 -left-40 w-96 h-96 bg-rose-600/15 rounded-full blur-3xl pointer-events-none"></div>
@@ -20,6 +22,12 @@ import { Link } from '@inertiajs/vue3';
 
         <div class="relative z-10 w-full sm:max-w-md bg-slate-900/90 backdrop-blur-xl px-6 sm:px-8 py-7 sm:py-8 shadow-2xl rounded-2xl border border-slate-800 text-slate-100">
             <slot />
+        </div>
+
+        <div class="relative z-10 mt-6 flex items-center gap-3 text-xs text-slate-500">
+            <Link :href="route('terms')" class="hover:text-rose-400 transition-colors">Termos de Uso</Link>
+            <span>&bull;</span>
+            <Link :href="route('privacy')" class="hover:text-rose-400 transition-colors">Política de Privacidade</Link>
         </div>
     </div>
 </template>
