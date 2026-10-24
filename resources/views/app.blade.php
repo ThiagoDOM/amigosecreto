@@ -64,8 +64,12 @@
         <meta name="twitter:description" content="{{ $metaDesc }}">
         <meta name="twitter:image" content="{{ $metaImage }}">
 
-        <!-- Favicon -->
-        <link rel="icon" type="image/x-icon" href="{{ url('favicon.ico', [], $isSecure) }}">
+        <!-- Favicons & App Icons -->
+        <link rel="icon" type="image/svg+xml" href="{{ url('favicon.svg', [], $isSecure) }}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ url('favicon-32x32.png', [], $isSecure) }}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ url('favicon-16x16.png', [], $isSecure) }}">
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ url('apple-touch-icon.png', [], $isSecure) }}">
+        <link rel="shortcut icon" href="{{ url('favicon.ico', [], $isSecure) }}">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
