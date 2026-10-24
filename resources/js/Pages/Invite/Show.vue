@@ -250,7 +250,7 @@ function submit() {
                         class="w-full inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl text-base font-bold text-white bg-gradient-to-r from-rose-600 via-rose-500 to-amber-500 hover:from-rose-500 hover:to-amber-400 shadow-xl shadow-rose-600/30 transition-all hover:scale-[1.01] disabled:opacity-50"
                     >
                         <Gift class="w-5 h-5" />
-                        <span>{{ form.processing ? 'Entrando no Amigo Secreto...' : 'Confirmar Minha Participação 🎁' }}</span>
+                        <span>{{ form.processing ? 'Entrando no Amigo Secreto...' : 'Confirmar Minha Participação' }}</span>
                     </button>
                     <p class="text-center text-xs text-slate-400 mt-2 font-medium">
                         Ao entrar, você receberá seu link secreto exclusivo.

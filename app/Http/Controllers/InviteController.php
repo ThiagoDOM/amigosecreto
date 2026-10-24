@@ -75,6 +75,7 @@ class InviteController extends Controller
         ]);
 
         return redirect()->route('secret.show', ['token' => $participant->token])
+            ->with('just_registered', true)
             ->with('success', '🎉 Você entrou no Amigo Secreto com sucesso! Guarde este link nos seus favoritos ou WhatsApp.');
     }
 }

@@ -77,6 +77,7 @@ class EventFlowTest extends TestCase
         $this->assertNotNull($participant->token);
 
         $joinResponse->assertRedirect(route('secret.show', ['token' => $participant->token]));
+        $joinResponse->assertSessionHas('just_registered', true);
     }
 
     public function test_organizer_can_add_participant_manually_and_configure_exclusion(): void
