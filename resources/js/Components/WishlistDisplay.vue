@@ -20,9 +20,11 @@ const items = computed(() => {
 
 const mlTool = import.meta.env.VITE_MERCADOLIVRE_AFFILIATE_TOOL || '';
 const mlWord = import.meta.env.VITE_MERCADOLIVRE_AFFILIATE_WORD || '';
+const shopeePid = import.meta.env.VITE_SHOPEE_AFFILIATE_PID || '';
 
 function getShopeeSearchUrl(query) {
-    return `https://shopee.com.br/search?keyword=${encodeURIComponent(query)}`;
+    const encoded = encodeURIComponent(query);
+    return `https://shopee.com.br/search?keyword=${encoded}&utm_source=${shopeePid}&utm_medium=affiliates&mmp_pid=${shopeePid}`;
 }
 
 function getMercadoLivreSearchUrl(query) {
