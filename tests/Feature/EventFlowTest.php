@@ -16,6 +16,9 @@ class EventFlowTest extends TestCase
     {
         $response = $this->get('/');
         $response->assertStatus(200);
+        $response->assertSee('og:title', false);
+        $response->assertSee('og:image', false);
+        $response->assertSee('og-home.jpg', false);
     }
 
     public function test_organizer_can_create_event(): void
@@ -56,6 +59,10 @@ class EventFlowTest extends TestCase
         // View invite page
         $viewResponse = $this->get(route('invite.show', $event->code));
         $viewResponse->assertStatus(200);
+        $viewResponse->assertSee('og:title', false);
+        $viewResponse->assertSee('Convite: Confraternização da Turma', false);
+        $viewResponse->assertSee('og:image', false);
+        $viewResponse->assertSee('og-invite.jpg', false);
 
         // Join event
         $joinResponse = $this->post(route('invite.join', $event->code), [
