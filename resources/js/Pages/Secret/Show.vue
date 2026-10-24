@@ -447,28 +447,62 @@ function downloadCardImage() {
 
     // Link Access Box at Bottom
     ctx.save();
-    roundRect(70, 740, 760, 230, 24);
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+    roundRect(70, 735, 760, 255, 24);
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
     ctx.fill();
     ctx.strokeStyle = 'rgba(51, 65, 85, 0.8)';
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
-    ctx.font = 'bold 16px sans-serif';
+    ctx.font = 'bold 15px sans-serif';
     ctx.fillStyle = '#38bdf8';
     ctx.textAlign = 'center';
-    ctx.fillText('SEU LINK EXCLUSIVO DE ACESSO:', 450, 785);
+    ctx.fillText('SEU LINK EXCLUSIVO DE ACESSO:', 450, 770);
 
-    ctx.font = '15px monospace';
+    // Multi-line wrapped URL rendering without truncation
+    ctx.font = '14px monospace';
     ctx.fillStyle = '#f1f5f9';
     const currentUrl = window.location.href;
-    const displayUrl = currentUrl.length > 58 ? currentUrl.substring(0, 55) + '...' : currentUrl;
-    ctx.fillText(displayUrl, 450, 830);
 
-    ctx.font = '14px sans-serif';
+    function wrapUrlText(context, text, maxWidth) {
+        if (context.measureText(text).width <= maxWidth) {
+            return [text];
+        }
+        const lines = [];
+        let current = '';
+        for (let i = 0; i < text.length; i++) {
+            const char = text[i];
+            const test = current + char;
+            if (context.measureText(test).width > maxWidth && current.length > 0) {
+                lines.push(current);
+                current = char;
+            } else {
+                current = test;
+            }
+        }
+        if (current.length > 0) {
+            lines.push(current);
+        }
+        return lines;
+    }
+
+    const urlLines = wrapUrlText(ctx, currentUrl, 680);
+    const lineHeight = 22;
+    let startY = 825;
+    if (urlLines.length === 2) {
+        startY = 812;
+    } else if (urlLines.length >= 3) {
+        startY = 802;
+    }
+
+    urlLines.forEach((line, idx) => {
+        ctx.fillText(line, 450, startY + (idx * lineHeight));
+    });
+
+    ctx.font = '13px sans-serif';
     ctx.fillStyle = '#94a3b8';
-    ctx.fillText('Você pode voltar a esta página a qualquer momento para ver detalhes.', 450, 885);
-    ctx.fillText('Organizado com carinho pelo Amigo Secreto Online 🎄', 450, 925);
+    ctx.fillText('Você pode voltar a esta página a qualquer momento para ver detalhes.', 450, 915);
+    ctx.fillText('Organizado com carinho pelo Amigo Secreto Online 🎄', 450, 945);
     ctx.restore();
 
     // Footer copyright
