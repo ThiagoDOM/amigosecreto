@@ -1,5 +1,5 @@
 <script setup>
-import { Head, Link, useForm, router } from '@inertiajs/vue3';
+import { Head, Link, useForm, router, usePage } from '@inertiajs/vue3';
 import { ref, onMounted } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import ToastNotification from '@/Components/ToastNotification.vue';
@@ -26,7 +26,10 @@ import {
     Download,
     Smartphone,
     Share2,
-    MessageCircle
+    MessageCircle,
+    Bell,
+    BellRing,
+    CheckCircle2
 } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -44,12 +47,16 @@ const props = defineProps({
     },
 });
 
+const page = usePage();
 const isRevealed = ref(props.participant.is_revealed);
 const isOpening = ref(false);
 const showEditWishlistModal = ref(false);
 const copiedPageLink = ref(false);
 const showSaveDropdown = ref(false);
 const showHomeScreenModal = ref(false);
+const showOnboardingSaveModal = ref(false);
+const notificationsEnabled = ref(false);
+const notificationSupported = ref(false);
 const clientToast = ref('');
 let toastTimeout = null;
 
@@ -161,6 +168,116 @@ function handleDownloadImage() {
     showToast('Cartão gerado e salvo com sucesso!');
 }
 
+function closeOnboardingSaveModal() {
+    localStorage.setItem('onboarding_seen_' + props.participant.token, '1');
+    showOnboardingSaveModal.value = false;
+}
+
+async function requestBrowserNotifications() {
+    if (!('Notification' in window)) {
+        showToast('Este dispositivo não tem suporte a notificações no navegador.');
+        return;
+    }
+
+    try {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+            notificationsEnabled.value = true;
+            localStorage.setItem('notif_granted_' + props.participant.token, '1');
+            showToast('🔔 Notificações ativadas com sucesso!');
+            
+            new Notification('Amigo Secreto 🎁', {
+                body: `Notificações ativadas para "${props.event.title}". Lembrete ativado com sucesso!`,
+                icon: '/favicon.ico',
+            });
+        } else if (permission === 'denied') {
+            showToast('As notificações foram negadas no seu navegador.');
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+function addToGoogleCalendar() {
+    const title = `Sorteio Amigo Secreto: ${props.event.title}`;
+    const details = `Hoje é o dia de ver quem você tirou no Amigo Secreto!\n\nLink secreto individual:\n${window.location.href}\n\nOrganizado por: ${props.event.organizer_name}`;
+    const location = props.event.location || '';
+    
+    const dateStr = props.event.raw_draw_date || props.event.raw_event_date;
+    let datesParam = '';
+    if (dateStr) {
+        const clean = dateStr.replace(/-/g, '');
+        datesParam = `${clean}T120000/${clean}T130000`;
+    } else {
+        const future = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+        const y = future.getFullYear();
+        const m = String(future.getMonth() + 1).padStart(2, '0');
+        const d = String(future.getDate()).padStart(2, '0');
+        datesParam = `${y}${m}${d}T120000/${y}${m}${d}T130000`;
+    }
+
+    const gUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${datesParam}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(location)}`;
+    window.open(gUrl, '_blank');
+    showToast('Abrindo Google Agenda...');
+}
+
+function downloadCalendarIcs() {
+    const dateStr = props.event.raw_draw_date || props.event.raw_event_date;
+    let startDate = '';
+    let endDate = '';
+    if (dateStr) {
+        const clean = dateStr.replace(/-/g, '');
+        startDate = `${clean}T120000`;
+        endDate = `${clean}T130000`;
+    } else {
+        const future = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+        const y = future.getFullYear();
+        const m = String(future.getMonth() + 1).padStart(2, '0');
+        const d = String(future.getDate()).padStart(2, '0');
+        startDate = `${y}${m}${d}T120000`;
+        endDate = `${y}${m}${d}T130000`;
+    }
+
+    const title = `Sorteio Amigo Secreto: ${props.event.title}`;
+    const details = `Seu link exclusivo para ver seu amigo secreto:\\n${window.location.href}`;
+    const location = props.event.location || '';
+    
+    const icsContent = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Amigo Secreto//PT',
+        'CALSCALE:GREGORIAN',
+        'METHOD:PUBLISH',
+        'BEGIN:VEVENT',
+        `UID:${props.participant.token}@amigosecreto`,
+        `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z`,
+        `DTSTART:${startDate}`,
+        `DTEND:${endDate}`,
+        `SUMMARY:${title}`,
+        `DESCRIPTION:${details}`,
+        `LOCATION:${location}`,
+        `URL:${window.location.href}`,
+        'BEGIN:VALARM',
+        'TRIGGER:-PT15M',
+        'ACTION:DISPLAY',
+        'DESCRIPTION:Lembrete: Sorteio do Amigo Secreto',
+        'END:VALARM',
+        'END:VEVENT',
+        'END:VCALENDAR'
+    ].join('\r\n');
+
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `amigo-secreto-${props.event.id}.ics`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showToast('Lembrete de calendário baixado! Abra para salvar no seu celular.');
+}
+
 function downloadCardImage() {
     const canvas = document.createElement('canvas');
     canvas.width = 900;
@@ -234,7 +351,7 @@ function downloadCardImage() {
     ctx.font = 'bold 16px sans-serif';
     ctx.fillStyle = '#fecdd3';
     ctx.textAlign = 'center';
-    ctx.fillText('✨ AMIGO SECRETO ✨', 450, 88);
+    ctx.fillText('AMIGO SECRETO', 450, 88);
     ctx.restore();
 
     // Event Title
@@ -276,7 +393,7 @@ function downloadCardImage() {
         ctx.fillStyle = nameGrad;
         ctx.fillText(props.secret_friend.name, 450, 365);
 
-        ctx.font = 'italic 17px sans-serif';
+        ctx.font = '17px sans-serif';
         ctx.fillStyle = '#cbd5e1';
         ctx.fillText('🤫 Guarde este segredo a sete chaves até a festa!', 450, 415);
 
@@ -374,6 +491,21 @@ function downloadCardImage() {
 }
 
 onMounted(() => {
+    notificationSupported.value = ('Notification' in window);
+    if (notificationSupported.value) {
+        notificationsEnabled.value = (Notification.permission === 'granted');
+    }
+
+    // Check if just registered (via flash session or query param) or first time viewing before draw
+    const isJustRegistered = page.props.flash?.just_registered || new URLSearchParams(window.location.search).has('registered');
+    const hasSeenGuide = localStorage.getItem('onboarding_seen_' + props.participant.token);
+
+    if (isJustRegistered || (!props.event.is_drawn && !hasSeenGuide)) {
+        setTimeout(() => {
+            showOnboardingSaveModal.value = true;
+        }, 400);
+    }
+
     // If already revealed previously, fire a soft greeting confetti
     if (isRevealed.value) {
         setTimeout(() => {
@@ -548,7 +680,18 @@ onMounted(() => {
                     </p>
                 </div>
 
-                <div class="pt-4 flex items-center justify-center gap-4 text-xs text-slate-400 font-semibold">
+                <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <button
+                        type="button"
+                        @click="showOnboardingSaveModal = true"
+                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl text-xs font-bold text-white bg-gradient-to-r from-rose-600 via-rose-500 to-amber-500 hover:from-rose-500 hover:to-amber-400 shadow-lg shadow-rose-950/40 transition-all hover:scale-[1.02] cursor-pointer"
+                    >
+                        <Bookmark class="w-4 h-4 text-amber-300" />
+                        <span>Como Salvar Meu Link e Programar Lembrete 🔔</span>
+                    </button>
+                </div>
+
+                <div class="pt-2 flex items-center justify-center gap-4 text-xs text-slate-400 font-semibold">
                     <span>Participantes confirmados até agora: <strong class="text-rose-400">{{ event.participants_count }}</strong></span>
                 </div>
             </div>
@@ -849,6 +992,169 @@ onMounted(() => {
                 >
                     Entendido, fechar
                 </button>
+            </div>
+        </div>
+
+        <!-- MODAL: Salvar Link e Ativar Notificações / Programar Lembrete (Onboarding) -->
+        <div v-if="showOnboardingSaveModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200">
+            <div class="w-full max-w-lg rounded-3xl bg-slate-900 border border-slate-700/80 p-6 sm:p-7 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200 max-h-[92vh] overflow-y-auto">
+                <!-- Header -->
+                <div class="flex items-start justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-rose-500 to-amber-500 text-white flex items-center justify-center shadow-lg shadow-rose-900/40 shrink-0">
+                            <Gift class="w-6 h-6" />
+                        </div>
+                        <div>
+                            <h3 class="text-lg sm:text-xl font-bold font-display text-white">
+                                Guarde o Seu Link Exclusivo! 🎁
+                            </h3>
+                            <p class="text-xs text-slate-300">
+                                Olá, <strong class="text-white">{{ participant.name }}</strong>! É por este link que você saberá quem tirou.
+                            </p>
+                        </div>
+                    </div>
+                    <button @click="closeOnboardingSaveModal" class="text-slate-400 hover:text-white p-1 rounded-lg shrink-0 cursor-pointer">
+                        <X class="w-5 h-5" />
+                    </button>
+                </div>
+
+                <!-- Explanation Banner -->
+                <div class="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-200 space-y-1">
+                    <div class="font-bold flex items-center gap-1.5 text-amber-300">
+                        <Bookmark class="w-4 h-4" />
+                        <span>Não perca o acesso ao seu amigo secreto</span>
+                    </div>
+                    <p class="leading-relaxed text-[11px] text-amber-200/90">
+                        Você não precisa criar senha nem login! Seu acesso é este link direto. Salve agora mesmo usando as opções abaixo para consultar facilmente no dia do sorteio.
+                    </p>
+                </div>
+
+                <!-- Options Grid -->
+                <div class="space-y-3 text-xs">
+                    <!-- Opção 1: WhatsApp (Conversa Comigo) -->
+                    <div class="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700/80 flex items-center justify-between gap-3">
+                        <div class="space-y-0.5 min-w-0">
+                            <div class="font-bold text-white flex items-center gap-2">
+                                <MessageCircle class="w-4 h-4 text-emerald-400 shrink-0" />
+                                <span>Salvar no WhatsApp</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 truncate">Envie para si mesmo ou guarde na sua conversa</p>
+                        </div>
+                        <button
+                            type="button"
+                            @click="handleShareWhatsApp"
+                            class="px-3.5 py-2 rounded-xl text-xs font-bold text-emerald-300 bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-800/60 transition-colors shrink-0 flex items-center gap-1.5 cursor-pointer"
+                        >
+                            <MessageCircle class="w-3.5 h-3.5" />
+                            <span>Enviar</span>
+                        </button>
+                    </div>
+
+                    <!-- Opção 2: Copiar Link -->
+                    <div class="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700/80 flex items-center justify-between gap-3">
+                        <div class="space-y-0.5 min-w-0">
+                            <div class="font-bold text-white flex items-center gap-2">
+                                <Copy class="w-4 h-4 text-indigo-400 shrink-0" />
+                                <span>Copiar Link Secreto</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 truncate">Copie para colar nas suas notas ou favoritos</p>
+                        </div>
+                        <button
+                            type="button"
+                            @click="handleCopyLink"
+                            class="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-200 bg-slate-700 hover:bg-slate-600 border border-slate-600 transition-colors shrink-0 flex items-center gap-1.5 cursor-pointer"
+                        >
+                            <Check v-if="copiedPageLink" class="w-3.5 h-3.5 text-emerald-400" />
+                            <Copy v-else class="w-3.5 h-3.5" />
+                            <span>{{ copiedPageLink ? 'Copiado!' : 'Copiar' }}</span>
+                        </button>
+                    </div>
+
+                    <!-- Opção 3: Adicionar Atalho à Tela Inicial -->
+                    <div class="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700/80 flex items-center justify-between gap-3">
+                        <div class="space-y-0.5 min-w-0">
+                            <div class="font-bold text-white flex items-center gap-2">
+                                <Smartphone class="w-4 h-4 text-rose-400 shrink-0" />
+                                <span>Adicionar à Tela de Início</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 truncate">Fica como um ícone de app no celular</p>
+                        </div>
+                        <button
+                            type="button"
+                            @click="handleAddToHomeScreen"
+                            class="px-3.5 py-2 rounded-xl text-xs font-bold text-rose-300 bg-rose-950/70 hover:bg-rose-900 border border-rose-800/60 transition-colors shrink-0 flex items-center gap-1.5 cursor-pointer"
+                        >
+                            <Smartphone class="w-3.5 h-3.5" />
+                            <span>Ver Como</span>
+                        </button>
+                    </div>
+
+                    <!-- Opção 4: Programar Lembrete no Calendário (Sem precisar de cron) -->
+                    <div class="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700/80 space-y-2.5">
+                        <div class="space-y-0.5">
+                            <div class="font-bold text-white flex items-center gap-2">
+                                <Calendar class="w-4 h-4 text-amber-400 shrink-0" />
+                                <span>Programar Lembrete no Calendário</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400">
+                                O seu celular irá te avisar com alarme e o link direto do sorteio:
+                            </p>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                            <button
+                                type="button"
+                                @click="addToGoogleCalendar"
+                                class="w-full py-2 px-3 rounded-xl text-xs font-bold text-slate-100 bg-slate-700 hover:bg-slate-600 border border-slate-600 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                            >
+                                <span>📅 Google Agenda</span>
+                            </button>
+                            <button
+                                type="button"
+                                @click="downloadCalendarIcs"
+                                class="w-full py-2 px-3 rounded-xl text-xs font-bold text-slate-100 bg-slate-700 hover:bg-slate-600 border border-slate-600 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                            >
+                                <span>📲 Apple / Celular (.ics)</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Opção 5: Ativar Notificações do Navegador -->
+                    <div class="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700/80 flex items-center justify-between gap-3">
+                        <div class="space-y-0.5 min-w-0">
+                            <div class="font-bold text-white flex items-center gap-2">
+                                <BellRing class="w-4 h-4 text-yellow-400 shrink-0" />
+                                <span>Notificações no Navegador</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 truncate">
+                                {{ notificationsEnabled ? 'Notificações já estão ativadas!' : 'Receba avisos diretamente neste navegador' }}
+                            </p>
+                        </div>
+                        <button
+                            v-if="!notificationsEnabled"
+                            type="button"
+                            @click="requestBrowserNotifications"
+                            class="px-3.5 py-2 rounded-xl text-xs font-bold text-yellow-300 bg-yellow-950/70 hover:bg-yellow-900 border border-yellow-800/60 transition-colors shrink-0 flex items-center gap-1.5 cursor-pointer"
+                        >
+                            <Bell class="w-3.5 h-3.5" />
+                            <span>Ativar</span>
+                        </button>
+                        <span v-else class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400 bg-emerald-950/60 px-2.5 py-1 rounded-lg border border-emerald-800/60 shrink-0">
+                            <CheckCircle2 class="w-3.5 h-3.5" />
+                            <span>Ativado</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Footer button -->
+                <div class="pt-2">
+                    <button
+                        type="button"
+                        @click="closeOnboardingSaveModal"
+                        class="w-full py-3 rounded-2xl font-bold text-xs sm:text-sm text-white bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 shadow-xl shadow-rose-950/40 transition-all active:scale-95 cursor-pointer"
+                    >
+                        Entendido, Já Salvei Meu Link! 👍
+                    </button>
+                </div>
             </div>
         </div>
 
