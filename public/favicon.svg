@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="fav-border" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f43f5e"/>
+      <stop offset="50%" stop-color="#e11d48"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <linearGradient id="fav-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="50%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="fav-box" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+  </defs>
+  <!-- Background squircle -->
+  <rect x="3" y="3" width="58" height="58" rx="16" fill="url(#fav-box)" stroke="url(#fav-border)" stroke-width="2.5"/>
+  <!-- Gift box body -->
+  <rect x="14" y="27" width="36" height="24" rx="3" fill="#0f172a" stroke="url(#fav-gold)" stroke-width="2"/>
+  <!-- Lid -->
+  <rect x="11" y="21" width="42" height="8" rx="2.5" fill="url(#fav-border)"/>
+  <!-- Vertical Ribbon -->
+  <rect x="29" y="21" width="6" height="30" fill="url(#fav-gold)"/>
+  <!-- Horizontal Ribbon -->
+  <rect x="14" y="36" width="36" height="5" fill="url(#fav-gold)"/>
+  <!-- Bows -->
+  <path d="M32 21 C25 9 17 14 23 20 C26 22 30 21 32 21 Z" fill="url(#fav-gold)"/>
+  <path d="M32 21 C39 9 47 14 41 20 C38 22 34 21 32 21 Z" fill="url(#fav-gold)"/>
+  <!-- Bow center knot -->
+  <circle cx="32" cy="21" r="3" fill="#fef08a"/>
+</svg>
