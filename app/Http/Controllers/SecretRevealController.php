@@ -55,6 +55,7 @@ class SecretRevealController extends Controller
                 'dislikes' => $participant->dislikes,
                 'is_revealed' => $isRevealed,
                 'revealed_at' => $participant->revealed_at?->format('d/m/Y H:i'),
+                'created_at' => $participant->created_at?->format('d/m/Y H:i'),
             ],
             'event' => [
                 'id' => $event->id,
@@ -68,6 +69,7 @@ class SecretRevealController extends Controller
                 'location' => $event->location,
                 'status' => $event->status,
                 'is_drawn' => $isDrawn,
+                'drawn_at' => $event->drawn_at?->format('d/m/Y H:i'),
                 'organizer_name' => $event->user?->name ?? 'Organizador',
                 'participants_count' => $event->participants()->count(),
             ],
