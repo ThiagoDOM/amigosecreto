@@ -18,12 +18,16 @@ const items = computed(() => {
     return parseWishlist(props.wishlist);
 });
 
+const mlTool = import.meta.env.VITE_MERCADOLIVRE_AFFILIATE_TOOL || '';
+const mlWord = import.meta.env.VITE_MERCADOLIVRE_AFFILIATE_WORD || '';
+
 function getShopeeSearchUrl(query) {
     return `https://shopee.com.br/search?keyword=${encodeURIComponent(query)}`;
 }
 
 function getMercadoLivreSearchUrl(query) {
-    return `https://lista.mercadolivre.com.br/${encodeURIComponent(query)}`;
+    const encoded = encodeURIComponent(query);
+    return `https://lista.mercadolivre.com.br/${encoded}?matt_tool=${mlTool}&matt_word=${mlWord}&forceInApp=true`;
 }
 </script>
 

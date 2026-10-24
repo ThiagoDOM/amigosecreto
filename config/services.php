@@ -47,7 +47,8 @@ return [
         'mercadolivre' => [
             'app_id' => env('MERCADOLIVRE_AFFILIATE_APP_ID'),
             'secret' => env('MERCADOLIVRE_AFFILIATE_SECRET'),
-            'tag' => env('MERCADOLIVRE_AFFILIATE_TAG'),
+            'tag' => env('MERCADOLIVRE_AFFILIATE_TAG', ''),
+            'word' => env('MERCADOLIVRE_AFFILIATE_WORD', ''),
         ],
         'amazon' => [
             'tag' => env('AMAZON_AFFILIATE_TAG'),
