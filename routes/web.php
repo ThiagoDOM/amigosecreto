@@ -26,6 +26,23 @@ Route::get('/termos-de-uso', function () {
     return Inertia::render('Legal/TermsOfService');
 })->name('terms');
 
+// Google AdSense ads.txt verification
+Route::get('/ads.txt', function () {
+    $adsTxt = public_path('ads.txt');
+    if (file_exists($adsTxt) && ! empty(trim(file_get_contents($adsTxt)))) {
+        return response(file_get_contents($adsTxt), 200, ['Content-Type' => 'text/plain']);
+    }
+
+    $pubId = env('GOOGLE_ADSENSE_PUB_ID') ?: env('VITE_GOOGLE_ADSENSE_ID');
+    if (! empty($pubId)) {
+        $cleanPub = str_replace('ca-', '', $pubId);
+
+        return response("google.com, {$cleanPub}, DIRECT, f08c47fec0942fa0\n", 200, ['Content-Type' => 'text/plain']);
+    }
+
+    return response("# ads.txt - GiftMatch\n", 200, ['Content-Type' => 'text/plain']);
+});
+
 // Public Invite Routes (No login required)
 Route::get('/convite/{code}', [InviteController::class, 'show'])->name('invite.show');
 Route::post('/convite/{code}', [InviteController::class, 'join'])->name('invite.join');
