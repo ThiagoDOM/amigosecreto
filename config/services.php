@@ -43,13 +43,13 @@ return [
         'shopee' => [
             'app_id' => env('SHOPEE_AFFILIATE_APP_ID'),
             'secret' => env('SHOPEE_AFFILIATE_SECRET'),
-            'pid' => env('SHOPEE_AFFILIATE_PID', ''),
+            'pid' => env('SHOPEE_AFFILIATE_PID'),
         ],
         'mercadolivre' => [
             'app_id' => env('MERCADOLIVRE_AFFILIATE_APP_ID'),
             'secret' => env('MERCADOLIVRE_AFFILIATE_SECRET'),
-            'tag' => env('MERCADOLIVRE_AFFILIATE_TAG', ''),
-            'word' => env('MERCADOLIVRE_AFFILIATE_WORD', ''),
+            'tag' => env('MERCADOLIVRE_AFFILIATE_TAG'),
+            'word' => env('MERCADOLIVRE_AFFILIATE_WORD'),
         ],
         'amazon' => [
             'tag' => env('AMAZON_AFFILIATE_TAG'),

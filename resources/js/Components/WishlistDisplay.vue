@@ -24,12 +24,18 @@ const shopeePid = import.meta.env.VITE_SHOPEE_AFFILIATE_PID || '';
 
 function getShopeeSearchUrl(query) {
     const encoded = encodeURIComponent(query);
-    return `https://shopee.com.br/search?keyword=${encoded}&utm_source=${shopeePid}&utm_medium=affiliates&mmp_pid=${shopeePid}`;
+    if (shopeePid) {
+        return `https://shopee.com.br/search?keyword=${encoded}&utm_source=${shopeePid}&utm_medium=affiliates&mmp_pid=${shopeePid}`;
+    }
+    return `https://shopee.com.br/search?keyword=${encoded}`;
 }
 
 function getMercadoLivreSearchUrl(query) {
     const encoded = encodeURIComponent(query);
-    return `https://lista.mercadolivre.com.br/${encoded}?matt_tool=${mlTool}&matt_word=${mlWord}&forceInApp=true`;
+    if (mlTool) {
+        return `https://lista.mercadolivre.com.br/${encoded}?matt_tool=${mlTool}&matt_word=${mlWord}&forceInApp=true`;
+    }
+    return `https://lista.mercadolivre.com.br/${encoded}`;
 }
 </script>
 
