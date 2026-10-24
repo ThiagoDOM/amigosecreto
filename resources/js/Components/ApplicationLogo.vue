@@ -12,8 +12,8 @@
                 </svg>
             </div>
         </div>
-        <span class="font-display font-extrabold text-xl tracking-tight bg-gradient-to-r from-rose-600 via-rose-500 to-amber-500 bg-clip-text text-transparent">
-            Amigo<span class="text-slate-800 dark:text-white">Secreto</span>
+        <span class="font-display font-extrabold text-xl tracking-tight bg-gradient-to-r from-rose-500 via-rose-400 to-amber-400 bg-clip-text text-transparent">
+            Gift<span class="text-slate-900 dark:text-white">Match</span>
         </span>
     </div>
 </template>
