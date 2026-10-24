@@ -43,6 +43,20 @@ Route::get('/ads.txt', function () {
     return response("# ads.txt - GiftMatch\n", 200, ['Content-Type' => 'text/plain']);
 });
 
+// Search Engine XML Sitemap
+Route::get('/sitemap.xml', function () {
+    $sitemapPath = public_path('sitemap.xml');
+    if (file_exists($sitemapPath)) {
+        return response(file_get_contents($sitemapPath), 200, [
+            'Content-Type' => 'application/xml; charset=utf-8',
+        ]);
+    }
+
+    return response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>', 200, [
+        'Content-Type' => 'application/xml; charset=utf-8',
+    ]);
+});
+
 // Public Invite Routes (No login required)
 Route::get('/convite/{code}', [InviteController::class, 'show'])->name('invite.show');
 Route::post('/convite/{code}', [InviteController::class, 'join'])->name('invite.join');
