@@ -7,6 +7,7 @@ import GoogleAd from '@/Components/GoogleAd.vue';
 import ToastNotification from '@/Components/ToastNotification.vue';
 import WishlistEditor from '@/Components/WishlistEditor.vue';
 import WishlistDisplay from '@/Components/WishlistDisplay.vue';
+import AffiliateRecommendations from '@/Components/AffiliateRecommendations.vue';
 import { formatDate, formatCurrency, parseWishlist } from '@/Utils/formatters';
 import confetti from 'canvas-confetti';
 import { 
@@ -863,6 +864,9 @@ onMounted(() => {
                     </div>
                 </div>
             </div>
+
+            <!-- Affiliate Recommendations (Shopee & Mercado Livre) -->
+            <AffiliateRecommendations :friend-name="secret_friend?.name" />
 
             <!-- Participant's OWN Wishlist Box (Can be edited anytime) -->
             <div class="rounded-3xl bg-slate-900/90 border border-slate-800 p-6 sm:p-8 shadow-2xl backdrop-blur-xl space-y-4">

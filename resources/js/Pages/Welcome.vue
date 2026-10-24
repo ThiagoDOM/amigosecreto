@@ -5,6 +5,7 @@ import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 
 const CookieConsent = defineAsyncComponent(() => import('@/Components/CookieConsent.vue'));
 const GoogleAd = defineAsyncComponent(() => import('@/Components/GoogleAd.vue'));
+const AffiliateRecommendations = defineAsyncComponent(() => import('@/Components/AffiliateRecommendations.vue'));
 import { 
     Gift, 
     ArrowRight, 
@@ -291,6 +292,14 @@ function goToInvite() {
                     </div>
                 </div>
             </section>
+
+            <!-- Affiliate Partner Deals (Shopee & Mercado Livre) -->
+            <div class="max-w-4xl mx-auto px-4 w-full mt-8">
+                <AffiliateRecommendations
+                    title="Ideias e Ofertas de Presentes para Amigo Secreto"
+                    subtitle="Garanta seu presente com descontos exclusivos, cupons e frete grátis nas maiores lojas do Brasil:"
+                />
+            </div>
 
             <!-- Google AdSense Native Banner -->
             <div class="max-w-4xl mx-auto px-4 w-full">

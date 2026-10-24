@@ -5,6 +5,7 @@ import CookieConsent from '@/Components/CookieConsent.vue';
 import GoogleAd from '@/Components/GoogleAd.vue';
 import ToastNotification from '@/Components/ToastNotification.vue';
 import WishlistEditor from '@/Components/WishlistEditor.vue';
+import AffiliateRecommendations from '@/Components/AffiliateRecommendations.vue';
 import { formatDate, formatCurrency, maskPhone } from '@/Utils/formatters';
 import { 
     Gift, 
@@ -272,6 +273,14 @@ function submit() {
                     </p>
                 </div>
             </form>
+
+            <!-- Affiliate Recommendations (Inspiration for wishlist) -->
+            <div class="mt-8">
+                <AffiliateRecommendations
+                    title="Procurando ideias para sua lista de presentes?"
+                    subtitle="Confira sugestões com cupom e frete grátis na Shopee e no Mercado Livre para adicionar à sua lista:"
+                />
+            </div>
 
             <!-- Google AdSense Unit -->
             <GoogleAd slot-id="invite-bottom" />
