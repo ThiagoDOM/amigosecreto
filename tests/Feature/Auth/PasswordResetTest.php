@@ -70,4 +70,21 @@ class PasswordResetTest extends TestCase
             return true;
         });
     }
+
+    public function test_reset_password_email_content_is_in_portuguese(): void
+    {
+        $user = User::factory()->create([
+            'name' => 'Thiago Moreira',
+            'email' => 'thiago@example.com',
+        ]);
+
+        $notification = new ResetPassword('sample-token');
+        $mail = $notification->toMail($user);
+
+        $this->assertEquals('Recuperação de Senha - '.config('app.name'), $mail->subject);
+        $this->assertEquals('Redefinir Minha Senha', $mail->actionText);
+        $this->assertEquals('Olá, Thiago Moreira!', $mail->greeting);
+        $this->assertStringContainsString('redefinição de senha', implode(' ', $mail->introLines));
+        $this->assertStringContainsString('Equipe '.config('app.name'), $mail->salutation);
+    }
 }

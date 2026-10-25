@@ -36,7 +36,7 @@ function copyInviteLink(event) {
 
 function getInviteText(event) {
     return `*Convite para o Amigo Secreto: ${event.title}*!\n\n` +
-        `O sorteio está sendo organizado no Amigo Secreto.\n` +
+        `O sorteio está sendo organizado no GiftMatch.\n` +
         (event.budget_limit ? `💰 *Valor sugerido:* ${formatCurrency(event.budget_limit)}\n` : '') +
         (event.event_date ? `📅 *Data da confraternização:* ${formatDate(event.event_date)}\n` : '') +
         `\n👇 *Entre no grupo e cadastre sua lista de presentes aqui:*\n${event.invite_url}`;
