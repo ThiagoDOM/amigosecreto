@@ -1,5 +1,6 @@
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { ref } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import CookieConsent from '@/Components/CookieConsent.vue';
 import GoogleAd from '@/Components/GoogleAd.vue';
@@ -14,7 +15,9 @@ import {
     MapPin, 
     User, 
     CheckCircle2, 
-    AlertCircle 
+    AlertCircle,
+    ChevronDown,
+    Sparkles
 } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -38,6 +41,8 @@ const form = useForm({
     dislikes: '',
 });
 
+const showPreferences = ref(false);
+
 function onPhoneInput(e) {
     const masked = maskPhone(e.target.value);
     form.phone = masked;
@@ -45,7 +50,13 @@ function onPhoneInput(e) {
 }
 
 function submit() {
-    form.post(route('invite.join', props.event.code));
+    form.post(route('invite.join', props.event.code), {
+        onError: () => {
+            if (form.errors.wishlist) {
+                showPreferences.value = true;
+            }
+        },
+    });
 }
 </script>
 
@@ -203,83 +214,119 @@ function submit() {
                     </div>
                 </div>
 
-                <!-- Marketing Opt-in for Participant (visible if email is filled) -->
-                <div v-if="form.email" class="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-700/80 transition-all">
+                <!-- Marketing Opt-in for Participant (Always Visible) -->
+                <div class="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-700/80 hover:border-slate-600 transition-colors">
                     <label class="flex items-start gap-2.5 cursor-pointer select-none">
                         <input
                             type="checkbox"
                             v-model="form.marketing_opt_in"
                             class="mt-0.5 w-4 h-4 rounded border-slate-700 bg-slate-950 text-rose-600 focus:ring-rose-500/30 focus:ring-offset-slate-900 transition-colors"
                         />
-                        <span class="text-xs text-slate-300 leading-relaxed">
-                            Aceito receber novidades, dicas de presentes e e-mails promocionais do GiftMatch.
-                        </span>
+                        <div class="text-xs leading-relaxed">
+                            <span class="font-medium text-slate-200 block">
+                                Aceito receber novidades, dicas de presentes e promoções do GiftMatch por e-mail.
+                            </span>
+                            <span class="text-[11px] text-slate-400 block mt-0.5">
+                                Enviamos apenas sugestões úteis e cupons para seu amigo secreto.
+                            </span>
+                        </div>
                     </label>
                 </div>
 
-                <!-- Structured Wishlist Editor with Link Support -->
-                <div class="pt-2">
-                    <WishlistEditor v-model="form.wishlist" />
-                    <div v-if="form.errors.wishlist" class="text-xs text-rose-400 font-semibold mt-1">
-                        {{ form.errors.wishlist }}
-                    </div>
-                </div>
-
-                <!-- Sizes Grid -->
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-1.5">
-                        <label for="clothing_size" class="block text-xs font-bold uppercase tracking-wider text-slate-200">
-                            Tamanho de Roupa
-                        </label>
-                        <input
-                            id="clothing_size"
-                            v-model="form.clothing_size"
-                            type="text"
-                            placeholder="Ex: M, G, 42"
-                            class="w-full px-4 py-3 rounded-2xl bg-slate-800/90 border border-slate-700 text-white placeholder-slate-400 text-sm focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
+                <!-- Optional Preferences Collapsible Accordion -->
+                <div class="rounded-2xl border border-slate-800 bg-slate-800/40 overflow-hidden transition-all">
+                    <button
+                        type="button"
+                        @click="showPreferences = !showPreferences"
+                        class="w-full flex items-center justify-between p-4 hover:bg-slate-800/70 transition-colors text-left"
+                    >
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-rose-500/15 text-rose-400 flex items-center justify-center shrink-0">
+                                <Sparkles class="w-5 h-5" />
+                            </div>
+                            <div>
+                                <span class="text-sm font-bold text-white block">
+                                    Desejos de presentes e tamanhos (opcional)
+                                </span>
+                                <span class="text-xs text-slate-400 block">
+                                    {{ showPreferences ? 'Ocultar detalhes adicionais' : 'Clique para adicionar sugestões, tamanhos ou gostos agora' }}
+                                </span>
+                            </div>
+                        </div>
+                        <ChevronDown
+                            class="w-5 h-5 text-slate-400 transition-transform duration-200 shrink-0"
+                            :class="{ 'rotate-180 text-rose-400': showPreferences }"
                         />
-                    </div>
+                    </button>
 
-                    <div class="space-y-1.5">
-                        <label for="shoe_size" class="block text-xs font-bold uppercase tracking-wider text-slate-200">
-                            Tamanho de Calçado
-                        </label>
-                        <input
-                            id="shoe_size"
-                            v-model="form.shoe_size"
-                            type="text"
-                            placeholder="Ex: 38, 40, 42"
-                            class="w-full px-4 py-3 rounded-2xl bg-slate-800/90 border border-slate-700 text-white placeholder-slate-400 text-sm focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
-                        />
-                    </div>
-                </div>
+                    <div v-show="showPreferences" class="p-4 pt-2 border-t border-slate-800/80 space-y-4">
+                        <p class="text-xs text-slate-300">
+                            💡 Você também poderá cadastrar ou alterar seus presentes a qualquer momento após entrar no amigo secreto.
+                        </p>
 
-                <!-- Likes & Dislikes -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="space-y-1.5">
-                        <label for="likes" class="block text-xs font-bold uppercase tracking-wider text-slate-200">
-                            O que você adora?
-                        </label>
-                        <input
-                            id="likes"
-                            v-model="form.likes"
-                            type="text"
-                            placeholder="Ex: Café, gatos, plantas, séries"
-                            class="w-full px-4 py-3 rounded-2xl bg-slate-800/90 border border-slate-700 text-white placeholder-slate-400 text-sm focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
-                        />
-                    </div>
+                        <!-- Structured Wishlist Editor with Link Support -->
+                        <WishlistEditor v-model="form.wishlist" />
+                        <div v-if="form.errors.wishlist" class="text-xs text-rose-400 font-semibold">
+                            {{ form.errors.wishlist }}
+                        </div>
 
-                    <div class="space-y-1.5">
-                        <label for="dislikes" class="block text-xs font-bold uppercase tracking-wider text-slate-200">
-                            Não gosta / Alergias
-                        </label>
-                        <input
-                            id="dislikes"
-                            v-model="form.dislikes"
-                            type="text"
-                            placeholder="Ex: Lactose, cheiros fortes"
-                            class="w-full px-4 py-3 rounded-2xl bg-slate-800/90 border border-slate-700 text-white placeholder-slate-400 text-sm focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
-                        />
+                        <!-- Sizes Grid -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="space-y-1">
+                                <label for="clothing_size" class="block text-xs font-bold uppercase tracking-wider text-slate-300">
+                                    Tamanho de Roupa
+                                </label>
+                                <input
+                                    id="clothing_size"
+                                    v-model="form.clothing_size"
+                                    type="text"
+                                    placeholder="Ex: M, G, 42"
+                                    class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-rose-500"
+                                />
+                            </div>
+
+                            <div class="space-y-1">
+                                <label for="shoe_size" class="block text-xs font-bold uppercase tracking-wider text-slate-300">
+                                    Tamanho de Calçado
+                                </label>
+                                <input
+                                    id="shoe_size"
+                                    v-model="form.shoe_size"
+                                    type="text"
+                                    placeholder="Ex: 38, 40, 42"
+                                    class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-rose-500"
+                                />
+                            </div>
+                        </div>
+
+                        <!-- Likes & Dislikes -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="space-y-1">
+                                <label for="likes" class="block text-xs font-bold uppercase tracking-wider text-slate-300">
+                                    O que você adora?
+                                </label>
+                                <input
+                                    id="likes"
+                                    v-model="form.likes"
+                                    type="text"
+                                    placeholder="Ex: Café, gatos, plantas, séries"
+                                    class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-rose-500"
+                                />
+                            </div>
+
+                            <div class="space-y-1">
+                                <label for="dislikes" class="block text-xs font-bold uppercase tracking-wider text-slate-300">
+                                    Não gosta / Alergias
+                                </label>
+                                <input
+                                    id="dislikes"
+                                    v-model="form.dislikes"
+                                    type="text"
+                                    placeholder="Ex: Lactose, cheiros fortes"
+                                    class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-rose-500"
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
 
