@@ -287,4 +287,150 @@ class EventFlowTest extends TestCase
         $mailable->assertSeeInHtml($p1->name);
         $mailable->assertSeeInHtml(route('secret.show', ['token' => $p1->token]));
     }
+
+    public function test_joining_event_queues_participant_session_cookie(): void
+    {
+        $user = User::factory()->create();
+        $event = Event::create([
+            'user_id' => $user->id,
+            'title' => 'Amigo da Firma',
+            'code' => Event::generateUniqueCode(),
+        ]);
+
+        $response = $this->post(route('invite.join', $event->code), [
+            'name' => 'Carla Silva',
+            'email' => 'carla@empresa.com',
+        ]);
+
+        $participant = Participant::where('name', 'Carla Silva')->firstOrFail();
+        $response->assertRedirect(route('secret.show', ['token' => $participant->token]));
+        $response->assertCookie('participant_tokens');
+
+        $cookieValue = $response->getCookie('participant_tokens')->getValue();
+        $this->assertStringContainsString($participant->token, (string) $cookieValue);
+    }
+
+    public function test_visiting_invite_with_active_session_redirects_to_secret_show(): void
+    {
+        $user = User::factory()->create();
+        $event = Event::create([
+            'user_id' => $user->id,
+            'title' => 'Festa de Fim de Ano',
+            'code' => Event::generateUniqueCode(),
+            'event_date' => now()->addDays(10),
+        ]);
+
+        $participant = Participant::create([
+            'event_id' => $event->id,
+            'name' => 'Rodrigo Teste',
+            'token' => Participant::generateUniqueToken(),
+        ]);
+
+        $response = $this->withCookies([
+            'participant_tokens' => json_encode([$participant->token]),
+        ])->get(route('invite.show', $event->code));
+
+        $response->assertRedirect(route('secret.show', ['token' => $participant->token]));
+        $response->assertSessionHas('info');
+    }
+
+    public function test_visiting_invite_with_novo_param_bypasses_redirect(): void
+    {
+        $user = User::factory()->create();
+        $event = Event::create([
+            'user_id' => $user->id,
+            'title' => 'Festa de Fim de Ano 2',
+            'code' => Event::generateUniqueCode(),
+            'event_date' => now()->addDays(10),
+        ]);
+
+        $participant = Participant::create([
+            'event_id' => $event->id,
+            'name' => 'Rodrigo Teste 2',
+            'token' => Participant::generateUniqueToken(),
+        ]);
+
+        $response = $this->withCookies([
+            'participant_tokens' => json_encode([$participant->token]),
+        ])->get(route('invite.show', ['code' => $event->code, 'novo' => 1]));
+
+        $response->assertStatus(200);
+    }
+
+    public function test_home_page_displays_active_participations_within_three_days_after_event_date(): void
+    {
+        $user = User::factory()->create();
+        $event = Event::create([
+            'user_id' => $user->id,
+            'title' => 'Natal Especial',
+            'code' => Event::generateUniqueCode(),
+            'event_date' => now()->subDays(2), // 2 days ago: still within the 3 days window
+        ]);
+
+        $participant = Participant::create([
+            'event_id' => $event->id,
+            'name' => 'Luciana Amiga',
+            'token' => Participant::generateUniqueToken(),
+        ]);
+
+        $response = $this->withCookies([
+            'participant_tokens' => json_encode([$participant->token]),
+        ])->get('/');
+
+        $response->assertStatus(200);
+        $response->assertInertia(fn ($page) => $page
+            ->component('Welcome')
+            ->has('activeParticipations', 1)
+            ->where('activeParticipations.0.token', $participant->token)
+            ->where('activeParticipations.0.event_title', 'Natal Especial')
+            ->where('activeParticipations.0.participant_name', 'Luciana Amiga')
+        );
+    }
+
+    public function test_home_page_filters_out_expired_participations_after_three_days(): void
+    {
+        $user = User::factory()->create();
+        $event = Event::create([
+            'user_id' => $user->id,
+            'title' => 'Evento Antigo',
+            'code' => Event::generateUniqueCode(),
+            'event_date' => now()->subDays(5), // 5 days ago: expired (> 3 days)
+        ]);
+
+        $participant = Participant::create([
+            'event_id' => $event->id,
+            'name' => 'Participante Antigo',
+            'token' => Participant::generateUniqueToken(),
+        ]);
+
+        $response = $this->withCookies([
+            'participant_tokens' => json_encode([$participant->token]),
+        ])->get('/');
+
+        $response->assertStatus(200);
+        $response->assertInertia(fn ($page) => $page
+            ->component('Welcome')
+            ->has('activeParticipations', 0)
+        );
+    }
+
+    public function test_participant_can_forget_session(): void
+    {
+        $token1 = Participant::generateUniqueToken();
+        $token2 = Participant::generateUniqueToken();
+
+        $response = $this->withCookies([
+            'participant_tokens' => json_encode([$token1, $token2]),
+        ])->post(route('participant.session.forget'), [
+            'token' => $token1,
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $cookie = $response->getCookie('participant_tokens');
+        $this->assertNotNull($cookie);
+        $this->assertStringNotContainsString($token1, (string) $cookie->getValue());
+        $this->assertStringContainsString($token2, (string) $cookie->getValue());
+    }
 }

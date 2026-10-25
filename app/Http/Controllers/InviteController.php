@@ -6,6 +6,7 @@ use App\Models\Event;
 use App\Models\MarketingSubscriber;
 use App\Models\Participant;
 use App\Services\AffiliateLinkService;
+use App\Services\ParticipantSessionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -16,12 +17,20 @@ class InviteController extends Controller
     /**
      * Show the public event invitation and join page.
      */
-    public function show(string $code): Response
+    public function show(Request $request, string $code, ParticipantSessionService $sessionService): Response|RedirectResponse
     {
         $event = Event::with('user:id,name')
             ->withCount('participants')
             ->where('code', $code)
             ->firstOrFail();
+
+        if (! $request->boolean('novo')) {
+            $activeToken = $sessionService->getActiveTokenForEvent($request, $event);
+            if ($activeToken) {
+                return redirect()->route('secret.show', ['token' => $activeToken])
+                    ->with('info', 'Você já está participando deste amigo secreto! Redirecionamos para a sua página exclusiva.');
+            }
+        }
 
         return Inertia::render('Invite/Show', [
             'event' => [
@@ -44,7 +53,7 @@ class InviteController extends Controller
     /**
      * Handle participant joining via the invite link.
      */
-    public function join(Request $request, string $code): RedirectResponse
+    public function join(Request $request, string $code, ParticipantSessionService $sessionService): RedirectResponse
     {
         $event = Event::where('code', $code)->firstOrFail();
 
@@ -78,6 +87,8 @@ class InviteController extends Controller
             'user_id' => $request->user()?->id,
             'token' => Participant::generateUniqueToken(),
         ]);
+
+        $sessionService->storeToken($participant->token, $request);
 
         if ($marketingOptIn && ! empty($participant->email)) {
             MarketingSubscriber::subscribe(

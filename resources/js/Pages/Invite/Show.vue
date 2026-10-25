@@ -32,9 +32,7 @@ const form = useForm({
     phone: '',
     email: '',
     marketing_opt_in: true,
-    wishlist: [
-        { title: '', url: '', notes: '' }
-    ],
+    wishlist: [],
     clothing_size: '',
     shoe_size: '',
     likes: '',

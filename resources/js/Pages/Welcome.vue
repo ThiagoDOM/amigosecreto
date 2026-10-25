@@ -18,7 +18,12 @@ import {
     Users,
     Calendar,
     MessageCircle,
-    Check
+    Check,
+    LogOut,
+    Copy,
+    AlertTriangle,
+    X,
+    Sparkles
 } from 'lucide-vue-next';
 
 defineProps({
@@ -30,14 +35,51 @@ defineProps({
         type: Boolean,
         default: true,
     },
+    activeParticipations: {
+        type: Array,
+        default: () => [],
+    },
 });
 
 const inviteCodeInput = ref('');
+const showForgetModal = ref(false);
+const selectedParticipation = ref(null);
+const copiedModalLink = ref(false);
+const isDisconnecting = ref(false);
 
 function goToInvite() {
     if (inviteCodeInput.value.trim()) {
         router.visit(route('invite.show', { code: inviteCodeInput.value.trim().toUpperCase() }));
     }
+}
+
+function openForgetModal(p) {
+    selectedParticipation.value = p;
+    copiedModalLink.value = false;
+    showForgetModal.value = true;
+}
+
+function handleCopyModalLink() {
+    if (!selectedParticipation.value) return;
+    navigator.clipboard.writeText(selectedParticipation.value.magic_url);
+    copiedModalLink.value = true;
+    setTimeout(() => {
+        copiedModalLink.value = false;
+    }, 2500);
+}
+
+function handleConfirmForget() {
+    if (!selectedParticipation.value) return;
+    isDisconnecting.value = true;
+    router.post(route('participant.session.forget'), {
+        token: selectedParticipation.value.token
+    }, {
+        onFinish: () => {
+            isDisconnecting.value = false;
+            showForgetModal.value = false;
+            selectedParticipation.value = null;
+        }
+    });
 }
 </script>
 
@@ -104,7 +146,55 @@ function goToInvite() {
         <!-- Main Content -->
         <main class="relative z-10 flex-grow">
             <!-- Hero Section -->
-            <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-20 sm:pt-20 sm:pb-24 text-center">
+            <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-20 sm:pt-16 sm:pb-24 text-center">
+                <!-- Active Participant Sessions Detected -->
+                <div v-if="activeParticipations && activeParticipations.length > 0" class="mb-10 max-w-2xl mx-auto text-left space-y-3">
+                    <div
+                        v-for="p in activeParticipations"
+                        :key="p.token"
+                        class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-rose-950/70 via-slate-900/90 to-amber-950/50 border border-rose-500/35 p-5 shadow-xl shadow-rose-950/40 backdrop-blur-md"
+                    >
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div class="space-y-1">
+                                <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                                    <Sparkles class="w-3 h-3 text-rose-400" />
+                                    <span>Sua Inscrição Ativa</span>
+                                </div>
+                                <h3 class="text-base sm:text-lg font-bold text-white flex flex-wrap items-center gap-1.5">
+                                    <span>Você está participando do evento:</span>
+                                    <span class="text-rose-400 font-extrabold underline decoration-rose-500/40 underline-offset-4">{{ p.event_title }}</span>
+                                </h3>
+                                <p class="text-xs sm:text-sm text-slate-300">
+                                    Inscrito como <strong class="text-white font-semibold">{{ p.participant_name }}</strong>
+                                    <span v-if="p.event_date" class="text-slate-400"> &bull; Festa: {{ p.event_date }}</span>
+                                    <span v-else-if="p.draw_date" class="text-slate-400"> &bull; Sorteio: {{ p.draw_date }}</span>
+                                </p>
+                            </div>
+
+                            <div class="flex items-center gap-2 shrink-0">
+                                <Link
+                                    :href="p.magic_url"
+                                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-rose-600 hover:bg-rose-500 text-white transition-all shadow-md shadow-rose-900/30 hover:scale-[1.02]"
+                                >
+                                    <Gift class="w-4 h-4" />
+                                    <span>Acessar Meu Amigo</span>
+                                    <ArrowRight class="w-3.5 h-3.5" />
+                                </Link>
+
+                                <button
+                                    @click="openForgetModal(p)"
+                                    type="button"
+                                    class="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-rose-300 bg-slate-900/80 hover:bg-rose-950/40 border border-slate-800 hover:border-rose-800/50 transition-all cursor-pointer"
+                                    title="Sair deste dispositivo"
+                                >
+                                    <LogOut class="w-3.5 h-3.5" />
+                                    <span>Sair</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Badge -->
                 <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-slate-300 text-xs font-semibold mb-6 shadow-sm">
                     <span class="w-2 h-2 rounded-full bg-rose-500"></span>
@@ -113,7 +203,7 @@ function goToInvite() {
 
                 <!-- Main Title -->
                 <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black font-display tracking-tight text-white leading-tight max-w-4xl mx-auto">
-                    Organize o seu sorteio de final de ano <span class="bg-gradient-to-r from-rose-400 via-rose-300 to-amber-300 bg-clip-text text-transparent">sem complicações</span>
+                    Organize o seu sorteio de final de ano <span class="inline-block pb-1 bg-gradient-to-r from-rose-400 via-rose-300 to-amber-300 bg-clip-text text-transparent">sem complicações</span>
                 </h1>
 
                 <!-- Subtitle -->
@@ -322,5 +412,94 @@ function goToInvite() {
                 </div>
             </div>
         </footer>
+
+        <!-- Modal de Confirmação para Sair da Sessão -->
+        <div
+            v-if="showForgetModal && selectedParticipation"
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in"
+        >
+            <div class="relative w-full max-w-lg rounded-2xl bg-slate-900 border border-slate-700/80 p-6 shadow-2xl text-left space-y-5">
+                <!-- Close button -->
+                <button
+                    @click="showForgetModal = false"
+                    class="absolute top-4 right-4 p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                >
+                    <X class="w-5 h-5" />
+                </button>
+
+                <!-- Header -->
+                <div class="flex items-start gap-3.5">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0">
+                        <AlertTriangle class="w-5 h-5" />
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-white">
+                            Atenção: Guarde seu link antes de sair!
+                        </h3>
+                        <p class="text-xs text-slate-400 mt-0.5">
+                            Evento: <strong class="text-slate-200">{{ selectedParticipation.event_title }}</strong>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Body / Warning -->
+                <div class="space-y-3 text-xs sm:text-sm text-slate-300 leading-relaxed bg-slate-950/60 p-4 rounded-xl border border-slate-800">
+                    <p>
+                        Você não possui senha cadastrada. Para acessar novamente o seu amigo secreto e visualizar os presentes neste ou em outro aparelho, <strong>você precisará deste link exclusivo</strong>.
+                    </p>
+                    <p class="text-rose-300/90 font-medium">
+                        Se você sair sem copiar o link, não conseguirá abrir seu amigo secreto a não ser que peça o link novamente para o organizador.
+                    </p>
+                </div>
+
+                <!-- Link Copy Box -->
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                        Seu Link Exclusivo de Acesso:
+                    </label>
+                    <div class="flex items-center gap-2">
+                        <input
+                            type="text"
+                            readonly
+                            :value="selectedParticipation.magic_url"
+                            class="flex-1 px-3 py-2 text-xs bg-slate-950 border border-slate-800 rounded-xl text-slate-200 font-mono focus:outline-none select-all"
+                        />
+                        <button
+                            @click="handleCopyModalLink"
+                            type="button"
+                            class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-white transition-all shrink-0 cursor-pointer"
+                            :class="copiedModalLink ? 'bg-emerald-600' : 'bg-rose-600 hover:bg-rose-500'"
+                        >
+                            <Check v-if="copiedModalLink" class="w-3.5 h-3.5" />
+                            <Copy v-else class="w-3.5 h-3.5" />
+                            <span>{{ copiedModalLink ? 'Copiado!' : 'Copiar Link' }}</span>
+                        </button>
+                    </div>
+                    <p class="text-[11px] text-slate-400">
+                        💡 Cole no seu WhatsApp ou guarde nos favoritos antes de confirmar a saída.
+                    </p>
+                </div>
+
+                <!-- Modal Footer Actions -->
+                <div class="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-2">
+                    <button
+                        @click="showForgetModal = false"
+                        type="button"
+                        class="w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 transition-colors"
+                    >
+                        Cancelar e Continuar Conectado
+                    </button>
+                    <button
+                        @click="handleConfirmForget"
+                        :disabled="isDisconnecting"
+                        type="button"
+                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-red-600 hover:bg-red-500 disabled:opacity-50 transition-all cursor-pointer shadow-md shadow-red-950/40"
+                    >
+                        <LogOut class="w-4 h-4" />
+                        <span>{{ isDisconnecting ? 'Saindo...' : 'Confirmar e Sair' }}</span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
