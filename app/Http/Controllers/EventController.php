@@ -184,7 +184,16 @@ class EventController extends Controller
         try {
             $drawService->draw($event);
 
-            return back()->with('success', '🎉 Sorteio realizado com sucesso! Os links secretos já estão prontos para envio.');
+            $notifiedCount = $event->participants()
+                ->whereNotNull('email')
+                ->where('email', '!=', '')
+                ->count();
+
+            $successMessage = $notifiedCount > 0
+                ? "🎉 Sorteio realizado com sucesso! Notificações enviadas por e-mail para {$notifiedCount} participante(s)."
+                : '🎉 Sorteio realizado com sucesso! Os links secretos já estão prontos para envio.';
+
+            return back()->with('success', $successMessage);
         } catch (DomainException $e) {
             return back()->with('error', $e->getMessage());
         }

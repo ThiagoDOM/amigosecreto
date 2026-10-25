@@ -28,6 +28,7 @@ const form = useForm({
     name: '',
     phone: '',
     email: '',
+    marketing_opt_in: true,
     wishlist: [
         { title: '', url: '', notes: '' }
     ],
@@ -193,10 +194,27 @@ function submit() {
                             placeholder="seu@email.com"
                             class="w-full px-4 py-3 rounded-2xl bg-slate-800/90 border border-slate-700 text-white placeholder-slate-400 text-sm focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
                         />
+                        <p class="text-[11px] text-slate-400 leading-tight">
+                            Ao preencher, você receberá a notificação com seu link exclusivo assim que o sorteio acontecer.
+                        </p>
                         <div v-if="form.errors.email" class="text-xs text-rose-400 font-semibold">
                             {{ form.errors.email }}
                         </div>
                     </div>
+                </div>
+
+                <!-- Marketing Opt-in for Participant (visible if email is filled) -->
+                <div v-if="form.email" class="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-700/80 transition-all">
+                    <label class="flex items-start gap-2.5 cursor-pointer select-none">
+                        <input
+                            type="checkbox"
+                            v-model="form.marketing_opt_in"
+                            class="mt-0.5 w-4 h-4 rounded border-slate-700 bg-slate-950 text-rose-600 focus:ring-rose-500/30 focus:ring-offset-slate-900 transition-colors"
+                        />
+                        <span class="text-xs text-slate-300 leading-relaxed">
+                            Aceito receber novidades, dicas de presentes e e-mails promocionais do GiftMatch.
+                        </span>
+                    </label>
                 </div>
 
                 <!-- Structured Wishlist Editor with Link Support -->

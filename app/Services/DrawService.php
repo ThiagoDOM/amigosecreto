@@ -2,9 +2,12 @@
 
 namespace App\Services;
 
+use App\Mail\DrawNotificationMail;
 use App\Models\Event;
 use DomainException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class DrawService
 {
@@ -64,7 +67,34 @@ class DrawService
             ]);
         });
 
+        // Notify participants who registered an email address
+        $this->sendDrawNotifications($event);
+
         return $event->fresh(['participants.drawnParticipant', 'exclusions']);
+    }
+
+    /**
+     * Send draw notification emails to all participants with an email.
+     */
+    public function sendDrawNotifications(Event $event): int
+    {
+        $participants = $event->participants()
+            ->whereNotNull('email')
+            ->where('email', '!=', '')
+            ->get();
+
+        $sentCount = 0;
+
+        foreach ($participants as $participant) {
+            try {
+                Mail::to($participant->email)->send(new DrawNotificationMail($participant, $event));
+                $sentCount++;
+            } catch (\Throwable $e) {
+                Log::warning("Falha ao enviar e-mail de sorteio para participante {$participant->id} ({$participant->email}): {$e->getMessage()}");
+            }
+        }
+
+        return $sentCount;
     }
 
     /**
