@@ -2,10 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Mail\DrawNotificationMail;
 use App\Models\Event;
+use App\Models\MarketingSubscriber;
 use App\Models\Participant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class EventFlowTest extends TestCase
@@ -188,5 +191,100 @@ class EventFlowTest extends TestCase
 
         $p1->refresh();
         $this->assertNull($p1->drawn_participant_id);
+    }
+
+    public function test_participant_can_opt_into_marketing_emails_and_handles_duplicates_safely(): void
+    {
+        $user = User::factory()->create();
+        $event = Event::create([
+            'user_id' => $user->id,
+            'title' => 'Amigo da Firma',
+            'code' => Event::generateUniqueCode(),
+        ]);
+
+        // First join with marketing opt-in
+        $response1 = $this->post(route('invite.join', $event->code), [
+            'name' => 'Felipe Ramos',
+            'email' => 'felipe@example.com',
+            'phone' => '(11) 97777-6666',
+            'marketing_opt_in' => true,
+        ]);
+
+        $this->assertDatabaseHas('marketing_subscribers', [
+            'email' => 'felipe@example.com',
+            'name' => 'Felipe Ramos',
+            'source' => 'participant_invite',
+        ]);
+
+        // Second event join with same email (should not fail or crash)
+        $event2 = Event::create([
+            'user_id' => $user->id,
+            'title' => 'Amigo da Família',
+            'code' => Event::generateUniqueCode(),
+        ]);
+
+        $response2 = $this->post(route('invite.join', $event2->code), [
+            'name' => 'Felipe Ramos',
+            'email' => 'felipe@example.com',
+            'marketing_opt_in' => true,
+        ]);
+
+        $response2->assertSessionHas('success');
+        $this->assertEquals(1, MarketingSubscriber::where('email', 'felipe@example.com')->count());
+    }
+
+    public function test_draw_sends_email_notification_to_participants_with_email(): void
+    {
+        Mail::fake();
+
+        $user = User::factory()->create();
+        $event = Event::create([
+            'user_id' => $user->id,
+            'title' => 'Natal Incrível 2026',
+            'code' => Event::generateUniqueCode(),
+        ]);
+
+        $p1 = Participant::create([
+            'event_id' => $event->id,
+            'name' => 'Alice',
+            'email' => 'alice@example.com',
+            'token' => Participant::generateUniqueToken(),
+        ]);
+        $p2 = Participant::create([
+            'event_id' => $event->id,
+            'name' => 'Bruno',
+            'email' => 'bruno@example.com',
+            'token' => Participant::generateUniqueToken(),
+        ]);
+        $p3 = Participant::create([
+            'event_id' => $event->id,
+            'name' => 'Carla Sem Email',
+            'email' => null,
+            'token' => Participant::generateUniqueToken(),
+        ]);
+
+        $response = $this->actingAs($user)->post(route('events.draw', $event->id));
+        $response->assertSessionHas('success');
+
+        // Verify only Alice and Bruno received email notifications
+        Mail::assertSent(DrawNotificationMail::class, 2);
+
+        Mail::assertSent(DrawNotificationMail::class, function (DrawNotificationMail $mail) use ($p1, $event): bool {
+            return $mail->hasTo('alice@example.com')
+                && $mail->participant->id === $p1->id
+                && $mail->event->id === $event->id;
+        });
+
+        Mail::assertSent(DrawNotificationMail::class, function (DrawNotificationMail $mail) use ($p2, $event): bool {
+            return $mail->hasTo('bruno@example.com')
+                && $mail->participant->id === $p2->id
+                && $mail->event->id === $event->id;
+        });
+
+        // Test mailable content rendering
+        $mailable = new DrawNotificationMail($p1, $event);
+        $mailable->assertSeeInHtml('Natal Incrível 2026');
+        $mailable->assertSeeInHtml($p1->name);
+        $mailable->assertSeeInHtml(route('secret.show', ['token' => $p1->token]));
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Event;
+use App\Models\MarketingSubscriber;
 use App\Models\Participant;
 use App\Services\AffiliateLinkService;
 use Illuminate\Http\RedirectResponse;
@@ -60,7 +61,11 @@ class InviteController extends Controller
             'shoe_size' => ['nullable', 'string', 'max:50'],
             'likes' => ['nullable', 'string', 'max:500'],
             'dislikes' => ['nullable', 'string', 'max:500'],
+            'marketing_opt_in' => ['nullable', 'boolean'],
         ]);
+
+        $marketingOptIn = $request->boolean('marketing_opt_in');
+        unset($validated['marketing_opt_in']);
 
         if (is_array($request->input('wishlist'))) {
             $cleaned = array_values(array_filter($request->input('wishlist'), fn ($i) => ! empty($i['title'])));
@@ -73,6 +78,15 @@ class InviteController extends Controller
             'user_id' => $request->user()?->id,
             'token' => Participant::generateUniqueToken(),
         ]);
+
+        if ($marketingOptIn && ! empty($participant->email)) {
+            MarketingSubscriber::subscribe(
+                email: $participant->email,
+                name: $participant->name,
+                source: 'participant_invite',
+                ipAddress: $request->ip(),
+            );
+        }
 
         return redirect()->route('secret.show', ['token' => $participant->token])
             ->with('just_registered', true)

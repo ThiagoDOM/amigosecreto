@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\MarketingSubscriber;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -42,5 +43,48 @@ class RegistrationTest extends TestCase
 
         $response->assertSessionHasErrors('terms');
         $this->assertGuest();
+    }
+
+    public function test_organizer_registration_subscribes_to_marketing_when_opted_in(): void
+    {
+        $response = $this->post('/register', [
+            'name' => 'Carla Organizadora',
+            'email' => 'carla@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+            'terms' => true,
+            'marketing_opt_in' => true,
+        ]);
+
+        $this->assertAuthenticated();
+        $response->assertRedirect(route('dashboard', absolute: false));
+
+        $this->assertDatabaseHas('marketing_subscribers', [
+            'email' => 'carla@example.com',
+            'name' => 'Carla Organizadora',
+            'source' => 'organizer_registration',
+        ]);
+    }
+
+    public function test_organizer_registration_with_existing_marketing_email_continues_normally(): void
+    {
+        MarketingSubscriber::create([
+            'email' => 'carla@example.com',
+            'name' => 'Carla Anterior',
+            'source' => 'participant_invite',
+        ]);
+
+        $response = $this->post('/register', [
+            'name' => 'Carla Organizadora',
+            'email' => 'carla@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+            'terms' => true,
+            'marketing_opt_in' => true,
+        ]);
+
+        $this->assertAuthenticated();
+        $response->assertRedirect(route('dashboard', absolute: false));
+        $this->assertEquals(1, MarketingSubscriber::where('email', 'carla@example.com')->count());
     }
 }
