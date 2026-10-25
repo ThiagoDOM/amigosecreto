@@ -290,7 +290,7 @@ function submit() {
             </div>
 
             <!-- Google AdSense Unit -->
-            <GoogleAd slot-id="invite-bottom" />
+            <!-- <GoogleAd slot-id="invite-bottom" /> -->
         </div>
 
         <!-- Footer -->

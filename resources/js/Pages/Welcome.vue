@@ -108,7 +108,7 @@ function goToInvite() {
                 <!-- Badge -->
                 <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-slate-300 text-xs font-semibold mb-6 shadow-sm">
                     <span class="w-2 h-2 rounded-full bg-rose-500"></span>
-                    <span>Sorteio de Amigo Secreto Online & 100% Gratuito</span>
+                    <span>Sorteio de Amigo Secreto Online 100% Gratuito</span>
                 </div>
 
                 <!-- Main Title -->
