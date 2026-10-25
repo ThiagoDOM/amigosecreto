@@ -44,13 +44,13 @@ const showingNavigationDropdown = ref(false);
 
                     <!-- Right Header Actions -->
                     <div class="hidden sm:flex sm:items-center sm:gap-3">
-                        <Link
+                        <!-- <Link
                             :href="route('events.create')"
                             class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-sm shadow-rose-900/30 transition-all active:scale-95"
                         >
                             <PlusCircle class="w-4 h-4" />
                             <span>Novo Evento</span>
-                        </Link>
+                        </Link> -->
 
                         <!-- User Profile Dropdown -->
                         <div class="relative ms-2">
@@ -110,13 +110,13 @@ const showingNavigationDropdown = ref(false);
 
             <!-- Mobile Navigation Menu -->
             <div :class="{ block: showingNavigationDropdown, hidden: !showingNavigationDropdown }" class="sm:hidden border-b border-slate-800 bg-slate-950 px-4 pt-3 pb-4 space-y-3">
-                <Link
+                <!-- <Link
                     :href="route('events.create')"
                     class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-sm transition-all"
                 >
                     <PlusCircle class="w-4 h-4" />
                     Novo Evento
-                </Link>
+                </Link> -->
 
                 <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
                     Meus Eventos
