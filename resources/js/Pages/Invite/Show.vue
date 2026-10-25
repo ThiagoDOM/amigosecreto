@@ -282,15 +282,15 @@ function submit() {
             </form>
 
             <!-- Affiliate Recommendations (Inspiration for wishlist) -->
-            <div class="mt-8">
+            <!-- <div class="mt-8">
                 <AffiliateRecommendations
                     title="Procurando ideias para sua lista de presentes?"
                     subtitle="Confira sugestões com cupom e frete grátis na Shopee e no Mercado Livre para adicionar à sua lista:"
                 />
-            </div>
+            </div> -->
 
             <!-- Google AdSense Unit -->
-            <!-- <GoogleAd slot-id="invite-bottom" /> -->
+            <GoogleAd slot-id="invite-bottom" />
         </div>
 
         <!-- Footer -->
