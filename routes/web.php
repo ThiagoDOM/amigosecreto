@@ -4,18 +4,25 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\ExclusionController;
 use App\Http\Controllers\InviteController;
 use App\Http\Controllers\ParticipantController;
+use App\Http\Controllers\ParticipantSessionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SecretRevealController;
+use App\Services\ParticipantSessionService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 // Landing page
-Route::get('/', function () {
+Route::get('/', function (Request $request, ParticipantSessionService $sessionService) {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
+        'activeParticipations' => $sessionService->getActiveParticipations($request),
     ]);
 })->name('home');
+
+// Participant Session Management (No login required)
+Route::post('/participante/sair', [ParticipantSessionController::class, 'forget'])->name('participant.session.forget');
 
 // Institutional & Legal Pages (LGPD & AdSense compliance)
 Route::get('/politica-de-privacidade', function () {

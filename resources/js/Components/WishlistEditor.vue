@@ -90,7 +90,6 @@ function updateField(index, field, value) {
                         type="text"
                         placeholder="Nome do presente (ex: Livro de Ficção, Camisa Azul, Caneca Térmica)"
                         class="w-full px-4 py-2.5 rounded-xl text-xs border border-slate-700 bg-slate-900 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-colors"
-                        required
                     />
                 </div>
 

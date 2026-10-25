@@ -9,6 +9,7 @@ import WishlistEditor from '@/Components/WishlistEditor.vue';
 import WishlistDisplay from '@/Components/WishlistDisplay.vue';
 import AffiliateRecommendations from '@/Components/AffiliateRecommendations.vue';
 import { formatDate, formatCurrency, parseWishlist } from '@/Utils/formatters';
+import { drawQrCodeToCanvas } from '@/Utils/qrcode';
 import confetti from 'canvas-confetti';
 import { 
     Gift, 
@@ -35,7 +36,9 @@ import {
     CheckCircle2,
     Clock,
     Sparkles,
-    Eye
+    Eye,
+    LogOut,
+    AlertTriangle
 } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -62,10 +65,37 @@ const showSaveDropdown = ref(false);
 const showHomeScreenModal = ref(false);
 const showOnboardingSaveModal = ref(false);
 const showNotificationsModal = ref(false);
+const showDisconnectModal = ref(false);
+const copiedDisconnectLink = ref(false);
+const isDisconnecting = ref(false);
 const notificationsEnabled = ref(false);
 const notificationSupported = ref(false);
 const clientToast = ref('');
 let toastTimeout = null;
+
+function handleCopyDisconnectLink() {
+    navigator.clipboard.writeText(window.location.href);
+    copiedDisconnectLink.value = true;
+    setTimeout(() => {
+        copiedDisconnectLink.value = false;
+    }, 2500);
+}
+
+function handleConfirmDisconnect() {
+    isDisconnecting.value = true;
+    router.post(route('participant.session.forget'), {
+        token: props.participant.token
+    }, {
+        onFinish: () => {
+            isDisconnecting.value = false;
+            showDisconnectModal.value = false;
+        }
+    });
+}
+
+const currentUrl = computed(() => {
+    return typeof window !== 'undefined' ? window.location.href : route('secret.show', props.participant.token);
+});
 
 const wishlistForm = useForm({
     wishlist: parseWishlist(props.participant.wishlist),
@@ -587,24 +617,53 @@ function downloadCardImage() {
         ctx.restore();
     }
 
-    // Link Access Box at Bottom
+    // Link Access Box at Bottom with QR Code and URL
     ctx.save();
-    roundRect(70, 735, 760, 255, 24);
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+    roundRect(70, 735, 760, 260, 24);
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
     ctx.fill();
-    ctx.strokeStyle = 'rgba(51, 65, 85, 0.8)';
+    ctx.strokeStyle = 'rgba(51, 65, 85, 0.85)';
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
-    ctx.font = 'bold 15px sans-serif';
+    const currentUrl = window.location.href;
+
+    // 1. Draw QR Code on the left side (crisp white card with dark modules)
+    const qrSize = 175;
+    const qrX = 95;
+    const qrY = 755;
+    drawQrCodeToCanvas(ctx, currentUrl, qrX, qrY, qrSize, {
+        bgColor: '#ffffff',
+        fgColor: '#0f172a',
+        padding: 12,
+        borderRadius: 16,
+    });
+
+    // Caption under QR code
+    ctx.font = 'bold 11px sans-serif';
     ctx.fillStyle = '#38bdf8';
     ctx.textAlign = 'center';
-    ctx.fillText('SEU LINK EXCLUSIVO DE ACESSO:', 450, 770);
+    ctx.fillText('📷 ESCANEAR QR CODE', qrX + (qrSize / 2), qrY + qrSize + 22);
 
-    // Multi-line wrapped URL rendering without truncation
-    ctx.font = '14px monospace';
-    ctx.fillStyle = '#f1f5f9';
-    const currentUrl = window.location.href;
+    // 2. Right side information (URL and instructions)
+    const textStartX = 300;
+    ctx.textAlign = 'left';
+
+    ctx.font = 'bold 15px sans-serif';
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillText('SEU LINK EXCLUSIVO DE ACESSO:', textStartX, 772);
+
+    ctx.font = '12px sans-serif';
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillText('Aponte a câmera para o QR Code ou acesse a URL:', textStartX, 796);
+
+    // URL container chip
+    roundRect(textStartX, 810, 505, 72, 12);
+    ctx.fillStyle = 'rgba(30, 41, 59, 0.9)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(71, 85, 105, 0.6)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
 
     function wrapUrlText(context, text, maxWidth) {
         if (context.measureText(text).width <= maxWidth) {
@@ -628,23 +687,23 @@ function downloadCardImage() {
         return lines;
     }
 
-    const urlLines = wrapUrlText(ctx, currentUrl, 680);
-    const lineHeight = 22;
-    let startY = 825;
-    if (urlLines.length === 2) {
-        startY = 812;
-    } else if (urlLines.length >= 3) {
-        startY = 802;
-    }
+    ctx.font = '12px monospace';
+    ctx.fillStyle = '#f8fafc';
+    const urlLines = wrapUrlText(ctx, currentUrl, 480);
+    const lineHeight = 18;
+    const urlStartY = urlLines.length === 1 ? 848 : (urlLines.length === 2 ? 838 : 828);
 
-    urlLines.forEach((line, idx) => {
-        ctx.fillText(line, 450, startY + (idx * lineHeight));
+    urlLines.slice(0, 3).forEach((line, idx) => {
+        ctx.fillText(line, textStartX + 12, urlStartY + (idx * lineHeight));
     });
 
-    ctx.font = '13px sans-serif';
-    ctx.fillStyle = '#94a3b8';
-    ctx.fillText('Você pode voltar a esta página a qualquer momento para ver detalhes.', 450, 915);
-    ctx.fillText('Organizado com carinho pelo GiftMatch 🎄', 450, 945);
+    ctx.font = '12px sans-serif';
+    ctx.fillStyle = '#cbd5e1';
+    ctx.fillText('💡 Dica: Salve esta imagem para consultar seus presentes quando quiser.', textStartX, 915);
+
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillStyle = '#f43f5e';
+    ctx.fillText('🎄 Organizado com carinho pelo GiftMatch', textStartX, 942);
     ctx.restore();
 
     // Footer copyright
@@ -838,6 +897,23 @@ onMounted(() => {
                                     </div>
                                 </div>
                             </button>
+
+                            <!-- 6. Sair deste dispositivo -->
+                            <div class="pt-1 border-t border-slate-800/80 mt-1">
+                                <button
+                                    @click="showSaveDropdown = false; showDisconnectModal = true;"
+                                    type="button"
+                                    class="w-full flex items-start gap-3 p-2.5 rounded-xl text-left hover:bg-rose-950/30 transition-colors group cursor-pointer text-slate-400 hover:text-rose-400"
+                                >
+                                    <div class="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                                        <LogOut class="w-4 h-4" />
+                                    </div>
+                                    <div>
+                                        <div class="text-xs font-bold text-slate-300 group-hover:text-rose-300">Sair deste dispositivo</div>
+                                        <div class="text-[11px] text-slate-500 font-medium leading-tight">Desconectar sessão salva</div>
+                                    </div>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -879,7 +955,7 @@ onMounted(() => {
                 </div>
 
                 <h1 class="text-3xl sm:text-4xl font-black font-display text-white">
-                    Olá, <span class="bg-gradient-to-r from-rose-400 to-amber-300 bg-clip-text text-transparent">{{ participant.name }}</span>!
+                    Olá, <span class="inline-block pb-1 bg-gradient-to-r from-rose-400 to-amber-300 bg-clip-text text-transparent">{{ participant.name }}</span>!
                 </h1>
 
                 <!-- Event Details Pills -->
@@ -1015,7 +1091,7 @@ onMounted(() => {
                         <div class="text-sm font-bold uppercase tracking-wider text-rose-300">
                             Você tirou:
                         </div>
-                        <div class="text-4xl sm:text-5xl font-black font-display text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-rose-300 to-pink-400 tracking-tight text-glow">
+                        <div class="inline-block max-w-full text-4xl sm:text-5xl font-black font-display text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-rose-300 to-pink-400 tracking-tight leading-normal pt-1 pb-3 text-glow">
                             {{ secret_friend?.name }}
                         </div>
                         <p class="text-xs text-slate-300 pt-1 font-medium">
@@ -1304,6 +1380,25 @@ onMounted(() => {
                         </button>
                     </div>
 
+                    <!-- Opção: Baixar Cartão com QR Code -->
+                    <div class="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700/80 flex items-center justify-between gap-3">
+                        <div class="space-y-0.5 min-w-0">
+                            <div class="font-bold text-white flex items-center gap-2">
+                                <Download class="w-4 h-4 text-amber-400 shrink-0" />
+                                <span>Baixar Cartão com QR Code</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 truncate">Salva imagem com QR Code de acesso rápido na sua galeria</p>
+                        </div>
+                        <button
+                            type="button"
+                            @click="handleDownloadImage"
+                            class="px-3.5 py-2 rounded-xl text-xs font-bold text-amber-300 bg-amber-950/70 hover:bg-amber-900 border border-amber-800/60 transition-colors shrink-0 flex items-center gap-1.5 cursor-pointer"
+                        >
+                            <Download class="w-3.5 h-3.5" />
+                            <span>Baixar</span>
+                        </button>
+                    </div>
+
                     <!-- Opção 2: Copiar Link -->
                     <div class="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700/80 flex items-center justify-between gap-3">
                         <div class="space-y-0.5 min-w-0">
@@ -1571,6 +1666,95 @@ onMounted(() => {
                         class="w-full py-2.5 rounded-2xl font-bold text-xs sm:text-sm text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-colors cursor-pointer"
                     >
                         Fechar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Confirmação para Desconectar / Sair do Dispositivo -->
+        <div
+            v-if="showDisconnectModal"
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in"
+        >
+            <div class="relative w-full max-w-lg rounded-2xl bg-slate-900 border border-slate-700/80 p-6 shadow-2xl text-left space-y-5">
+                <!-- Close button -->
+                <button
+                    @click="showDisconnectModal = false"
+                    class="absolute top-4 right-4 p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                >
+                    <X class="w-5 h-5" />
+                </button>
+
+                <!-- Header -->
+                <div class="flex items-start gap-3.5">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0">
+                        <AlertTriangle class="w-5 h-5" />
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-white">
+                            Atenção: Guarde seu link antes de sair!
+                        </h3>
+                        <p class="text-xs text-slate-400 mt-0.5">
+                            Evento: <strong class="text-slate-200">{{ event.title }}</strong>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Body / Warning -->
+                <div class="space-y-3 text-xs sm:text-sm text-slate-300 leading-relaxed bg-slate-950/60 p-4 rounded-xl border border-slate-800">
+                    <p>
+                        Você não possui senha de acesso cadastrada. Para acessar novamente o seu amigo secreto e visualizar os presentes neste ou em outro aparelho, <strong>você precisará deste link exclusivo</strong>.
+                    </p>
+                    <p class="text-rose-300/90 font-medium">
+                        Se você sair sem copiar o link, não conseguirá abrir seu amigo secreto até pedir o link novamente ao organizador.
+                    </p>
+                </div>
+
+                <!-- Link Copy Box -->
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                        Seu Link Exclusivo de Acesso:
+                    </label>
+                    <div class="flex items-center gap-2">
+                        <input
+                            type="text"
+                            readonly
+                            :value="currentUrl"
+                            class="flex-1 px-3 py-2 text-xs bg-slate-950 border border-slate-800 rounded-xl text-slate-200 font-mono focus:outline-none select-all"
+                        />
+                        <button
+                            @click="handleCopyDisconnectLink"
+                            type="button"
+                            class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-white transition-all shrink-0 cursor-pointer"
+                            :class="copiedDisconnectLink ? 'bg-emerald-600' : 'bg-rose-600 hover:bg-rose-500'"
+                        >
+                            <Check v-if="copiedDisconnectLink" class="w-3.5 h-3.5" />
+                            <Copy v-else class="w-3.5 h-3.5" />
+                            <span>{{ copiedDisconnectLink ? 'Copiado!' : 'Copiar Link' }}</span>
+                        </button>
+                    </div>
+                    <p class="text-[11px] text-slate-400">
+                        💡 Cole no seu WhatsApp ou guarde nos favoritos antes de confirmar a saída.
+                    </p>
+                </div>
+
+                <!-- Modal Footer Actions -->
+                <div class="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-2">
+                    <button
+                        @click="showDisconnectModal = false"
+                        type="button"
+                        class="w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 transition-colors"
+                    >
+                        Cancelar e Continuar Conectado
+                    </button>
+                    <button
+                        @click="handleConfirmDisconnect"
+                        :disabled="isDisconnecting"
+                        type="button"
+                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-red-600 hover:bg-red-500 disabled:opacity-50 transition-all cursor-pointer shadow-md shadow-red-950/40"
+                    >
+                        <LogOut class="w-4 h-4" />
+                        <span>{{ isDisconnecting ? 'Saindo...' : 'Confirmar e Sair' }}</span>
                     </button>
                 </div>
             </div>

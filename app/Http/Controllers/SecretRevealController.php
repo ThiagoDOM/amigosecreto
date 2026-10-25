@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Participant;
 use App\Services\AffiliateLinkService;
+use App\Services\ParticipantSessionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -14,11 +15,13 @@ class SecretRevealController extends Controller
     /**
      * Display the participant's secret space and friend reveal.
      */
-    public function show(string $token): Response
+    public function show(Request $request, string $token, ParticipantSessionService $sessionService): Response
     {
         $participant = Participant::with(['event.user:id,name', 'drawnParticipant'])
             ->where('token', $token)
             ->firstOrFail();
+
+        $sessionService->storeToken($participant->token, $request);
 
         $event = $participant->event;
         $isDrawn = $event->isDrawn();
