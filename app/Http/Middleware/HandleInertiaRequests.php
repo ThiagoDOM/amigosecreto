@@ -19,6 +19,18 @@ class HandleInertiaRequests extends Middleware
      */
     public function version(Request $request): ?string
     {
+        if ($vercelDeploy = env('VERCEL_DEPLOYMENT_ID') ?? env('VERCEL_GIT_COMMIT_SHA')) {
+            return (string) $vercelDeploy;
+        }
+
+        if (file_exists($manifest = public_path('build/manifest.json'))) {
+            return hash_file('xxh128', $manifest);
+        }
+
+        if (file_exists($manifest = base_path('public/build/manifest.json'))) {
+            return hash_file('xxh128', $manifest);
+        }
+
         return parent::version($request);
     }
 

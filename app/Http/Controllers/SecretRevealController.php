@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Participant;
 use App\Services\AffiliateLinkService;
 use App\Services\ParticipantSessionService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -77,6 +78,7 @@ class SecretRevealController extends Controller
                 'participants_count' => $event->participants()->count(),
             ],
             'secret_friend' => $secretFriendData,
+            'vapid_public_key' => config('services.vapid.public_key'),
         ]);
     }
 
@@ -120,5 +122,59 @@ class SecretRevealController extends Controller
         $participant->update($validated);
 
         return back()->with('success', 'Sua lista de presentes foi atualizada com sucesso!');
+    }
+
+    /**
+     * Store or update Web Push subscription for participant.
+     */
+    public function storePushSubscription(Request $request, string $token): JsonResponse
+    {
+        $participant = Participant::where('token', $token)->firstOrFail();
+
+        $validated = $request->validate([
+            'endpoint' => ['required', 'string', 'url'],
+            'keys' => ['required', 'array'],
+            'keys.p256dh' => ['required', 'string'],
+            'keys.auth' => ['required', 'string'],
+            'contentEncoding' => ['nullable', 'string'],
+        ]);
+
+        $endpoint = $validated['endpoint'];
+        $endpointHash = hash('sha256', $endpoint);
+
+        $participant->pushSubscriptions()->updateOrCreate(
+            ['endpoint_hash' => $endpointHash],
+            [
+                'endpoint' => $endpoint,
+                'public_key' => $validated['keys']['p256dh'],
+                'auth_token' => $validated['keys']['auth'],
+                'content_encoding' => $validated['contentEncoding'] ?? 'aes128gcm',
+            ]
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Notificações push vinculadas com sucesso ao participante.',
+        ]);
+    }
+
+    /**
+     * Remove Web Push subscription for participant.
+     */
+    public function destroyPushSubscription(Request $request, string $token): JsonResponse
+    {
+        $participant = Participant::where('token', $token)->firstOrFail();
+
+        $validated = $request->validate([
+            'endpoint' => ['required', 'string', 'url'],
+        ]);
+
+        $endpointHash = hash('sha256', $validated['endpoint']);
+        $participant->pushSubscriptions()->where('endpoint_hash', $endpointHash)->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Subscrição push desvinculada com sucesso.',
+        ]);
     }
 }

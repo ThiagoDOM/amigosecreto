@@ -22,8 +22,7 @@ import {
     LogOut,
     Copy,
     AlertTriangle,
-    X,
-    Sparkles
+    X
 } from 'lucide-vue-next';
 
 defineProps({
@@ -59,9 +58,31 @@ function openForgetModal(p) {
     showForgetModal.value = true;
 }
 
+async function copyToClipboard(text) {
+    if (typeof window !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+        try {
+            await navigator.clipboard.writeText(text);
+            return true;
+        } catch (e) {}
+    }
+    try {
+        const input = document.createElement('textarea');
+        input.value = text;
+        input.style.position = 'fixed';
+        input.style.opacity = '0';
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
 function handleCopyModalLink() {
     if (!selectedParticipation.value) return;
-    navigator.clipboard.writeText(selectedParticipation.value.magic_url);
+    copyToClipboard(selectedParticipation.value.magic_url);
     copiedModalLink.value = true;
     setTimeout(() => {
         copiedModalLink.value = false;
@@ -157,7 +178,7 @@ function handleConfirmForget() {
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div class="space-y-1">
                                 <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
-                                    <Sparkles class="w-3 h-3 text-rose-400" />
+                                    <CheckCircle2 class="w-3 h-3 text-rose-400" />
                                     <span>Sua Inscrição Ativa</span>
                                 </div>
                                 <h3 class="text-base sm:text-lg font-bold text-white flex flex-wrap items-center gap-1.5">
@@ -219,6 +240,14 @@ function handleConfirmForget() {
                     >
                         <Gift class="w-5 h-5" />
                         <span>Criar Amigo Secreto Grátis</span>
+                    </Link>
+
+                    <Link
+                        :href="route('simulation')"
+                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-sm sm:text-base font-bold text-amber-300 hover:text-white bg-slate-900/90 hover:bg-slate-800 border border-amber-500/30 hover:border-amber-400/50 shadow-md transition-all hover:scale-[1.01]"
+                    >
+                        <Gift class="w-4 h-4 text-amber-400" />
+                        <span>Simulação Interativa</span>
                     </Link>
 
                     <a
@@ -371,13 +400,20 @@ function handleConfirmForget() {
                     <p class="text-slate-400 text-xs sm:text-sm max-w-xl mx-auto">
                         Crie seu grupo gratuitamente em menos de 2 minutos e comece a convidar os amigos.
                     </p>
-                    <div>
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-1">
                         <Link
                             :href="$page.props.auth.user ? route('events.create') : route('register')"
-                            class="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-md shadow-rose-900/30 transition-all hover:scale-[1.01]"
+                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-sm font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-md shadow-rose-900/30 transition-all hover:scale-[1.01]"
                         >
                             <Gift class="w-4 h-4" />
                             <span>Começar Agora Gratuitamente</span>
+                        </Link>
+                        <Link
+                            :href="route('simulation')"
+                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-sm font-bold text-amber-300 hover:text-white bg-slate-800/90 hover:bg-slate-800 border border-amber-500/30 hover:border-amber-400/60 shadow-md shadow-amber-950/20 transition-all hover:scale-[1.01]"
+                        >
+                            <Gift class="w-4 h-4 text-amber-400" />
+                            <span>Simular como Convidado</span>
                         </Link>
                     </div>
                 </div>

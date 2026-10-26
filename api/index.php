@@ -18,6 +18,7 @@ foreach ($storageDirs as $dir) {
 putenv('VERCEL=1');
 $_ENV['VERCEL'] = '1';
 $_SERVER['VERCEL'] = '1';
+$_SERVER['SCRIPT_NAME'] = '/index.php';
 
 // Forward request to Laravel entry point
 require __DIR__.'/../public/index.php';

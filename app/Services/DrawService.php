@@ -11,6 +11,12 @@ use Illuminate\Support\Facades\Mail;
 
 class DrawService
 {
+    public function __construct(
+        protected ?WebPushService $webPushService = null,
+    ) {
+        $this->webPushService ??= app(WebPushService::class);
+    }
+
     /**
      * Perform the Secret Santa draw for an event.
      *
@@ -92,6 +98,12 @@ class DrawService
             } catch (\Throwable $e) {
                 Log::warning("Falha ao enviar e-mail de sorteio para participante {$participant->id} ({$participant->email}): {$e->getMessage()}");
             }
+        }
+
+        try {
+            $this->webPushService->sendDrawNotifications($event);
+        } catch (\Throwable $e) {
+            Log::warning("Falha ao enviar notificações push para o evento {$event->id}: {$e->getMessage()}");
         }
 
         return $sentCount;

@@ -7,8 +7,10 @@ use App\Models\Event;
 use App\Models\MarketingSubscriber;
 use App\Models\Participant;
 use App\Models\User;
+use App\Services\WebPushService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
+use Mockery;
 use Tests\TestCase;
 
 class EventFlowTest extends TestCase
@@ -22,6 +24,24 @@ class EventFlowTest extends TestCase
         $response->assertSee('og:title', false);
         $response->assertSee('og:image', false);
         $response->assertSee('og-home.jpg', false);
+    }
+
+    public function test_simulation_page_is_accessible(): void
+    {
+        $response = $this->get('/simulacao');
+        $response->assertStatus(200);
+        $response->assertSee('Simulação Interativa de Amigo Secreto', false);
+    }
+
+    public function test_pwa_assets_and_manifest_are_accessible(): void
+    {
+        $swResponse = $this->get('/sw.js');
+        $swResponse->assertStatus(200);
+        $swResponse->assertHeader('Content-Type', 'application/javascript; charset=utf-8');
+
+        $manifestResponse = $this->get('/manifest.webmanifest');
+        $manifestResponse->assertStatus(200);
+        $manifestResponse->assertHeader('Content-Type', 'application/manifest+json; charset=utf-8');
     }
 
     public function test_organizer_can_create_event(): void
@@ -432,5 +452,110 @@ class EventFlowTest extends TestCase
         $this->assertNotNull($cookie);
         $this->assertStringNotContainsString($token1, (string) $cookie->getValue());
         $this->assertStringContainsString($token2, (string) $cookie->getValue());
+    }
+
+    public function test_participant_secret_page_includes_vapid_public_key(): void
+    {
+        $user = User::factory()->create();
+        $event = Event::create([
+            'user_id' => $user->id,
+            'title' => 'Amigo da Firma',
+            'code' => Event::generateUniqueCode(),
+        ]);
+
+        $participant = Participant::create([
+            'event_id' => $event->id,
+            'name' => 'Mariana',
+            'token' => Participant::generateUniqueToken(),
+        ]);
+
+        $response = $this->get(route('secret.show', $participant->token));
+        $response->assertStatus(200);
+        $response->assertInertia(fn ($page) => $page
+            ->component('Secret/Show')
+            ->has('vapid_public_key')
+        );
+    }
+
+    public function test_participant_can_store_and_destroy_push_subscription(): void
+    {
+        $user = User::factory()->create();
+        $event = Event::create([
+            'user_id' => $user->id,
+            'title' => 'Amigo do PWA',
+            'code' => Event::generateUniqueCode(),
+        ]);
+
+        $participant = Participant::create([
+            'event_id' => $event->id,
+            'name' => 'Participante Mobile',
+            'token' => Participant::generateUniqueToken(),
+        ]);
+
+        $endpoint = 'https://fcm.googleapis.com/fcm/send/fake-endpoint-mobile-123';
+
+        // Store subscription
+        $storeResponse = $this->postJson(route('secret.push-subscription.store', $participant->token), [
+            'endpoint' => $endpoint,
+            'keys' => [
+                'p256dh' => 'BNcRdreALRFXTkOOUHK1EtK2wtaz5Ry4YfYCA_0QT9t0AxdFr0egqh',
+                'auth' => 'tBHItJI5svbpez7KI4CCXg',
+            ],
+            'contentEncoding' => 'aes128gcm',
+        ]);
+
+        $storeResponse->assertStatus(200);
+        $storeResponse->assertJson(['success' => true]);
+
+        $this->assertDatabaseHas('participant_push_subscriptions', [
+            'participant_id' => $participant->id,
+            'endpoint' => $endpoint,
+            'endpoint_hash' => hash('sha256', $endpoint),
+            'public_key' => 'BNcRdreALRFXTkOOUHK1EtK2wtaz5Ry4YfYCA_0QT9t0AxdFr0egqh',
+            'auth_token' => 'tBHItJI5svbpez7KI4CCXg',
+        ]);
+
+        // Destroy subscription
+        $destroyResponse = $this->deleteJson(route('secret.push-subscription.destroy', $participant->token), [
+            'endpoint' => $endpoint,
+        ]);
+
+        $destroyResponse->assertStatus(200);
+        $destroyResponse->assertJson(['success' => true]);
+
+        $this->assertDatabaseMissing('participant_push_subscriptions', [
+            'participant_id' => $participant->id,
+            'endpoint_hash' => hash('sha256', $endpoint),
+        ]);
+    }
+
+    public function test_draw_dispatches_web_push_notifications(): void
+    {
+        $mockWebPush = Mockery::mock(WebPushService::class);
+        $mockWebPush->shouldReceive('sendDrawNotifications')
+            ->once()
+            ->andReturn(2);
+
+        $this->app->instance(WebPushService::class, $mockWebPush);
+
+        $user = User::factory()->create();
+        $event = Event::create([
+            'user_id' => $user->id,
+            'title' => 'Amigo Secreto com Push',
+            'code' => Event::generateUniqueCode(),
+        ]);
+
+        for ($i = 1; $i <= 3; $i++) {
+            Participant::create([
+                'event_id' => $event->id,
+                'name' => "Participante {$i}",
+                'token' => Participant::generateUniqueToken(),
+                'email' => "participante{$i}@example.com",
+            ]);
+        }
+
+        $response = $this->actingAs($user)->post(route('events.draw', $event));
+        $response->assertRedirect();
+        $this->assertTrue($event->fresh()->isDrawn());
     }
 }

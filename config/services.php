@@ -56,4 +56,10 @@ return [
         ],
     ],
 
+    'vapid' => [
+        'public_key' => env('VAPID_PUBLIC_KEY', 'BEo2wID4tug6zKpkta-vbngMpV43FdTUXkToBwTktUVrA3dUYVgWPiQU3OUBad6jXfPBkVi9I9o2Z2gcS4mISUw'),
+        'private_key' => env('VAPID_PRIVATE_KEY', 'YNmOfXxWSj430P24g-LV5SE6_7o3pbQQla-bRJGBPok'),
+        'subject' => env('VAPID_SUBJECT', 'mailto:suporte@giftmatch.online'),
+    ],
+
 ];

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, nextTick } from 'vue';
+import { ref, computed, onMounted, nextTick } from 'vue';
 
 const props = defineProps({
     slotId: {
@@ -28,6 +28,11 @@ const clientId = import.meta.env.VITE_GOOGLE_ADSENSE_ID || '';
 const isDev = import.meta.env.DEV;
 const adLoaded = ref(false);
 
+// Google AdSense data-ad-slot MUST be numeric. Passing strings like "home-bottom" causes Google to respond with 400 Bad Request.
+const numericSlotId = computed(() => {
+    return props.slotId && /^\d+$/.test(props.slotId.trim()) ? props.slotId.trim() : null;
+});
+
 onMounted(() => {
     if (clientId) {
         nextTick(() => {
@@ -53,7 +58,7 @@ onMounted(() => {
                 <ins
                     class="adsbygoogle block w-full text-center"
                     :data-ad-client="clientId"
-                    :data-ad-slot="slotId || undefined"
+                    :data-ad-slot="numericSlotId || undefined"
                     :data-ad-format="format"
                     :data-ad-layout-key="adLayoutKey || undefined"
                     :data-full-width-responsive="responsive ? 'true' : 'false'"

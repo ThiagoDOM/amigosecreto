@@ -1,6 +1,7 @@
 <script setup>
 import { Head, Link, useForm, router, usePage } from '@inertiajs/vue3';
 import { ref, onMounted, computed } from 'vue';
+import axios from 'axios';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import CookieConsent from '@/Components/CookieConsent.vue';
 import GoogleAd from '@/Components/GoogleAd.vue';
@@ -35,10 +36,10 @@ import {
     BellRing,
     CheckCircle2,
     Clock,
-    Sparkles,
     Eye,
     LogOut,
-    AlertTriangle
+    AlertTriangle,
+    ShieldCheck
 } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -54,6 +55,10 @@ const props = defineProps({
         type: Object,
         default: null,
     },
+    vapid_public_key: {
+        type: String,
+        default: '',
+    },
 });
 
 const page = usePage();
@@ -66,6 +71,7 @@ const showHomeScreenModal = ref(false);
 const showOnboardingSaveModal = ref(false);
 const showNotificationsModal = ref(false);
 const showDisconnectModal = ref(false);
+const showSoftPromptModal = ref(false);
 const copiedDisconnectLink = ref(false);
 const isDisconnecting = ref(false);
 const notificationsEnabled = ref(false);
@@ -73,8 +79,30 @@ const notificationSupported = ref(false);
 const clientToast = ref('');
 let toastTimeout = null;
 
+async function copyToClipboard(text) {
+    if (typeof window !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+        try {
+            await navigator.clipboard.writeText(text);
+            return true;
+        } catch (e) {}
+    }
+    try {
+        const input = document.createElement('textarea');
+        input.value = text;
+        input.style.position = 'fixed';
+        input.style.opacity = '0';
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
 function handleCopyDisconnectLink() {
-    navigator.clipboard.writeText(window.location.href);
+    copyToClipboard(window.location.href);
     copiedDisconnectLink.value = true;
     setTimeout(() => {
         copiedDisconnectLink.value = false;
@@ -179,7 +207,7 @@ function showToast(msg) {
 }
 
 function handleCopyLink() {
-    navigator.clipboard.writeText(window.location.href);
+    copyToClipboard(window.location.href);
     copiedPageLink.value = true;
     showToast('Link copiado com sucesso! Guarde para acessar depois.');
     setTimeout(() => {
@@ -206,13 +234,85 @@ function handleDownloadImage() {
 }
 
 function closeOnboardingSaveModal() {
-    localStorage.setItem('onboarding_seen_' + props.participant.token, '1');
+    try {
+        localStorage.setItem('onboarding_seen_' + props.participant.token, '1');
+    } catch (e) {}
     showOnboardingSaveModal.value = false;
 }
 
-async function requestBrowserNotifications() {
+function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding)
+        .replace(/\-/g, '+')
+        .replace(/_/g, '/');
+
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+}
+
+async function subscribeToPushNotifications() {
+    if (typeof window === 'undefined') return false;
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        return false;
+    }
+
+    try {
+        let reg = await navigator.serviceWorker.getRegistration();
+        if (!reg) {
+            reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+        }
+        await navigator.serviceWorker.ready;
+
+        const effectiveVapidKey = props.vapid_public_key || import.meta.env.VITE_VAPID_PUBLIC_KEY || 'BEo2wID4tug6zKpkta-vbngMpV43FdTUXkToBwTktUVrA3dUYVgWPiQU3OUBad6jXfPBkVi9I9o2Z2gcS4mISUw';
+        if (!effectiveVapidKey) return false;
+
+        let sub = await reg.pushManager.getSubscription();
+        if (!sub) {
+            sub = await reg.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(effectiveVapidKey),
+            });
+        }
+
+        if (sub) {
+            const rawSub = sub.toJSON();
+            await axios.post(route('secret.push-subscription.store', props.participant.token), {
+                endpoint: rawSub.endpoint,
+                keys: rawSub.keys,
+            });
+            return true;
+        }
+    } catch (e) {
+        console.warn('Push subscription failed:', e);
+    }
+    return false;
+}
+
+onMounted(() => {
+    if (typeof window !== 'undefined') {
+        notificationSupported.value = ('Notification' in window);
+        if ('Notification' in window && Notification.permission === 'granted') {
+            notificationsEnabled.value = true;
+            subscribeToPushNotifications();
+        }
+    }
+});
+
+function requestBrowserNotifications() {
+    showSoftPromptModal.value = true;
+}
+
+async function confirmBrowserNotificationPermission() {
+    showSoftPromptModal.value = false;
+    if (typeof window === 'undefined') return;
+
     if (!('Notification' in window)) {
-        showToast('Este dispositivo não tem suporte a notificações no navegador.');
+        showToast('Este dispositivo não tem suporte a notificações web.');
         return;
     }
 
@@ -220,34 +320,86 @@ async function requestBrowserNotifications() {
         const permission = await Notification.requestPermission();
         if (permission === 'granted') {
             notificationsEnabled.value = true;
-            localStorage.setItem('notif_granted_' + props.participant.token, '1');
-            showToast('🔔 Notificações ativadas com sucesso!');
-            
-            new Notification('GiftMatch ', {
-                body: `Notificações ativadas para "${props.event.title}". Lembrete ativado com sucesso!`,
-                icon: '/favicon.ico',
-            });
+            try {
+                localStorage.setItem('notif_granted_' + props.participant.token, '1');
+            } catch (e) {}
+
+            // Subscribe to real Web Push on server
+            const subscribed = await subscribeToPushNotifications();
+            if (subscribed) {
+                showToast('🔔 Notificações e avisos no celular ativados com sucesso!');
+            } else {
+                showToast('🔔 Notificações ativadas no navegador!');
+            }
+
+            // Local confirmation via Service Worker
+            if ('serviceWorker' in navigator) {
+                try {
+                    const reg = await navigator.serviceWorker.ready;
+                    if (reg && reg.showNotification) {
+                        reg.showNotification('GiftMatch 🎁', {
+                            body: `Notificações ativadas para "${props.event.title}". Avisaremos sobre o sorteio!`,
+                            icon: '/apple-touch-icon.png',
+                            badge: '/favicon-32x32.png',
+                        });
+                        return;
+                    }
+                } catch (swErr) {
+                    console.debug('SW notification notice:', swErr);
+                }
+            }
+
+            // Fallback for desktop browsers without active SW
+            try {
+                new Notification('GiftMatch 🎁', {
+                    body: `Notificações ativadas para "${props.event.title}". Avisaremos sobre o sorteio!`,
+                    icon: '/apple-touch-icon.png',
+                });
+            } catch (err) {}
         } else if (permission === 'denied') {
-            showToast('As notificações foram negadas no seu navegador.');
+            showToast('As notificações foram recusadas no seu navegador.');
         }
     } catch (e) {
-        console.error(e);
+        console.debug('Notification request error:', e);
     }
 }
 
-function sendTestNotification() {
-    if (!('Notification' in window) || Notification.permission !== 'granted') {
+async function sendTestNotification() {
+    if (typeof window === 'undefined' || !('Notification' in window) || Notification.permission !== 'granted') {
         requestBrowserNotifications();
         return;
     }
+
     try {
-        new Notification('GiftMatch 🎁 ' + props.event.title, {
-            body: 'Tudo pronto! As notificações estão ativas e funcionando perfeitamente.',
-            icon: '/favicon.ico',
-        });
-        showToast('🔔 Notificação de teste enviada com sucesso!');
+        // Use Service Worker (Android Chrome & iOS PWA compatible)
+        if ('serviceWorker' in navigator) {
+            try {
+                const reg = await navigator.serviceWorker.getRegistration();
+                if (reg && reg.showNotification) {
+                    reg.showNotification('GiftMatch 🎁 ' + props.event.title, {
+                        body: 'Tudo pronto! As notificações estão ativas e funcionando perfeitamente.',
+                        icon: '/apple-touch-icon.png',
+                        badge: '/favicon-32x32.png',
+                    });
+                    showToast('🔔 Notificação de teste enviada com sucesso!');
+                    return;
+                }
+            } catch (swErr) {
+                console.debug('SW notification notice:', swErr);
+            }
+        }
+
+        try {
+            new Notification('GiftMatch 🎁 ' + props.event.title, {
+                body: 'Tudo pronto! As notificações estão ativas e funcionando perfeitamente.',
+                icon: '/apple-touch-icon.png',
+            });
+            showToast('🔔 Notificação de teste enviada com sucesso!');
+        } catch (e) {
+            showToast('🔔 Notificações ativas neste dispositivo!');
+        }
     } catch (e) {
-        console.error(e);
+        console.debug('Test notification notice:', e);
         showToast('Não foi possível disparar o teste.');
     }
 }
@@ -346,7 +498,7 @@ const eventNotifications = computed(() => {
             date: 'Disponível agora',
             status: 'action_required',
             badge: 'Pronto para abrir',
-            icon: 'sparkles',
+            icon: 'party-popper',
             colorClass: 'text-rose-400 bg-rose-500/10 border-rose-500/30',
             badgeClass: 'bg-rose-500/15 text-rose-300 border-rose-500/30'
         });
@@ -726,29 +878,38 @@ function downloadCardImage() {
 }
 
 onMounted(() => {
-    notificationSupported.value = ('Notification' in window);
-    if (notificationSupported.value) {
-        notificationsEnabled.value = (Notification.permission === 'granted');
+    try {
+        notificationSupported.value = typeof window !== 'undefined' && ('Notification' in window);
+        if (notificationSupported.value && typeof Notification !== 'undefined' && 'permission' in Notification) {
+            notificationsEnabled.value = (Notification.permission === 'granted');
+        }
+    } catch (e) {
+        notificationSupported.value = false;
     }
 
-    // Check if just registered (via flash session or query param) or first time viewing before draw
-    const isJustRegistered = page.props.flash?.just_registered || new URLSearchParams(window.location.search).has('registered');
-    const hasSeenGuide = localStorage.getItem('onboarding_seen_' + props.participant.token);
+    try {
+        const isJustRegistered = page.props.flash?.just_registered || (typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('registered'));
+        const hasSeenGuide = localStorage.getItem('onboarding_seen_' + props.participant.token);
 
-    if (isJustRegistered || (!props.event.is_drawn && !hasSeenGuide)) {
-        setTimeout(() => {
-            showOnboardingSaveModal.value = true;
-        }, 400);
+        if (isJustRegistered || (!props.event.is_drawn && !hasSeenGuide)) {
+            setTimeout(() => {
+                showOnboardingSaveModal.value = true;
+            }, 400);
+        }
+    } catch (e) {
+        // Safe fallback for restricted storage environments
     }
 
     // If already revealed previously, fire a soft greeting confetti
     if (isRevealed.value) {
         setTimeout(() => {
-            confetti({
-                particleCount: 50,
-                spread: 70,
-                origin: { y: 0.6 }
-            });
+            try {
+                confetti({
+                    particleCount: 50,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            } catch (e) {}
         }, 500);
     }
 });
@@ -1598,7 +1759,6 @@ onMounted(() => {
                                 <Gift v-else-if="item.icon === 'gift'" class="w-3 h-3" />
                                 <Clock v-else-if="item.icon === 'clock'" class="w-3 h-3" />
                                 <Eye v-else-if="item.icon === 'eye'" class="w-3 h-3" />
-                                <Sparkles v-else-if="item.icon === 'sparkles'" class="w-3 h-3" />
                                 <PartyPopper v-else class="w-3 h-3" />
                             </div>
 
@@ -1755,6 +1915,73 @@ onMounted(() => {
                     >
                         <LogOut class="w-4 h-4" />
                         <span>{{ isDisconnecting ? 'Saindo...' : 'Confirmar e Sair' }}</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Soft Prompt (Pré-aviso amigável antes da caixa nativa do navegador) -->
+        <div
+            v-if="showSoftPromptModal"
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in"
+        >
+            <div class="relative w-full max-w-md rounded-3xl bg-slate-900 border border-slate-700/80 p-6 shadow-2xl text-left space-y-5 animate-in zoom-in-95">
+                <!-- Close button -->
+                <button
+                    @click="showSoftPromptModal = false"
+                    type="button"
+                    class="absolute top-4 right-4 p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                >
+                    <X class="w-5 h-5" />
+                </button>
+
+                <!-- Icon & Header -->
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0">
+                        <BellRing class="w-6 h-6 animate-pulse" />
+                    </div>
+                    <div class="space-y-1">
+                        <h3 class="text-lg font-bold text-white">
+                            Ativar avisos do Amigo Secreto
+                        </h3>
+                        <p class="text-xs text-slate-400">
+                            Evento: <strong class="text-slate-200">{{ event.title }}</strong>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Explanatory content -->
+                <div class="space-y-2.5 text-xs sm:text-sm text-slate-300 leading-relaxed bg-slate-950/60 p-4 rounded-2xl border border-slate-800/80">
+                    <p>
+                        Quer saber quem você tirou assim que o organizador realizar o sorteio?
+                    </p>
+                    <p class="text-slate-400 text-xs">
+                        Ao clicar em <strong>"Continuar e Ativar"</strong>, o seu navegador (Edge/Chrome/Safari) exibirá uma confirmação solicitando permissão. Basta tocar em <strong>"Permitir"</strong> para receber o aviso neste dispositivo.
+                    </p>
+                </div>
+
+                <!-- Safety badge -->
+                <div class="flex items-center gap-2 text-[11px] text-slate-400">
+                    <ShieldCheck class="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>Sem spam. Apenas avisos importantes deste amigo secreto.</span>
+                </div>
+
+                <!-- Action buttons -->
+                <div class="flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5 pt-2">
+                    <button
+                        @click="showSoftPromptModal = false"
+                        type="button"
+                        class="w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 transition-colors cursor-pointer"
+                    >
+                        Agora Não
+                    </button>
+                    <button
+                        @click="confirmBrowserNotificationPermission"
+                        type="button"
+                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-amber-500 hover:bg-amber-400 text-slate-950 transition-all shadow-lg shadow-amber-950/50 cursor-pointer active:scale-95"
+                    >
+                        <Bell class="w-4 h-4" />
+                        <span>Continuar e Ativar</span>
                     </button>
                 </div>
             </div>

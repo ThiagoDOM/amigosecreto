@@ -85,6 +85,14 @@ class Participant extends Model
         return $this->hasMany(ParticipantExclusion::class, 'excluded_participant_id');
     }
 
+    /**
+     * @return HasMany<ParticipantPushSubscription, $this>
+     */
+    public function pushSubscriptions(): HasMany
+    {
+        return $this->hasMany(ParticipantPushSubscription::class, 'participant_id');
+    }
+
     public function isRevealed(): bool
     {
         return $this->revealed_at !== null;
