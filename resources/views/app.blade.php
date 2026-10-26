@@ -4,6 +4,26 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <script>
+        // Clear CacheStorage from legacy service workers to prevent cache collisions
+        if ('caches' in window) {
+            caches.keys().then(function(names) {
+                for (var i = 0; i < names.length; i++) { caches.delete(names[i]); }
+            });
+        }
+        // Register Service Worker for PWA & Web Push
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').catch(function(err) {
+                    console.debug('SW reg notice:', err);
+                });
+            });
+        }
+    </script>
 
     @php
         $component = $page['component'] ?? '';
@@ -40,6 +60,11 @@
             $metaTitle = 'Meu Amigo Secreto - GiftMatch';
             $metaDesc =
                 'Descubra quem você tirou no Amigo Secreto no GiftMatch, confira a lista de desejos e prepare o seu presente!';
+            $metaImage = url('og-home.jpg', [], $isSecure);
+        } elseif ($component === 'Simulation/Index') {
+            $metaTitle = 'Simulação Interativa de Amigo Secreto - GiftMatch';
+            $metaDesc =
+                'Veja na prática como seus convidados se inscrevem e revelam o amigo secreto no GiftMatch. Teste 100% grátis e sem cadastro.';
             $metaImage = url('og-home.jpg', [], $isSecure);
         } else {
             $metaTitle = 'GiftMatch - Amigo Secreto Online Inteligente e Grátis';
@@ -78,6 +103,14 @@
     <link rel="icon" type="image/png" sizes="16x16" href="{{ url('favicon-16x16.png', [], $isSecure) }}">
     <link rel="apple-touch-icon" sizes="180x180" href="{{ url('apple-touch-icon.png', [], $isSecure) }}">
     <link rel="shortcut icon" href="{{ url('favicon.ico', [], $isSecure) }}">
+
+    <!-- PWA & Mobile Web App Manifest -->
+    <link rel="manifest" href="{{ url('manifest.webmanifest', [], $isSecure) }}">
+    <meta name="theme-color" content="#020617">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="GiftMatch">
 
     <!-- Fonts (High-performance non-render-blocking) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

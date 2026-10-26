@@ -7,7 +7,7 @@ import { ArrowLeft, FileText, CheckCircle2, AlertTriangle, Scale } from 'lucide-
 defineProps({
     updatedAt: {
         type: String,
-        default: '23 de Outubro de 2026',
+        default: '24 de Outubro de 2026',
     },
 });
 </script>

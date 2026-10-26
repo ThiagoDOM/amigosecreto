@@ -16,8 +16,7 @@ import {
     User, 
     CheckCircle2, 
     AlertCircle,
-    ChevronDown,
-    Sparkles
+    ChevronDown
 } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -163,7 +162,7 @@ function submit() {
                         id="name"
                         v-model="form.name"
                         type="text"
-                        placeholder="Ex: Carlos Oliveira"
+                        placeholder="Ex: João"
                         class="w-full px-4 py-3 rounded-2xl bg-slate-800/90 border border-slate-700 text-white placeholder-slate-400 text-sm focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
                         required
                     />
@@ -184,7 +183,7 @@ function submit() {
                             @input="onPhoneInput"
                             maxlength="15"
                             type="tel"
-                            placeholder="(11) 98765-4321"
+                            placeholder="(11) 90000-0000"
                             class="w-full px-4 py-3 rounded-2xl bg-slate-800/90 border border-slate-700 text-white placeholder-slate-400 text-sm focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
                         />
                         <div v-if="form.errors.phone" class="text-xs text-rose-400 font-semibold">
@@ -240,7 +239,7 @@ function submit() {
                     >
                         <div class="flex items-center gap-3">
                             <div class="w-9 h-9 rounded-xl bg-rose-500/15 text-rose-400 flex items-center justify-center shrink-0">
-                                <Sparkles class="w-5 h-5" />
+                                <Gift class="w-5 h-5" />
                             </div>
                             <div>
                                 <span class="text-sm font-bold text-white block">

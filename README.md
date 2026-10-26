@@ -131,7 +131,7 @@ Design responsivo em Dark Mode nativo com iluminação ambiente e alta performan
 
 1. **Clone o repositório:**
    ```bash
-   git clone https://github.com/ThiagoDOM/amigosecreto.git
+   git clone https://github.com/giftmatch/amigosecreto.git
    cd amigosecreto
    ```
 
@@ -155,7 +155,7 @@ Design responsivo em Dark Mode nativo com iluminação ambiente e alta performan
    ```bash
    php artisan migrate --seed
    ```
-   > O seeder cria automaticamente o usuário `thiago@giftmatch.online` (senha: `password`) com 2 eventos configurados, participantes, restrições de casais e listas de presentes para demonstração imediata!
+   > O seeder cria automaticamente o usuário `admin@giftmatch.online` (senha: `password`) com 2 eventos configurados, participantes, restrições de casais e listas de presentes para demonstração imediata!
 
 6. **Inicie o servidor de desenvolvimento:**
    * Em um terminal:
@@ -196,12 +196,12 @@ Exemplo de resultado:
 
 ---
 
-## 👨‍💻 Autor
+## 👨‍💻 Mantenedor & Contato
 
-Desenvolvido por **Thiago Moreira**.
+Desenvolvido pela equipe **GiftMatch**.
 
-* **GitHub:** [@ThiagoDOM](https://github.com/ThiagoDOM)
 * **Projeto Online:** [https://giftmatch.online](https://giftmatch.online)
+* **Suporte:** [suporte@giftmatch.online](mailto:suporte@giftmatch.online)
 
 ---
 

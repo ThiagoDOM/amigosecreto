@@ -44,7 +44,7 @@ const submit = () => {
                     type="text"
                     class="mt-1 block w-full px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-950 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-rose-500"
                     v-model="form.name"
-                    placeholder="Ex: Ana Clara"
+                    placeholder="Ex: João"
                     required
                     autofocus
                     autocomplete="name"

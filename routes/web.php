@@ -21,6 +21,11 @@ Route::get('/', function (Request $request, ParticipantSessionService $sessionSe
     ]);
 })->name('home');
 
+// Interactive Simulation / Live Demo (No login and no database required)
+Route::get('/simulacao', function () {
+    return Inertia::render('Simulation/Index');
+})->name('simulation');
+
 // Participant Session Management (No login required)
 Route::post('/participante/sair', [ParticipantSessionController::class, 'forget'])->name('participant.session.forget');
 
@@ -64,6 +69,31 @@ Route::get('/sitemap.xml', function () {
     ]);
 });
 
+// PWA Service Worker & Manifest fallback for serverless runtimes
+Route::get('/sw.js', function () {
+    $swPath = public_path('sw.js');
+    if (file_exists($swPath)) {
+        return response(file_get_contents($swPath), 200, [
+            'Content-Type' => 'application/javascript; charset=utf-8',
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
+        ]);
+    }
+
+    return response('// sw not found', 404, ['Content-Type' => 'application/javascript']);
+});
+
+Route::get('/manifest.webmanifest', function () {
+    $manifestPath = public_path('manifest.webmanifest');
+    if (file_exists($manifestPath)) {
+        return response(file_get_contents($manifestPath), 200, [
+            'Content-Type' => 'application/manifest+json; charset=utf-8',
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
+        ]);
+    }
+
+    return response('{}', 404, ['Content-Type' => 'application/json']);
+});
+
 // Public Invite Routes (No login required)
 Route::get('/convite/{code}', [InviteController::class, 'show'])->name('invite.show');
 Route::post('/convite/{code}', [InviteController::class, 'join'])->name('invite.join');
@@ -72,6 +102,8 @@ Route::post('/convite/{code}', [InviteController::class, 'join'])->name('invite.
 Route::get('/amigo/{token}', [SecretRevealController::class, 'show'])->name('secret.show');
 Route::post('/amigo/{token}/reveal', [SecretRevealController::class, 'reveal'])->name('secret.reveal');
 Route::put('/amigo/{token}/wishlist', [SecretRevealController::class, 'updateWishlist'])->name('secret.wishlist.update');
+Route::post('/amigo/{token}/push-subscription', [SecretRevealController::class, 'storePushSubscription'])->name('secret.push-subscription.store');
+Route::delete('/amigo/{token}/push-subscription', [SecretRevealController::class, 'destroyPushSubscription'])->name('secret.push-subscription.destroy');
 
 // Protected Organizer Routes
 Route::middleware(['auth', 'verified'])->group(function () {

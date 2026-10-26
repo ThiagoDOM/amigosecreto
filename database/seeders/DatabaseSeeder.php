@@ -16,11 +16,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Showcase User (Thiago Moreira)
+        // 1. Showcase User (Organizador Showcase)
         $user = User::firstOrCreate(
-            ['email' => 'thiago@giftmatch.online'],
+            ['email' => 'admin@giftmatch.online'],
             [
-                'name' => 'Thiago Moreira',
+                'name' => 'Organizador Showcase',
                 'password' => Hash::make('password'),
                 'email_verified_at' => now(),
             ]
@@ -227,9 +227,9 @@ class DatabaseSeeder extends Seeder
         $companyEvent->participants()->delete();
         Participant::create([
             'event_id' => $companyEvent->id,
-            'name' => 'Thiago Moreira (Organizador)',
+            'name' => 'Eduardo Ramos (Organizador)',
             'phone' => '(11) 99999-8888',
-            'token' => 'token_thiago_company_1',
+            'token' => 'token_organizador_company_1',
             'clothing_size' => 'M',
             'shoe_size' => '41',
             'likes' => 'Café gourmet, gadgets e livros técnicos',

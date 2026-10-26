@@ -7,7 +7,7 @@ import { ArrowLeft, ShieldCheck, Lock, Eye, Cookie, Mail } from 'lucide-vue-next
 defineProps({
     updatedAt: {
         type: String,
-        default: '23 de Outubro de 2026',
+        default: '24 de Outubro de 2026',
     },
 });
 </script>
