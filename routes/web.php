@@ -104,6 +104,8 @@ Route::post('/amigo/{token}/reveal', [SecretRevealController::class, 'reveal'])-
 Route::put('/amigo/{token}/wishlist', [SecretRevealController::class, 'updateWishlist'])->name('secret.wishlist.update');
 Route::post('/amigo/{token}/push-subscription', [SecretRevealController::class, 'storePushSubscription'])->name('secret.push-subscription.store');
 Route::delete('/amigo/{token}/push-subscription', [SecretRevealController::class, 'destroyPushSubscription'])->name('secret.push-subscription.destroy');
+Route::post('/amigo/{token}/perguntar', [SecretRevealController::class, 'sendSecretMessage'])->name('secret.ask');
+Route::post('/amigo/{token}/responder/{message}', [SecretRevealController::class, 'answerSecretMessage'])->name('secret.answer');
 
 // Protected Organizer Routes
 Route::middleware(['auth', 'verified'])->group(function () {

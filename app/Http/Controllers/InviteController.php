@@ -38,6 +38,7 @@ class InviteController extends Controller
                 'title' => $event->title,
                 'description' => $event->description,
                 'code' => $event->code,
+                'theme' => $event->theme ?? 'traditional',
                 'budget_limit' => $event->budget_limit,
                 'draw_date' => $event->draw_date?->format('d/m/Y'),
                 'event_date' => $event->event_date?->format('d/m/Y'),

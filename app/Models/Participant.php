@@ -93,6 +93,26 @@ class Participant extends Model
         return $this->hasMany(ParticipantPushSubscription::class, 'participant_id');
     }
 
+    /**
+     * Secret messages sent by this participant to the person they drew.
+     *
+     * @return HasMany<SecretMessage, $this>
+     */
+    public function sentSecretMessages(): HasMany
+    {
+        return $this->hasMany(SecretMessage::class, 'sender_participant_id');
+    }
+
+    /**
+     * Secret messages received by this participant from whoever drew them.
+     *
+     * @return HasMany<SecretMessage, $this>
+     */
+    public function receivedSecretMessages(): HasMany
+    {
+        return $this->hasMany(SecretMessage::class, 'recipient_participant_id');
+    }
+
     public function isRevealed(): bool
     {
         return $this->revealed_at !== null;

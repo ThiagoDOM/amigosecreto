@@ -9,7 +9,10 @@ import ToastNotification from '@/Components/ToastNotification.vue';
 import WishlistEditor from '@/Components/WishlistEditor.vue';
 import WishlistDisplay from '@/Components/WishlistDisplay.vue';
 import AffiliateRecommendations from '@/Components/AffiliateRecommendations.vue';
+import GiftSuggestionsModal from '@/Components/GiftSuggestionsModal.vue';
+import SecretNotesChat from '@/Components/SecretNotesChat.vue';
 import { formatDate, formatCurrency, parseWishlist } from '@/Utils/formatters';
+import { getTheme } from '@/Utils/themes';
 import { drawQrCodeToCanvas } from '@/Utils/qrcode';
 import confetti from 'canvas-confetti';
 import { 
@@ -39,7 +42,8 @@ import {
     Eye,
     LogOut,
     AlertTriangle,
-    ShieldCheck
+    ShieldCheck,
+    ShoppingBag
 } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -55,6 +59,14 @@ const props = defineProps({
         type: Object,
         default: null,
     },
+    sent_questions: {
+        type: Array,
+        default: () => [],
+    },
+    received_questions: {
+        type: Array,
+        default: () => [],
+    },
     vapid_public_key: {
         type: String,
         default: '',
@@ -65,6 +77,7 @@ const page = usePage();
 const isRevealed = ref(props.participant.is_revealed);
 const isOpening = ref(false);
 const showEditWishlistModal = ref(false);
+const showGiftSuggestionsModal = ref(false);
 const copiedPageLink = ref(false);
 const showSaveDropdown = ref(false);
 const showHomeScreenModal = ref(false);
@@ -78,6 +91,8 @@ const notificationsEnabled = ref(false);
 const notificationSupported = ref(false);
 const clientToast = ref('');
 let toastTimeout = null;
+
+const currentTheme = computed(() => getTheme(props.event?.theme));
 
 async function copyToClipboard(text) {
     if (typeof window !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
@@ -1123,6 +1138,11 @@ onMounted(() => {
 
                 <!-- Event Details Pills -->
                 <div class="pt-2 flex flex-wrap gap-2 text-xs">
+                    <div v-if="event.theme" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border font-bold" :class="currentTheme.badgeClass">
+                        <span>{{ currentTheme.emoji }}</span>
+                        <span>Tema: {{ currentTheme.label }}</span>
+                    </div>
+
                     <div v-if="event.budget_limit" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-800 text-slate-100 border border-slate-700 font-bold">
                         <DollarSign class="w-3.5 h-3.5 text-emerald-400" />
                         Valor sugerido: {{ formatCurrency(event.budget_limit) }}
@@ -1301,9 +1321,30 @@ onMounted(() => {
                             </div>
                             <div class="text-rose-100 font-medium leading-relaxed">{{ secret_friend?.dislikes }}</div>
                         </div>
+
+                        <!-- Standalone Action Button to Open Ideal Gift Suggestions Modal -->
+                        <div class="pt-2">
+                            <button
+                                id="btn-open-ideal-gifts"
+                                @click="showGiftSuggestionsModal = true"
+                                type="button"
+                                class="w-full flex items-center justify-center gap-2.5 px-5 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-rose-500 to-pink-500 hover:from-amber-400 hover:via-rose-400 hover:to-pink-400 text-slate-950 font-black shadow-lg shadow-rose-500/25 transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer text-sm sm:text-base border border-amber-300/40"
+                            >
+                                <ShoppingBag class="w-5 h-5 shrink-0 text-slate-950" />
+                                <span>Ver Produtos Ideais para {{ secret_friend?.name }}</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Bilhete Secreto / Chat Anônimo -->
+            <SecretNotesChat
+                :participant-token="participant.token"
+                :friend-name="secret_friend?.name || 'seu Amigo Secreto'"
+                :sent-questions="sent_questions"
+                :received-questions="received_questions"
+            />
 
             <!-- Affiliate Recommendations (Shopee & Mercado Livre) -->
             <AffiliateRecommendations :friend-name="secret_friend?.name" />
@@ -1989,6 +2030,20 @@ onMounted(() => {
                 </div>
             </div>
         </div>
+
+        <!-- Modal de Sugestões de Presentes Ideais para o Amigo Sorteado -->
+        <GiftSuggestionsModal
+            :is-open="showGiftSuggestionsModal"
+            :friend-name="secret_friend?.name"
+            :wishlist="secret_friend?.wishlist"
+            :theme="event.theme"
+            :budget-limit="event.budget_limit"
+            :clothing-size="secret_friend?.clothing_size"
+            :shoe-size="secret_friend?.shoe_size"
+            :likes="secret_friend?.likes"
+            :dislikes="secret_friend?.dislikes"
+            @close="showGiftSuggestionsModal = false"
+        />
 
         <!-- Floating Client Toast Feedback -->
         <transition

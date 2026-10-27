@@ -6,11 +6,14 @@ import {
     ArrowLeft, 
     Calendar, 
     MapPin, 
-    CheckCircle2 
+    CheckCircle2,
+    Check
 } from 'lucide-vue-next';
+import { THEMES } from '@/Utils/themes';
 
 const form = useForm({
     title: '',
+    theme: 'traditional',
     description: '',
     budget_limit: '',
     draw_date: '',
@@ -68,6 +71,49 @@ function submit() {
                         />
                         <div v-if="form.errors.title" class="text-xs text-rose-400 font-semibold">
                             {{ form.errors.title }}
+                        </div>
+                    </div>
+
+                    <!-- Theme Selector -->
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-200">
+                            Tema do Amigo Secreto
+                        </label>
+                        <p class="text-[11px] text-slate-400">
+                            Escolha se a troca terá um tema divertido específico ou se será tradicional.
+                        </p>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-1">
+                            <button
+                                v-for="(themeItem, themeKey) in THEMES"
+                                :key="themeKey"
+                                type="button"
+                                @click="form.theme = themeKey"
+                                class="p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between space-y-1 relative"
+                                :class="[
+                                    form.theme === themeKey
+                                        ? 'bg-rose-500/15 border-rose-500 ring-2 ring-rose-500/30'
+                                        : 'bg-slate-950/80 border-slate-800 hover:border-slate-700 text-slate-300'
+                                ]"
+                            >
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xl">{{ themeItem.emoji }}</span>
+                                    <span v-if="form.theme === themeKey" class="w-4 h-4 rounded-full bg-rose-500 text-white flex items-center justify-center">
+                                        <Check class="w-2.5 h-2.5 stroke-[3]" />
+                                    </span>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-bold text-white leading-tight">
+                                        {{ themeItem.label }}
+                                    </div>
+                                    <div class="text-[10px] text-slate-400 line-clamp-1 mt-0.5 font-normal">
+                                        {{ themeItem.tagline }}
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
+                        <div v-if="form.errors.theme" class="text-xs text-rose-400 font-semibold">
+                            {{ form.errors.theme }}
                         </div>
                     </div>
 
