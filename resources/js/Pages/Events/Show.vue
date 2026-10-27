@@ -3,6 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import WishlistEditor from '@/Components/WishlistEditor.vue';
 import WishlistDisplay from '@/Components/WishlistDisplay.vue';
 import { formatDate, formatPhone, maskPhone, formatCurrency } from '@/Utils/formatters';
+import { THEMES, getTheme } from '@/Utils/themes';
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { 
@@ -96,8 +97,11 @@ const addExclusionForm = useForm({
     bidirectional: true,
 });
 
+const currentTheme = computed(() => getTheme(props.event?.theme));
+
 const editEventForm = useForm({
     title: props.event.title,
+    theme: props.event.theme || 'traditional',
     description: props.event.description || '',
     budget_limit: props.event.budget_limit || '',
     draw_date: props.event.draw_date || '',
@@ -127,6 +131,7 @@ function copyMagicLink(p) {
 const invitePayload = computed(() => {
     const text = `*Convite para o Amigo Secreto: ${props.event.title}*!\n\n` +
         `Olá! Estou organizando nosso amigo secreto no GiftMatch.\n` +
+        (props.event.theme && props.event.theme !== 'traditional' ? `${currentTheme.value.emoji} *Tema:* ${currentTheme.value.label}\n` : '') +
         (props.event.budget_limit ? `💰 *Valor sugerido:* ${formatCurrency(props.event.budget_limit)}\n` : '') +
         (props.event.event_date ? `📅 *Data da confraternização:* ${formatDate(props.event.event_date)}\n` : '') +
         (props.event.location ? `📍 *Local:* ${props.event.location}\n` : '') +
@@ -407,6 +412,11 @@ const revealedCount = computed(() => {
 
                         <!-- Meta Badges -->
                         <div class="pt-1 flex flex-wrap gap-2 text-xs">
+                            <div v-if="event.theme" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border font-medium" :class="currentTheme.badgeClass">
+                                <span>{{ currentTheme.emoji }}</span>
+                                <span>Tema: {{ currentTheme.label }}</span>
+                            </div>
+
                             <div v-if="event.budget_limit" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800/80 text-slate-200 border border-slate-700 font-medium">
                                 <DollarSign class="w-3.5 h-3.5 text-emerald-400" />
                                 <span>Valor sugerido: {{ formatCurrency(event.budget_limit) }}</span>
@@ -1078,6 +1088,18 @@ const revealedCount = computed(() => {
                             class="w-full px-4 py-2 rounded-xl border border-slate-700 bg-slate-950 text-sm text-white focus:outline-none focus:border-rose-500"
                             required
                         />
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-200 mb-1">Tema do Amigo Secreto</label>
+                        <select
+                            v-model="editEventForm.theme"
+                            class="w-full px-4 py-2 rounded-xl border border-slate-700 bg-slate-950 text-sm text-white focus:outline-none focus:border-rose-500"
+                        >
+                            <option v-for="(tItem, tKey) in THEMES" :key="tKey" :value="tKey">
+                                {{ tItem.emoji }} {{ tItem.label }} - {{ tItem.tagline }}
+                            </option>
+                        </select>
                     </div>
 
                     <div>

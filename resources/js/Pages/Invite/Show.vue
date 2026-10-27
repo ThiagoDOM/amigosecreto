@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import CookieConsent from '@/Components/CookieConsent.vue';
 import GoogleAd from '@/Components/GoogleAd.vue';
@@ -8,6 +8,7 @@ import ToastNotification from '@/Components/ToastNotification.vue';
 import WishlistEditor from '@/Components/WishlistEditor.vue';
 import AffiliateRecommendations from '@/Components/AffiliateRecommendations.vue';
 import { formatDate, formatCurrency, maskPhone } from '@/Utils/formatters';
+import { getTheme } from '@/Utils/themes';
 import { 
     Gift, 
     Calendar, 
@@ -39,6 +40,7 @@ const form = useForm({
 });
 
 const showPreferences = ref(false);
+const currentTheme = computed(() => getTheme(props.event?.theme));
 
 function onPhoneInput(e) {
     const masked = maskPhone(e.target.value);
@@ -104,6 +106,11 @@ function submit() {
 
                 <!-- Metadata details -->
                 <div class="pt-2 flex flex-wrap gap-2.5 text-xs">
+                    <div v-if="event.theme" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border font-bold" :class="currentTheme.badgeClass">
+                        <span>{{ currentTheme.emoji }}</span>
+                        <span>Tema: {{ currentTheme.label }}</span>
+                    </div>
+
                     <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 text-slate-100 border border-slate-700 font-bold">
                         <User class="w-3.5 h-3.5 text-rose-400" />
                         Organizado por: {{ event.organizer_name }}

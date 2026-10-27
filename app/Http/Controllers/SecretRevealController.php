@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Participant;
+use App\Models\SecretMessage;
 use App\Services\AffiliateLinkService;
 use App\Services\ParticipantSessionService;
 use Illuminate\Http\JsonResponse;
@@ -45,6 +46,32 @@ class SecretRevealController extends Controller
             ];
         }
 
+        $sentQuestions = $isDrawn && $participant->drawn_participant_id
+            ? $participant->sentSecretMessages()
+                ->orderBy('created_at', 'asc')
+                ->get()
+                ->map(fn ($m) => [
+                    'id' => $m->id,
+                    'question' => $m->question,
+                    'answer' => $m->answer,
+                    'answered_at' => $m->answered_at?->format('d/m/Y H:i'),
+                    'created_at' => $m->created_at->format('d/m/Y H:i'),
+                ])
+            : [];
+
+        $receivedQuestions = $isDrawn
+            ? $participant->receivedSecretMessages()
+                ->orderBy('created_at', 'asc')
+                ->get()
+                ->map(fn ($m) => [
+                    'id' => $m->id,
+                    'question' => $m->question,
+                    'answer' => $m->answer,
+                    'answered_at' => $m->answered_at?->format('d/m/Y H:i'),
+                    'created_at' => $m->created_at->format('d/m/Y H:i'),
+                ])
+            : [];
+
         return Inertia::render('Secret/Show', [
             'participant' => [
                 'id' => $participant->id,
@@ -65,6 +92,7 @@ class SecretRevealController extends Controller
                 'id' => $event->id,
                 'title' => $event->title,
                 'description' => $event->description,
+                'theme' => $event->theme ?? 'traditional',
                 'budget_limit' => $event->budget_limit,
                 'event_date' => $event->event_date?->format('d/m/Y'),
                 'raw_event_date' => $event->event_date?->format('Y-m-d'),
@@ -78,6 +106,8 @@ class SecretRevealController extends Controller
                 'participants_count' => $event->participants()->count(),
             ],
             'secret_friend' => $secretFriendData,
+            'sent_questions' => $sentQuestions,
+            'received_questions' => $receivedQuestions,
             'vapid_public_key' => config('services.vapid.public_key'),
         ]);
     }
@@ -176,5 +206,58 @@ class SecretRevealController extends Controller
             'success' => true,
             'message' => 'Subscrição push desvinculada com sucesso.',
         ]);
+    }
+
+    /**
+     * Send an anonymous question to the participant's drawn secret friend.
+     */
+    public function sendSecretMessage(Request $request, string $token): RedirectResponse
+    {
+        $participant = Participant::where('token', $token)->firstOrFail();
+        $event = $participant->event;
+
+        if (! $event->isDrawn() || ! $participant->drawn_participant_id) {
+            return back()->with('error', 'O sorteio precisa ser realizado para você enviar um bilhete secreto.');
+        }
+
+        $validated = $request->validate([
+            'question' => ['required', 'string', 'min:3', 'max:400'],
+        ]);
+
+        $count = $participant->sentSecretMessages()->count();
+        if ($count >= 10) {
+            return back()->with('error', 'Você atingiu o limite de perguntas anônimas para este amigo secreto.');
+        }
+
+        $participant->sentSecretMessages()->create([
+            'event_id' => $event->id,
+            'recipient_participant_id' => $participant->drawn_participant_id,
+            'question' => $validated['question'],
+        ]);
+
+        return back()->with('success', 'Bilhete secreto enviado com sucesso para o seu amigo secreto!');
+    }
+
+    /**
+     * Answer an anonymous question received from whoever drew this participant.
+     */
+    public function answerSecretMessage(Request $request, string $token, SecretMessage $message): RedirectResponse
+    {
+        $participant = Participant::where('token', $token)->firstOrFail();
+
+        if ($message->recipient_participant_id !== $participant->id) {
+            abort(403, 'Acesso não autorizado a esta mensagem.');
+        }
+
+        $validated = $request->validate([
+            'answer' => ['required', 'string', 'min:1', 'max:500'],
+        ]);
+
+        $message->update([
+            'answer' => $validated['answer'],
+            'answered_at' => now(),
+        ]);
+
+        return back()->with('success', 'Sua resposta foi enviada anonimamente para o seu amigo secreto!');
     }
 }

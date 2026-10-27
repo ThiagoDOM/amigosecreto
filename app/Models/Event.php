@@ -20,6 +20,7 @@ class Event extends Model
         'title',
         'description',
         'code',
+        'theme',
         'budget_limit',
         'draw_date',
         'event_date',
@@ -63,6 +64,14 @@ class Event extends Model
     public function exclusions(): HasMany
     {
         return $this->hasMany(ParticipantExclusion::class);
+    }
+
+    /**
+     * @return HasMany<SecretMessage, $this>
+     */
+    public function secretMessages(): HasMany
+    {
+        return $this->hasMany(SecretMessage::class);
     }
 
     public function isDrawn(): bool

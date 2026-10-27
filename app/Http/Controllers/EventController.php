@@ -61,6 +61,7 @@ class EventController extends Controller
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
+            'theme' => ['nullable', 'string', 'in:traditional,chocolate,mug,book,havaianas,funny,custom'],
             'budget_limit' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
             'draw_date' => ['nullable', 'date'],
             'event_date' => ['nullable', 'date'],
@@ -69,6 +70,7 @@ class EventController extends Controller
 
         $event = $request->user()->events()->create([
             ...$validated,
+            'theme' => $validated['theme'] ?? 'traditional',
             'code' => Event::generateUniqueCode(),
             'status' => 'open',
         ]);
@@ -125,6 +127,7 @@ class EventController extends Controller
                 'id' => $event->id,
                 'title' => $event->title,
                 'description' => $event->description,
+                'theme' => $event->theme ?? 'traditional',
                 'code' => $event->code,
                 'budget_limit' => $event->budget_limit,
                 'draw_date' => $event->draw_date?->format('Y-m-d'),
@@ -151,6 +154,7 @@ class EventController extends Controller
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
+            'theme' => ['nullable', 'string', 'in:traditional,chocolate,mug,book,havaianas,funny,custom'],
             'budget_limit' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
             'draw_date' => ['nullable', 'date'],
             'event_date' => ['nullable', 'date'],
