@@ -4,26 +4,6 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-
-    <script>
-        // Clear CacheStorage from legacy service workers to prevent cache collisions
-        if ('caches' in window) {
-            caches.keys().then(function(names) {
-                for (var i = 0; i < names.length; i++) { caches.delete(names[i]); }
-            });
-        }
-        // Register Service Worker for PWA & Web Push
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js').catch(function(err) {
-                    console.debug('SW reg notice:', err);
-                });
-            });
-        }
-    </script>
 
     @php
         $component = $page['component'] ?? '';
@@ -56,21 +36,29 @@
                 'Clique aqui para confirmar sua presença, indicar seus presentes desejados e participar do sorteio.';
             $metaDesc = implode(' ', $descParts);
             $metaImage = url('og-invite.jpg', [], $isSecure);
+            $imgWidth = 1376;
+            $imgHeight = 768;
         } elseif ($component === 'Secret/Show') {
             $metaTitle = 'Meu Amigo Secreto - GiftMatch';
             $metaDesc =
                 'Descubra quem você tirou no Amigo Secreto no GiftMatch, confira a lista de desejos e prepare o seu presente!';
             $metaImage = url('og-home.jpg', [], $isSecure);
+            $imgWidth = 1376;
+            $imgHeight = 768;
         } elseif ($component === 'Simulation/Index') {
             $metaTitle = 'Simulação Interativa de Amigo Secreto - GiftMatch';
             $metaDesc =
                 'Veja na prática como seus convidados se inscrevem e revelam o amigo secreto no GiftMatch. Teste 100% grátis e sem cadastro.';
             $metaImage = url('og-home.jpg', [], $isSecure);
+            $imgWidth = 1376;
+            $imgHeight = 768;
         } else {
             $metaTitle = 'GiftMatch - Amigo Secreto Online Inteligente e Grátis';
             $metaDesc =
                 'Organize seu Amigo Secreto no GiftMatch de forma simples, rápida e gratuita! Sorteio automático sem ninguém tirar a si mesmo, regras para casais, lista de desejos e envio direto no WhatsApp.';
             $metaImage = url('og-home.jpg', [], $isSecure);
+            $imgWidth = 1376;
+            $imgHeight = 768;
         }
     @endphp
 
@@ -78,7 +66,7 @@
     <meta name="description" content="{{ $metaDesc }}">
     <link rel="canonical" href="{{ $currentUrl }}">
 
-    <!-- Open Graph / Facebook / WhatsApp -->
+    <!-- Open Graph / Facebook / WhatsApp (Primary Crawler Target) -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="GiftMatch">
     <meta property="og:title" content="{{ $metaTitle }}">
@@ -87,8 +75,8 @@
     <meta property="og:image" content="{{ $metaImage }}">
     <meta property="og:image:secure_url" content="{{ $metaImage }}">
     <meta property="og:image:type" content="image/jpeg">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
+    <meta property="og:image:width" content="{{ $imgWidth }}">
+    <meta property="og:image:height" content="{{ $imgHeight }}">
     <meta property="og:image:alt" content="{{ $metaTitle }}">
 
     <!-- Twitter Cards -->
@@ -96,6 +84,22 @@
     <meta name="twitter:title" content="{{ $metaTitle }}">
     <meta name="twitter:description" content="{{ $metaDesc }}">
     <meta name="twitter:image" content="{{ $metaImage }}">
+
+    <!-- PWA & Service Worker Cache Clearance -->
+    <script>
+        if ('caches' in window) {
+            caches.keys().then(function(names) {
+                for (var i = 0; i < names.length; i++) { caches.delete(names[i]); }
+            });
+        }
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').catch(function(err) {
+                    console.debug('SW reg notice:', err);
+                });
+            });
+        }
+    </script>
 
     <!-- Favicons & App Icons -->
     <link rel="icon" type="image/svg+xml" href="{{ url('favicon.svg', [], $isSecure) }}">
