@@ -1307,24 +1307,25 @@ onMounted(() => {
             <AffiliateRecommendations :friend-name="secret_friend?.name" />
 
             <!-- Participant's OWN Wishlist Box (Can be edited anytime) -->
-            <div class="rounded-3xl bg-slate-900/90 border border-slate-800 p-6 sm:p-8 shadow-2xl backdrop-blur-xl space-y-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="text-lg font-bold font-display text-white flex items-center gap-2">
-                            <Heart class="w-4 h-4 text-rose-500" />
-                            Sua Própria Lista de Presentes
+            <div class="rounded-3xl bg-slate-900/90 border border-slate-800 p-5 sm:p-8 shadow-2xl backdrop-blur-xl space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pb-3 border-b border-slate-800/80">
+                    <div class="space-y-1">
+                        <h3 class="text-base sm:text-lg font-bold font-display text-white flex items-center gap-2">
+                            <Heart class="w-4 h-4 text-rose-500 shrink-0" />
+                            <span>Sua Própria Lista de Presentes</span>
                         </h3>
-                        <p class="text-xs text-slate-300 font-medium">
+                        <p class="text-xs text-slate-300 font-medium leading-relaxed">
                             Isso é o que quem tirou você está vendo. Você pode atualizar a qualquer momento!
                         </p>
                     </div>
 
                     <button
                         @click="showEditWishlistModal = true"
-                        class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-100 bg-slate-800 hover:bg-slate-700 transition-colors border border-slate-700 shadow-sm"
+                        type="button"
+                        class="self-start sm:self-auto shrink-0 inline-flex items-center justify-center gap-2 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl text-xs font-bold text-slate-100 bg-slate-800 hover:bg-slate-700 transition-colors border border-slate-700 shadow-sm cursor-pointer whitespace-nowrap active:scale-95"
                     >
                         <Edit class="w-3.5 h-3.5 text-rose-400" />
-                        Editar Minha Lista
+                        <span>Editar Minha Lista</span>
                     </button>
                 </div>
 

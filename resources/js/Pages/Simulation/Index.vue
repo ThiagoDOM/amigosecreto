@@ -667,21 +667,21 @@ function resetSimulation() {
                 </div>
 
                 <!-- Participant's Own Registered Wishlist -->
-                <div class="p-6 sm:p-8 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-xl space-y-4">
-                    <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div class="p-5 sm:p-8 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-xl space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
                         <div>
                             <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-                                <Gift class="w-4 h-4 text-amber-400" />
+                                <Gift class="w-4 h-4 text-amber-400 shrink-0" />
                                 <span>Seus Presentes Cadastrados ({{ form.name }})</span>
                             </h3>
-                            <p class="text-xs text-slate-400 mt-0.5">
+                            <p class="text-xs text-slate-400 mt-0.5 leading-relaxed">
                                 A pessoa que tirou você verá essas informações quando revelar o amigo secreto dela:
                             </p>
                         </div>
                         <button
                             @click="currentStep = 'invite'"
                             type="button"
-                            class="text-xs font-semibold text-rose-400 hover:text-rose-300 transition-colors"
+                            class="self-start sm:self-auto text-xs font-semibold text-rose-400 hover:text-rose-300 transition-colors whitespace-nowrap"
                         >
                             Editar na Etapa 1
                         </button>
