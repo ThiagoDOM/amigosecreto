@@ -87,7 +87,7 @@ const form = reactive({
 
 // 3. Mock Secret Friend (Who Lucas drew in the simulation)
 const mockSecretFriend = reactive({
-    name: 'Camila Santos',
+    name: 'Maria Exemplo',
     avatar: 'CS',
     clothing_size: 'P',
     shoe_size: '36',
@@ -160,7 +160,7 @@ function revealSecretFriend() {
             }, 300);
         } catch (e) {}
 
-        showToast(`🎁 Você tirou ${mockSecretFriend.name}! Veja a lista de desejos dela abaixo.`);
+        showToast(`Você tirou ${mockSecretFriend.name}! Veja a lista de desejos dela abaixo.`);
     }, 400);
 }
 
@@ -599,7 +599,7 @@ function resetSimulation() {
                                 class="inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl text-base font-black text-white bg-gradient-to-r from-rose-600 via-rose-500 to-amber-500 hover:from-rose-500 hover:to-amber-400 shadow-xl shadow-rose-900/50 transition-all hover:scale-105 active:scale-95 cursor-pointer disabled:opacity-75"
                             >
                                 <Gift class="w-5 h-5 text-amber-200" />
-                                <span>{{ isOpening ? 'Abrindo o pacote...' : '🎁 Revelar Meu Amigo Secreto' }}</span>
+                                <span>{{ isOpening ? 'Abrindo o pacote...' : 'Revelar Meu Amigo Secreto' }}</span>
                             </button>
                         </div>
                     </div>
@@ -612,7 +612,7 @@ function resetSimulation() {
                                 <span>Você tirou no sorteio:</span>
                             </div>
                             <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black font-display text-white tracking-tight">
-                                {{ mockSecretFriend.name }} 🎁
+                                {{ mockSecretFriend.name }}
                             </h2>
                             <p class="text-xs sm:text-sm text-slate-400">
                                 Guarde esse segredo a sete chaves até o dia da festa!
