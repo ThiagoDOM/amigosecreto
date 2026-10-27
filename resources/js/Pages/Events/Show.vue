@@ -743,7 +743,7 @@ const revealedCount = computed(() => {
         </div>
 
         <!-- MODAL: Confirmação de Sorteio -->
-        <div v-if="showDrawConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+        <div v-if="showDrawConfirmModal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
             <div class="w-full max-w-md rounded-2xl bg-slate-900 border border-slate-800 p-6 sm:p-7 shadow-2xl space-y-4 text-center">
                 <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mx-auto">
                     <Gift class="w-6 h-6" />
@@ -778,7 +778,7 @@ const revealedCount = computed(() => {
         </div>
 
         <!-- MODAL: Confirmação de Exclusão de Participante -->
-        <div v-if="showDeleteParticipantModal && participantToDelete" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+        <div v-if="showDeleteParticipantModal && participantToDelete" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
             <div class="w-full max-w-md rounded-2xl bg-slate-900 border border-slate-800 p-6 sm:p-7 shadow-2xl space-y-4 text-center">
                 <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
                     <Trash2 class="w-6 h-6" />
@@ -812,40 +812,6 @@ const revealedCount = computed(() => {
             </div>
         </div>
 
-        <!-- MODAL: Confirmação de Exclusão de Regra -->
-        <div v-if="showDeleteExclusionModal && exclusionToDelete" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-            <div class="w-full max-w-md rounded-2xl bg-slate-900 border border-slate-800 p-6 sm:p-7 shadow-2xl space-y-4 text-center">
-                <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
-                    <AlertTriangle class="w-6 h-6" />
-                </div>
-
-                <div class="space-y-1.5">
-                    <h3 class="text-base font-bold font-display text-white">
-                        Remover Restrição?
-                    </h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">
-                        Deseja remover a regra de que <strong>{{ exclusionToDelete.participant_name }}</strong> não pode tirar <strong>{{ exclusionToDelete.excluded_participant_name }}</strong>?
-                    </p>
-                </div>
-
-                <div class="flex items-center justify-center gap-3 pt-2">
-                    <button
-                        type="button"
-                        @click="showDeleteExclusionModal = false"
-                        class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800"
-                    >
-                        Cancelar
-                    </button>
-                    <button
-                        type="button"
-                        @click="executeDeleteExclusion"
-                        class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-sm"
-                    >
-                        Sim, Remover Regra
-                    </button>
-                </div>
-            </div>
-        </div>
 
         <!-- MODAL: Adicionar Participante Manual -->
         <div v-if="showAddParticipantModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
@@ -1052,6 +1018,41 @@ const revealedCount = computed(() => {
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <!-- MODAL: Confirmação de Exclusão de Regra (Aparece sobre o Modal de Restrições) -->
+        <div v-if="showDeleteExclusionModal && exclusionToDelete" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
+            <div class="w-full max-w-md rounded-2xl bg-slate-900 border border-slate-800 p-6 sm:p-7 shadow-2xl space-y-4 text-center animate-in zoom-in-95">
+                <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
+                    <AlertTriangle class="w-6 h-6" />
+                </div>
+
+                <div class="space-y-1.5">
+                    <h3 class="text-base font-bold font-display text-white">
+                        Remover Restrição?
+                    </h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Deseja remover a regra de que <strong>{{ exclusionToDelete.participant_name }}</strong> não pode tirar <strong>{{ exclusionToDelete.excluded_participant_name }}</strong>?
+                    </p>
+                </div>
+
+                <div class="flex items-center justify-center gap-3 pt-2">
+                    <button
+                        type="button"
+                        @click="showDeleteExclusionModal = false; exclusionToDelete = null"
+                        class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer"
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        type="button"
+                        @click="executeDeleteExclusion"
+                        class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-sm cursor-pointer"
+                    >
+                        Sim, Remover Regra
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -1324,7 +1325,7 @@ const revealedCount = computed(() => {
         </div>
 
         <!-- MODAL: Confirmação de Reinício de Sorteio -->
-        <div v-if="showResetConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+        <div v-if="showResetConfirmModal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
             <div class="w-full max-w-md rounded-2xl bg-slate-900 border border-slate-800 p-6 sm:p-7 shadow-2xl space-y-4 text-center">
                 <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
                     <AlertTriangle class="w-6 h-6" />
