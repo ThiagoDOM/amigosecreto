@@ -918,7 +918,7 @@ onMounted(() => {
 <template>
     <Head :title="'GiftMatch - ' + participant.name" />
 
-    <div class="min-h-screen bg-slate-950 text-slate-100 relative overflow-hidden font-sans py-12 px-4 sm:px-6">
+    <div class="min-h-screen bg-slate-950 text-slate-100 relative overflow-hidden font-sans py-8 sm:py-12 px-4 sm:px-6">
         <ToastNotification />
         <CookieConsent />
 
@@ -927,41 +927,43 @@ onMounted(() => {
         <div class="absolute top-1/2 -right-32 w-[550px] h-[550px] bg-amber-500/15 rounded-full blur-[150px] pointer-events-none"></div>
         <div class="absolute -bottom-32 left-1/3 w-[500px] h-[500px] bg-emerald-500/15 rounded-full blur-[140px] pointer-events-none"></div>
 
-        <div class="relative z-10 max-w-2xl mx-auto space-y-8">
+        <div class="relative z-10 max-w-2xl mx-auto space-y-6 sm:space-y-8">
             <!-- Brand & Actions (Notificações + Salvar Acesso) -->
-            <div class="flex items-center justify-between">
-                <Link :href="route('home')" class="transition-transform hover:scale-105">
+            <div class="flex items-center justify-between gap-2">
+                <Link :href="route('home')" class="transition-transform hover:scale-105 shrink-0">
                     <ApplicationLogo />
                 </Link>
 
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
                     <!-- Botão de Notificações / Central de Avisos -->
                     <button
                         id="btn-open-notifications"
                         @click="showNotificationsModal = true"
                         type="button"
-                        class="relative inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 hover:border-slate-600 text-slate-100 hover:text-white transition-all shadow-md active:scale-95 cursor-pointer"
+                        class="relative inline-flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 hover:border-slate-600 text-slate-100 hover:text-white transition-all shadow-md active:scale-95 cursor-pointer shrink-0 whitespace-nowrap"
                         title="Ver avisos e linha do tempo do evento"
+                        aria-label="Ver avisos e linha do tempo do evento"
                     >
-                        <BellRing v-if="!notificationsEnabled" class="w-4 h-4 text-amber-400" />
-                        <Bell v-else class="w-4 h-4 text-amber-400" />
-                        <span>Avisos</span>
+                        <BellRing v-if="!notificationsEnabled" class="w-4 h-4 text-amber-400 shrink-0" />
+                        <Bell v-else class="w-4 h-4 text-amber-400 shrink-0" />
+                        <span class="hidden sm:inline">Avisos</span>
                         <!-- Pulsing indicator if notifications pending -->
-                        <span v-if="!notificationsEnabled" class="relative flex h-2 w-2">
+                        <span v-if="!notificationsEnabled" class="relative flex h-2 w-2 shrink-0">
                             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
                             <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
                         </span>
                     </button>
 
                     <!-- Dropdown Salvar Acesso -->
-                    <div class="relative">
+                    <div class="relative shrink-0">
                         <button
                             @click="showSaveDropdown = !showSaveDropdown"
-                            class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 hover:border-slate-600 text-slate-100 hover:text-white transition-all shadow-md active:scale-95 cursor-pointer"
+                            class="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 hover:border-slate-600 text-slate-100 hover:text-white transition-all shadow-md active:scale-95 cursor-pointer whitespace-nowrap shrink-0"
+                            title="Salvar acesso a este evento"
                         >
-                            <Bookmark class="w-4 h-4 text-rose-400" />
-                            <span>Salvar Acesso</span>
-                            <ChevronDown class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" :class="{ 'rotate-180': showSaveDropdown }" />
+                            <Bookmark class="w-4 h-4 text-rose-400 shrink-0" />
+                            <span class="whitespace-nowrap">Salvar<span class="hidden sm:inline"> Acesso</span></span>
+                            <ChevronDown class="w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform duration-200" :class="{ 'rotate-180': showSaveDropdown }" />
                         </button>
 
                         <!-- Backdrop overlay to close dropdown -->
@@ -974,7 +976,7 @@ onMounted(() => {
                         <!-- Dropdown Content -->
                         <div
                             v-if="showSaveDropdown"
-                            class="absolute right-0 mt-2 w-72 rounded-2xl bg-slate-900/95 border border-slate-700/80 p-2 shadow-2xl backdrop-blur-xl z-50 space-y-1 animate-in fade-in zoom-in-95"
+                            class="absolute right-0 mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-2xl bg-slate-900/95 border border-slate-700/80 p-2 shadow-2xl backdrop-blur-xl z-50 space-y-1 animate-in fade-in zoom-in-95"
                         >
                             <div class="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800">
                                 Opções para não perder
@@ -1104,18 +1106,18 @@ onMounted(() => {
             </div>
 
             <!-- Greeting Card -->
-            <div class="rounded-3xl bg-slate-900/90 border border-slate-800 p-6 sm:p-8 shadow-2xl backdrop-blur-xl space-y-4">
+            <div class="rounded-3xl bg-slate-900/90 border border-slate-800 p-5 sm:p-8 shadow-2xl backdrop-blur-xl space-y-4">
                 <div class="flex items-center justify-between flex-wrap gap-2">
-                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30">
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30 shrink-0">
                         Espaço Exclusivo
                     </div>
 
-                    <span class="text-xs text-slate-300 font-medium">
+                    <span class="text-xs text-slate-300 font-medium truncate max-w-full">
                         Evento: <strong class="text-white">{{ event.title }}</strong>
                     </span>
                 </div>
 
-                <h1 class="text-3xl sm:text-4xl font-black font-display text-white">
+                <h1 class="text-2xl sm:text-4xl font-black font-display text-white">
                     Olá, <span class="inline-block pb-1 bg-gradient-to-r from-rose-400 to-amber-300 bg-clip-text text-transparent">{{ participant.name }}</span>!
                 </h1>
 
@@ -1141,7 +1143,7 @@ onMounted(() => {
             <!-- DRAW STATUS 1: Event NOT yet drawn -->
             <div
                 v-if="!event.is_drawn"
-                class="rounded-3xl bg-slate-900/90 border border-slate-800 p-8 sm:p-12 text-center shadow-2xl backdrop-blur-xl space-y-5"
+                class="rounded-3xl bg-slate-900/90 border border-slate-800 p-6 sm:p-12 text-center shadow-2xl backdrop-blur-xl space-y-5"
             >
                 <div class="w-20 h-20 rounded-3xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mx-auto shadow-inner">
                     <Lock class="w-10 h-10 animate-pulse-slow" />
@@ -1177,7 +1179,7 @@ onMounted(() => {
                 <!-- NOT REVEALED YET: Interactive 3D Gift Box Animation -->
                 <div
                     v-if="!isRevealed"
-                    class="rounded-3xl bg-gradient-to-br from-rose-950/40 via-slate-900 to-amber-950/40 border border-rose-500/30 p-8 sm:p-12 text-center shadow-2xl backdrop-blur-xl space-y-6"
+                    class="rounded-3xl bg-gradient-to-br from-rose-950/40 via-slate-900 to-amber-950/40 border border-rose-500/30 p-6 sm:p-12 text-center shadow-2xl backdrop-blur-xl space-y-6"
                 >
                     <div class="space-y-2">
                         <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">
@@ -1230,20 +1232,20 @@ onMounted(() => {
                 <!-- ALREADY REVEALED: Friend details card with celebration -->
                 <div
                     v-else
-                    class="rounded-3xl bg-gradient-to-br from-rose-900/40 via-slate-900 to-emerald-950/40 border border-emerald-500/30 p-6 sm:p-8 shadow-2xl backdrop-blur-xl space-y-6"
+                    class="rounded-3xl bg-gradient-to-br from-rose-900/40 via-slate-900 to-emerald-950/40 border border-emerald-500/30 p-5 sm:p-8 shadow-2xl backdrop-blur-xl space-y-6"
                 >
                     <!-- Header -->
-                    <div class="flex items-center justify-between">
-                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shrink-0">
                             Revelado com Sucesso!
                         </div>
 
                         <button
                             @click="fireCelebrationConfetti"
-                            class="inline-flex items-center gap-1 px-3 py-1 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-slate-100 transition-colors"
+                            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-slate-100 transition-colors shrink-0 whitespace-nowrap cursor-pointer active:scale-95"
                         >
-                            <PartyPopper class="w-3.5 h-3.5 text-amber-400" />
-                            Soltar Confetes
+                            <PartyPopper class="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                            <span>Soltar Confetes</span>
                         </button>
                     </div>
 
