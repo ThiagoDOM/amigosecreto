@@ -4,9 +4,9 @@ import './bootstrap';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { createApp, h } from 'vue';
 import { ZiggyVue } from 'ziggy-js';
+import AppUpdateBanner from '@/Components/AppUpdateBanner.vue';
 
 const appName = import.meta.env.VITE_APP_NAME || 'GiftMatch';
-const CURRENT_APP_BUILD = 'gm_2026_10_26_v5';
 
 // Safe sessionStorage helpers that never throw in Safari Private Browsing mode
 function safeSessionGet(key) {
@@ -25,22 +25,53 @@ function safeSessionSet(key, value) {
     } catch (e) {}
 }
 
+let lastClickedHref = null;
+
 if (typeof window !== 'undefined') {
+    // Intercept clicks to track target URL during navigation
+    document.addEventListener('click', (e) => {
+        const anchor = e.target.closest('a');
+        if (anchor && anchor.href && anchor.href.startsWith(window.location.origin)) {
+            lastClickedHref = anchor.href;
+        }
+    }, true);
+
     try {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('limpar') || urlParams.has('reset')) {
             window.location.replace(window.location.pathname);
+        } else if (urlParams.has('refresh') || urlParams.has('v')) {
+            // Clean up cache buster parameter from address bar cleanly
+            const cleanUrl = new URL(window.location.href);
+            cleanUrl.searchParams.delete('refresh');
+            cleanUrl.searchParams.delete('v');
+            window.history.replaceState({}, '', cleanUrl.pathname + (cleanUrl.search ? cleanUrl.search : '') + cleanUrl.hash);
         }
     } catch (e) {}
 
-    // Recover from Vite deployment chunk hash mismatches (prevents mobile blank screens on cached assets)
-    window.addEventListener('vite:preloadError', () => {
+    // Recover from Vite deployment chunk hash mismatches
+    window.addEventListener('vite:preloadError', (event) => {
+        if (event && event.preventDefault) event.preventDefault();
+
+        window.dispatchEvent(new CustomEvent('giftmatch:update-available', {
+            detail: { message: 'Uma nova versão do GiftMatch está pronta! Toque para atualizar.' }
+        }));
+
+        if (lastClickedHref && lastClickedHref !== window.location.href) {
+            const target = lastClickedHref;
+            lastClickedHref = null;
+            window.location.href = target;
+            return;
+        }
+
         const reloadKey = 'vite_preload_reload';
         const last = safeSessionGet(reloadKey);
         const now = Date.now();
-        if (!last || now - parseInt(last, 10) > 6000) {
+        if (!last || now - parseInt(last, 10) > 4000) {
             safeSessionSet(reloadKey, now.toString());
-            window.location.reload();
+            const bustUrl = new URL(window.location.href);
+            bustUrl.searchParams.set('refresh', Date.now().toString());
+            window.location.href = bustUrl.toString();
         }
     });
 }
@@ -57,22 +88,47 @@ createInertiaApp({
 
         return pagePromise().catch((err) => {
             console.error('Error loading page chunk:', err);
-            // If chunk loading failed due to deployment hash change, force reload with debounce
+
+            // Notify user with the update banner
             if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('giftmatch:update-available', {
+                    detail: { message: 'Nova versão disponível! Toque para atualizar o app.' }
+                }));
+
+                // If user was navigating to another page, navigate directly so server serves fresh HTML
+                if (lastClickedHref && lastClickedHref !== window.location.href) {
+                    const target = lastClickedHref;
+                    lastClickedHref = null;
+                    window.location.href = target;
+                    return new Promise(() => {}); // prevent further uncaught error cascade
+                }
+
+                // If on same page, reload with cache-buster
                 const reloadKey = 'chunk_reload_' + name;
                 const last = safeSessionGet(reloadKey);
                 const now = Date.now();
-                if (!last || now - parseInt(last, 10) > 6000) {
+                if (!last || now - parseInt(last, 10) > 4000) {
                     safeSessionSet(reloadKey, now.toString());
-                    window.location.reload();
-                    return;
+                    const bustUrl = new URL(window.location.href);
+                    bustUrl.searchParams.set('refresh', Date.now().toString());
+                    window.location.href = bustUrl.toString();
+                    return new Promise(() => {});
                 }
             }
             throw err;
         });
     },
     setup({ el, App, props, plugin }) {
-        const app = createApp({ render: () => h(App, props) });
+        const rootComponent = {
+            render() {
+                return h('div', { class: 'relative min-h-screen' }, [
+                    h(App, props),
+                    h(AppUpdateBanner),
+                ]);
+            },
+        };
+
+        const app = createApp(rootComponent);
 
         // Global Vue runtime error handler
         app.config.errorHandler = (err, instance, info) => {
