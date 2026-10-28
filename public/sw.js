@@ -4,8 +4,18 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-    // Activate smoothly without calling clients.claim() which aborts in-flight module script downloads on WebKit/iOS
-    event.waitUntil(Promise.resolve());
+    // Take control of all open clients immediately so the new SW serves fresh assets.
+    // We defer claim() by one tick to avoid aborting in-flight WebKit/iOS module fetches.
+    event.waitUntil(
+        Promise.resolve().then(() => self.clients.claim())
+    );
+});
+
+// Allow the page to explicitly trigger skipWaiting (used by AppUpdateBanner)
+self.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
 });
 
 // Push notification listener
