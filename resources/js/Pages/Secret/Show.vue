@@ -1338,8 +1338,9 @@ onMounted(() => {
                 </div>
             </div>
 
-            <!-- Bilhete Secreto / Chat Anônimo -->
+            <!-- Bilhete Secreto / Chat Anônimo (Apenas após o sorteio ser realizado e o amigo ser revelado) -->
             <SecretNotesChat
+                v-if="event.is_drawn && isRevealed"
                 :participant-token="participant.token"
                 :friend-name="secret_friend?.name || 'seu Amigo Secreto'"
                 :sent-questions="sent_questions"
@@ -2056,7 +2057,7 @@ onMounted(() => {
         >
             <div
                 v-if="clientToast"
-                class="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-emerald-950/95 border border-emerald-500/40 text-emerald-100 shadow-2xl text-xs font-bold backdrop-blur-xl"
+                class="fixed bottom-6 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-50 flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-emerald-950/95 border border-emerald-500/40 text-emerald-100 shadow-2xl text-xs font-bold backdrop-blur-xl"
             >
                 <Check class="w-4 h-4 text-emerald-400 shrink-0" />
                 <span>{{ clientToast }}</span>

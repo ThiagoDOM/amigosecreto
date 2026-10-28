@@ -44,7 +44,7 @@ function close() {
 <template>
     <transition
         enter-active-class="transform ease-out duration-300 transition"
-        enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
+        enter-from-class="translate-y-4 opacity-0 sm:translate-y-0 sm:translate-x-2"
         enter-to-class="translate-y-0 opacity-100 sm:translate-x-0"
         leave-active-class="transition ease-in duration-200"
         leave-from-class="opacity-100"
@@ -52,10 +52,10 @@ function close() {
     >
         <div
             v-if="visible && message"
-            class="fixed bottom-5 right-5 z-50 max-w-md w-full shadow-2xl rounded-2xl p-4 border backdrop-blur-xl flex items-start gap-3"
+            class="fixed bottom-5 left-4 right-4 sm:left-auto sm:right-5 sm:max-w-md z-50 shadow-2xl rounded-2xl p-4 border backdrop-blur-xl flex items-start gap-3"
             :class="type === 'success' 
-                ? 'bg-emerald-950/90 text-emerald-100 border-emerald-500/40 shadow-emerald-950/50' 
-                : 'bg-rose-950/90 text-rose-100 border-rose-500/40 shadow-rose-950/50'"
+                ? 'bg-emerald-950/95 text-emerald-100 border-emerald-500/40 shadow-emerald-950/50' 
+                : 'bg-rose-950/95 text-rose-100 border-rose-500/40 shadow-rose-950/50'"
         >
             <div class="flex-shrink-0 mt-0.5">
                 <CheckCircle2 v-if="type === 'success'" class="w-5 h-5 text-emerald-400" />
