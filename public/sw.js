@@ -4,11 +4,8 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-    event.waitUntil(
-        caches.keys()
-            .then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
-            .then(() => self.clients.claim())
-    );
+    // Activate smoothly without calling clients.claim() which aborts in-flight module script downloads on WebKit/iOS
+    event.waitUntil(Promise.resolve());
 });
 
 // Push notification listener

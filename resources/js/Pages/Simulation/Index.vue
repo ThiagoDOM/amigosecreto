@@ -6,7 +6,6 @@ import WishlistEditor from '@/Components/WishlistEditor.vue';
 import WishlistDisplay from '@/Components/WishlistDisplay.vue';
 import ToastNotification from '@/Components/ToastNotification.vue';
 import { formatDate, formatCurrency, maskPhone } from '@/Utils/formatters';
-import confetti from 'canvas-confetti';
 import { 
     Gift, 
     PartyPopper, 

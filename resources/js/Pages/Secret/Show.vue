@@ -149,60 +149,75 @@ const wishlistForm = useForm({
 });
 
 function fireCelebrationConfetti() {
-    const count = 200;
-    const defaults = {
-        origin: { y: 0.7 },
-        zIndex: 9999,
-    };
+    try {
+        const count = 100;
+        const defaults = {
+            origin: { y: 0.7 },
+            zIndex: 9999,
+            disableForReducedMotion: true,
+        };
 
-    function fire(particleRatio, opts) {
-        confetti({
-            ...defaults,
-            ...opts,
-            particleCount: Math.floor(count * particleRatio)
-        });
+        function fire(particleRatio, opts) {
+            try {
+                confetti({
+                    ...defaults,
+                    ...opts,
+                    particleCount: Math.floor(count * particleRatio)
+                });
+            } catch (err) {
+                // Ignore canvas context errors on restricted WebKit devices
+            }
+        }
+
+        fire(0.25, { spread: 26, startVelocity: 45 });
+        fire(0.2, { spread: 60 });
+        fire(0.35, { spread: 90, decay: 0.91, scalar: 0.8 });
+    } catch (e) {
+        console.warn('Confetti burst notice:', e);
     }
-
-    fire(0.25, {
-        spread: 26,
-        startVelocity: 55,
-    });
-    fire(0.2, {
-        spread: 60,
-    });
-    fire(0.35, {
-        spread: 100,
-        decay: 0.91,
-        scalar: 0.8
-    });
-    fire(0.1, {
-        spread: 120,
-        startVelocity: 25,
-        decay: 0.92,
-        scalar: 1.2
-    });
-    fire(0.1, {
-        spread: 120,
-        startVelocity: 45,
-    });
 }
 
 function revealFriend() {
-    if (isOpening.value || isRevealed.value) return;
+    if (isRevealed.value) return;
+    if (isOpening.value) return;
 
     isOpening.value = true;
 
-    // Trigger visual confetti burst
+    // Failsafe timer: guarantees the UI is revealed and not stuck bouncing on iOS
+    const safetyTimer = setTimeout(() => {
+        isRevealed.value = true;
+        isOpening.value = false;
+    }, 1200);
+
     setTimeout(() => {
-        fireCelebrationConfetti();
+        clearTimeout(safetyTimer);
+
+        // Always reveal UI first
         isRevealed.value = true;
         isOpening.value = false;
 
+        // Safely trigger celebration confetti
+        try {
+            fireCelebrationConfetti();
+        } catch (e) {
+            console.warn('Confetti error:', e);
+        }
+
         // Post reveal to backend to record timestamp
-        router.post(route('secret.reveal', props.participant.token), {}, {
-            preserveScroll: true,
-        });
-    }, 900);
+        router.post(
+            route('secret.reveal', props.participant.token),
+            {},
+            {
+                preserveScroll: true,
+                onError: (err) => {
+                    console.warn('Reveal post sync notice:', err);
+                },
+                onFinish: () => {
+                    isOpening.value = false;
+                },
+            }
+        );
+    }, 600);
 }
 
 function submitWishlist() {
@@ -310,11 +325,20 @@ async function subscribeToPushNotifications() {
 
 onMounted(() => {
     if (typeof window !== 'undefined') {
-        notificationSupported.value = ('Notification' in window);
-        if ('Notification' in window && Notification.permission === 'granted') {
-            notificationsEnabled.value = true;
-            subscribeToPushNotifications();
-        }
+        try {
+            notificationSupported.value = ('Notification' in window);
+            if ('Notification' in window && Notification.permission === 'granted') {
+                notificationsEnabled.value = true;
+                const subKey = 'push_sub_synced_' + props.participant.token;
+                if (!localStorage.getItem(subKey)) {
+                    subscribeToPushNotifications().then((ok) => {
+                        if (ok) {
+                            try { localStorage.setItem(subKey, '1'); } catch (e) {}
+                        }
+                    });
+                }
+            }
+        } catch (e) {}
     }
 });
 
@@ -915,17 +939,20 @@ onMounted(() => {
         // Safe fallback for restricted storage environments
     }
 
-    // If already revealed previously, fire a soft greeting confetti
+    // If already revealed previously, fire a soft greeting confetti safely
     if (isRevealed.value) {
         setTimeout(() => {
             try {
-                confetti({
-                    particleCount: 50,
-                    spread: 70,
-                    origin: { y: 0.6 }
-                });
+                if (typeof window !== 'undefined' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    confetti({
+                        particleCount: 35,
+                        spread: 60,
+                        origin: { y: 0.6 },
+                        disableForReducedMotion: true,
+                    });
+                }
             } catch (e) {}
-        }, 500);
+        }, 600);
     }
 });
 </script>
@@ -1214,11 +1241,13 @@ onMounted(() => {
                     </div>
 
                     <!-- Interactive Gift Box Button -->
-                    <div class="py-6 flex justify-center">
+                    <div class="py-4 flex flex-col items-center justify-center gap-5">
                         <button
+                            type="button"
                             @click="revealFriend"
                             :disabled="isOpening"
-                            class="group relative focus:outline-none transition-transform duration-300 active:scale-95"
+                            aria-label="Abrir e revelar amigo secreto"
+                            class="group relative focus:outline-none transition-transform duration-300 active:scale-95 cursor-pointer disabled:cursor-wait"
                         >
                             <!-- Glow effect -->
                             <div class="absolute inset-0 bg-gradient-to-r from-rose-500 to-amber-500 rounded-3xl blur-2xl opacity-40 group-hover:opacity-75 transition-opacity"></div>
@@ -1241,11 +1270,23 @@ onMounted(() => {
                                 </div>
                             </div>
                         </button>
-                    </div>
 
-                    <div class="text-xs text-slate-300 flex items-center justify-center gap-1.5 font-bold">
-                        <PartyPopper class="w-4 h-4 text-amber-400" />
-                        <span>Clique no presente para revelar com confetes</span>
+                        <!-- Explicit Action Button (100% reliable for all mobile/touch devices) -->
+                        <div class="space-y-2 text-center w-full max-w-xs">
+                            <button
+                                type="button"
+                                @click="revealFriend"
+                                :disabled="isOpening"
+                                class="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white font-bold text-sm sm:text-base shadow-xl shadow-rose-950/40 border border-white/10 transition-all active:scale-95 cursor-pointer disabled:opacity-75 disabled:cursor-wait"
+                            >
+                                <Gift class="w-5 h-5 shrink-0" />
+                                <span>{{ isOpening ? 'Abrindo Presente...' : 'Toque para Revelar Agora' }}</span>
+                            </button>
+                            <p class="text-xs text-slate-400 flex items-center justify-center gap-1.5 font-medium">
+                                <PartyPopper class="w-4 h-4 text-amber-400 shrink-0" />
+                                <span>Toque no presente ou no botão para descobrir</span>
+                            </p>
+                        </div>
                     </div>
                 </div>
 
