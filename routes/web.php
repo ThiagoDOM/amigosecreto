@@ -38,6 +38,25 @@ Route::get('/termos-de-uso', function () {
     return Inertia::render('Legal/TermsOfService');
 })->name('terms');
 
+// Lightweight version check endpoint for real-time client PWA updates
+Route::get('/api/app-version', function () {
+    $version = null;
+    if ($vercelDeploy = env('VERCEL_DEPLOYMENT_ID') ?? env('VERCEL_GIT_COMMIT_SHA')) {
+        $version = (string) $vercelDeploy;
+    } elseif (file_exists($manifest = public_path('build/manifest.json'))) {
+        $version = hash_file('xxh128', $manifest);
+    } elseif (file_exists($manifest = base_path('public/build/manifest.json'))) {
+        $version = hash_file('xxh128', $manifest);
+    } else {
+        $version = 'gm_fallback_'.date('YmdH');
+    }
+
+    return response()->json([
+        'version' => $version,
+        'timestamp' => time(),
+    ])->header('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+})->name('api.app-version');
+
 // Google AdSense ads.txt verification
 Route::get('/ads.txt', function () {
     $adsTxt = public_path('ads.txt');

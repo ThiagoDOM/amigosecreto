@@ -183,12 +183,13 @@ function revealFriend() {
 
     isOpening.value = true;
 
-    // Failsafe timer: guarantees the UI is revealed and not stuck bouncing on iOS
+    // Failsafe timer: guarantees the UI is revealed quickly even if something stalls
     const safetyTimer = setTimeout(() => {
         isRevealed.value = true;
         isOpening.value = false;
-    }, 1200);
+    }, 500);
 
+    // Fast, responsive 200ms animation burst
     setTimeout(() => {
         clearTimeout(safetyTimer);
 
@@ -217,7 +218,7 @@ function revealFriend() {
                 },
             }
         );
-    }, 600);
+    }, 200);
 }
 
 function submitWishlist() {
