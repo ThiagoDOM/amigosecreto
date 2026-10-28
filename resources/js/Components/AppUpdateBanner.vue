@@ -41,6 +41,12 @@ async function checkServerVersion() {
 function showUpdateBanner(msg) {
     if (msg) updateMessage.value = msg;
     try {
+        // Don't show immediately after the user just triggered an update
+        const justUpdated = sessionStorage.getItem('gm_just_updated');
+        if (justUpdated) {
+            sessionStorage.removeItem('gm_just_updated');
+            return;
+        }
         const dismissedAt = sessionStorage.getItem('gm_update_dismissed_at');
         if (dismissedAt && Date.now() - parseInt(dismissedAt, 10) < 5 * 60 * 1000) {
             // Dismissed within last 5 minutes
@@ -63,7 +69,7 @@ async function triggerUpdate() {
     isUpdating.value = true;
 
     try {
-        // 1. Purge CacheStorage
+        // 1. Purge CacheStorage (all SW caches)
         if ('caches' in window) {
             try {
                 const keys = await caches.keys();
@@ -71,25 +77,39 @@ async function triggerUpdate() {
             } catch (e) {}
         }
 
-        // 2. Unregister legacy service workers to force fresh fetch
+        // 2. Tell active service worker to skip waiting and claim clients
         if ('serviceWorker' in navigator) {
             try {
-                const registrations = await navigator.serviceWorker.getRegistrations();
-                await Promise.all(registrations.map((r) => r.unregister()));
+                const reg = await navigator.serviceWorker.getRegistration();
+                if (reg) {
+                    if (reg.waiting) {
+                        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                    }
+                    // Give the SW a moment to activate before we navigate away
+                    await new Promise((resolve) => setTimeout(resolve, 200));
+                }
             } catch (e) {}
         }
 
-        // 3. Clear session storage flags
+        // 3. Clear all session / local storage flags that could re-trigger the banner
         try {
             sessionStorage.removeItem('gm_update_dismissed_at');
             sessionStorage.removeItem('vite_preload_reload');
+            // Clear all chunk reload flags
+            for (const key of Object.keys(sessionStorage)) {
+                if (key.startsWith('chunk_reload_')) sessionStorage.removeItem(key);
+            }
+            // Mark that we just performed a forced update so the banner won't
+            // re-appear on the very next load before initialVersion is stabilised.
+            sessionStorage.setItem('gm_just_updated', '1');
         } catch (e) {}
     } catch (e) {}
 
-    // 4. Force hard reload with timestamp query param to bust browser disk/HTTP cache
-    const targetUrl = new URL(window.location.href);
-    targetUrl.searchParams.set('v', Date.now().toString());
-    window.location.href = targetUrl.toString();
+    // 4. Hard-navigate to the same path (no ?v= param) so the browser requests
+    //    fresh HTML from the server. Using location.replace avoids a back-button entry.
+    //    We keep only the current pathname + hash so Inertia SSR serves the right page.
+    const freshUrl = window.location.origin + window.location.pathname + window.location.hash;
+    window.location.replace(freshUrl);
 }
 
 function handleCustomUpdateEvent(e) {
@@ -109,8 +129,19 @@ function handleVisibilityChange() {
 }
 
 onMounted(() => {
-    // Record initial page version
+    // Record initial page version from Inertia shared props
     initialVersion = page.props?.app_version || null;
+
+    // If we just performed a forced update, clear the flag and skip first check
+    let suppressFirstCheck = false;
+    try {
+        if (sessionStorage.getItem('gm_just_updated')) {
+            // Already cleared inside showUpdateBanner if triggered, but clear here too
+            // in case the banner was never shown (e.g., vite:preloadError path)
+            sessionStorage.removeItem('gm_just_updated');
+            suppressFirstCheck = true;
+        }
+    } catch (e) {}
 
     // Listen for custom trigger from app.js (e.g. chunk preload errors or SW updatefound)
     window.addEventListener('giftmatch:update-available', handleCustomUpdateEvent);
@@ -138,7 +169,12 @@ onMounted(() => {
     }
 
     // Initial check after 2 seconds, then periodically every 90 seconds
-    setTimeout(checkServerVersion, 2000);
+    // Skip on the first load after an update to avoid a false-positive comparison
+    setTimeout(() => {
+        if (!suppressFirstCheck) {
+            checkServerVersion();
+        }
+    }, 2000);
     pollInterval = setInterval(checkServerVersion, 90 * 1000);
 });
 

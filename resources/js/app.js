@@ -53,14 +53,19 @@ if (typeof window !== 'undefined') {
     window.addEventListener('vite:preloadError', (event) => {
         if (event && event.preventDefault) event.preventDefault();
 
-        window.dispatchEvent(new CustomEvent('giftmatch:update-available', {
-            detail: { message: 'Uma nova versão do GiftMatch está pronta! Toque para atualizar.' }
-        }));
+        // Mark that we're about to force a reload so the update banner doesn't
+        // re-appear immediately on the next page load.
+        try { sessionStorage.setItem('gm_just_updated', '1'); } catch (e) {}
+
+        // Clear caches before navigating away
+        if ('caches' in window) {
+            caches.keys().then((keys) => keys.forEach((k) => caches.delete(k))).catch(() => {});
+        }
 
         if (lastClickedHref && lastClickedHref !== window.location.href) {
             const target = lastClickedHref;
             lastClickedHref = null;
-            window.location.href = target;
+            window.location.replace(target);
             return;
         }
 
@@ -69,9 +74,7 @@ if (typeof window !== 'undefined') {
         const now = Date.now();
         if (!last || now - parseInt(last, 10) > 4000) {
             safeSessionSet(reloadKey, now.toString());
-            const bustUrl = new URL(window.location.href);
-            bustUrl.searchParams.set('refresh', Date.now().toString());
-            window.location.href = bustUrl.toString();
+            window.location.replace(window.location.origin + window.location.pathname + window.location.hash);
         }
     });
 }
@@ -95,23 +98,29 @@ createInertiaApp({
                     detail: { message: 'Nova versão disponível! Toque para atualizar o app.' }
                 }));
 
+                // Mark update in progress so the banner won't re-appear on next load
+                try { sessionStorage.setItem('gm_just_updated', '1'); } catch (e) {}
+
+                // Clear caches
+                if ('caches' in window) {
+                    caches.keys().then((keys) => keys.forEach((k) => caches.delete(k))).catch(() => {});
+                }
+
                 // If user was navigating to another page, navigate directly so server serves fresh HTML
                 if (lastClickedHref && lastClickedHref !== window.location.href) {
                     const target = lastClickedHref;
                     lastClickedHref = null;
-                    window.location.href = target;
+                    window.location.replace(target);
                     return new Promise(() => {}); // prevent further uncaught error cascade
                 }
 
-                // If on same page, reload with cache-buster
+                // If on same page, do a clean reload without cache-busting query params
                 const reloadKey = 'chunk_reload_' + name;
                 const last = safeSessionGet(reloadKey);
                 const now = Date.now();
                 if (!last || now - parseInt(last, 10) > 4000) {
                     safeSessionSet(reloadKey, now.toString());
-                    const bustUrl = new URL(window.location.href);
-                    bustUrl.searchParams.set('refresh', Date.now().toString());
-                    window.location.href = bustUrl.toString();
+                    window.location.replace(window.location.origin + window.location.pathname + window.location.hash);
                     return new Promise(() => {});
                 }
             }
