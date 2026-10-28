@@ -85,21 +85,67 @@
     <meta name="twitter:description" content="{{ $metaDesc }}">
     <meta name="twitter:image" content="{{ $metaImage }}">
 
-    <!-- PWA & Service Worker Cache Clearance -->
+    <!-- PWA & Service Worker (Registered safely after window load without blocking render) -->
     <script>
-        if ('caches' in window) {
-            caches.keys().then(function(names) {
-                for (var i = 0; i < names.length; i++) { caches.delete(names[i]); }
-            });
-        }
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js').catch(function(err) {
-                    console.debug('SW reg notice:', err);
+        (function() {
+            try {
+                // One-time safe cache migration check without thrashing storage on every visit
+                var CACHE_VER = 'gm_sw_clean_20261028';
+                if (window.localStorage && !localStorage.getItem(CACHE_VER)) {
+                    if ('caches' in window) {
+                        caches.keys().then(function(names) {
+                            names.forEach(function(n) { caches.delete(n); });
+                        }).catch(function() {});
+                    }
+                    localStorage.setItem(CACHE_VER, '1');
+                }
+            } catch (e) {}
+
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                    try {
+                        navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function(err) {
+                            console.debug('SW reg notice:', err);
+                        });
+                    } catch (e) {}
                 });
-            });
-        }
+            }
+        })();
     </script>
+
+    <!-- Instant Preloader (renders immediately while Inertia/Vue bundle downloads) -->
+    <style>
+        #app:empty {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #020617;
+        }
+        #app:empty::before {
+            content: '';
+            display: block;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 3px solid rgba(244, 63, 94, 0.2);
+            border-top-color: #f43f5e;
+            animation: gm-spin 0.75s linear infinite;
+            margin-bottom: 14px;
+        }
+        #app:empty::after {
+            content: 'Carregando GiftMatch...';
+            color: #94a3b8;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            letter-spacing: 0.03em;
+        }
+        @keyframes gm-spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 
     <!-- Favicons & App Icons -->
     <link rel="icon" type="image/svg+xml" href="{{ url('favicon.svg', [], $isSecure) }}">

@@ -8,28 +8,38 @@ import { ZiggyVue } from 'ziggy-js';
 const appName = import.meta.env.VITE_APP_NAME || 'GiftMatch';
 const CURRENT_APP_BUILD = 'gm_2026_10_26_v5';
 
-// Unconditionally clear stale caches and unregister zombie service workers
+// Safe sessionStorage helpers that never throw in Safari Private Browsing mode
+function safeSessionGet(key) {
+    try {
+        return typeof window !== 'undefined' && window.sessionStorage ? window.sessionStorage.getItem(key) : null;
+    } catch (e) {
+        return null;
+    }
+}
+
+function safeSessionSet(key, value) {
+    try {
+        if (typeof window !== 'undefined' && window.sessionStorage) {
+            window.sessionStorage.setItem(key, value);
+        }
+    } catch (e) {}
+}
+
 if (typeof window !== 'undefined') {
     try {
-        if ('caches' in window) {
-            caches.keys().then((keys) => {
-                keys.forEach((k) => caches.delete(k));
-            });
-        }
-
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('limpar') || urlParams.has('reset')) {
             window.location.replace(window.location.pathname);
         }
     } catch (e) {}
 
-    // Recover from Vite deployment chunk hash mismatches (prevents mobile black screens on cached assets)
+    // Recover from Vite deployment chunk hash mismatches (prevents mobile blank screens on cached assets)
     window.addEventListener('vite:preloadError', () => {
         const reloadKey = 'vite_preload_reload';
-        const last = sessionStorage.getItem(reloadKey);
+        const last = safeSessionGet(reloadKey);
         const now = Date.now();
         if (!last || now - parseInt(last, 10) > 6000) {
-            sessionStorage.setItem(reloadKey, now.toString());
+            safeSessionSet(reloadKey, now.toString());
             window.location.reload();
         }
     });
@@ -50,10 +60,10 @@ createInertiaApp({
             // If chunk loading failed due to deployment hash change, force reload with debounce
             if (typeof window !== 'undefined') {
                 const reloadKey = 'chunk_reload_' + name;
-                const last = sessionStorage.getItem(reloadKey);
+                const last = safeSessionGet(reloadKey);
                 const now = Date.now();
                 if (!last || now - parseInt(last, 10) > 6000) {
-                    sessionStorage.setItem(reloadKey, now.toString());
+                    safeSessionSet(reloadKey, now.toString());
                     window.location.reload();
                     return;
                 }
