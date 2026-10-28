@@ -124,7 +124,7 @@ function submitAnswer(messageId) {
                     : 'text-slate-400 hover:text-white'"
             >
                 <Send class="w-3.5 h-3.5" />
-                <span>Perguntar para {{ friendName }}</span>
+                <span>Perguntar</span>
                 <span
                     v-if="sentQuestions.length > 0"
                     class="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-white/20 text-white"
