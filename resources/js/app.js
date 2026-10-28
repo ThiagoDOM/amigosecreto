@@ -38,7 +38,32 @@ if (typeof window !== 'undefined') {
     try {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('limpar') || urlParams.has('reset')) {
-            window.location.replace(window.location.pathname);
+            // Nuclear reset: wipe SW registrations, all caches, and storage flags,
+            // then redirect with a cache-buster so the browser fetches completely fresh HTML.
+            const doNuclearReset = async () => {
+                try {
+                    if ('caches' in window) {
+                        const keys = await caches.keys();
+                        await Promise.all(keys.map((k) => caches.delete(k)));
+                    }
+                } catch (e) {}
+                try {
+                    if ('serviceWorker' in navigator) {
+                        const regs = await navigator.serviceWorker.getRegistrations();
+                        await Promise.all(regs.map((r) => r.unregister()));
+                    }
+                } catch (e) {}
+                try { sessionStorage.clear(); } catch (e) {}
+                try {
+                    // Remove the one-time SW clean migration flag so sw.js re-registers cleanly
+                    localStorage.removeItem('gm_sw_clean_20261028');
+                } catch (e) {}
+                // Navigate to the clean path with a timestamp cache-buster
+                const dest = new URL(window.location.origin + window.location.pathname);
+                dest.searchParams.set('refresh', Date.now().toString());
+                window.location.href = dest.toString();
+            };
+            doNuclearReset();
         } else if (urlParams.has('refresh') || urlParams.has('v')) {
             loadedWithCacheBuster = true; // This page was already loaded fresh — don't loop
             // Clean up cache buster parameter from address bar cleanly
