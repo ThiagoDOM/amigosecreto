@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { usePage } from '@inertiajs/vue3';
-import { RotateCcw, X, ArrowUpCircle } from 'lucide-vue-next';
+import { RotateCcw, X } from 'lucide-vue-next';
 
 const page = usePage();
 const isVisible = ref(false);
@@ -15,11 +15,11 @@ async function checkServerVersion() {
     if (typeof window === 'undefined') return;
 
     try {
-        const res = await fetch('/api/app-version', {
+        const res = await fetch(`/api/app-version?_t=${Date.now()}`, {
             cache: 'no-store',
             headers: {
                 'Accept': 'application/json',
-                'Cache-Control': 'no-cache',
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
             },
         });
 
@@ -29,7 +29,7 @@ async function checkServerVersion() {
                 if (!initialVersion) {
                     initialVersion = data.version;
                 } else if (data.version !== initialVersion) {
-                    showUpdateBanner('Nova versão disponível! Toque para atualizar o GiftMatch.');
+                    showUpdateBanner('Uma nova versão do GiftMatch está pronta! Toque para atualizar.');
                 }
             }
         }
@@ -41,12 +41,6 @@ async function checkServerVersion() {
 function showUpdateBanner(msg) {
     if (msg) updateMessage.value = msg;
     try {
-        // Don't show immediately after the user just triggered an update
-        const justUpdated = sessionStorage.getItem('gm_just_updated');
-        if (justUpdated) {
-            sessionStorage.removeItem('gm_just_updated');
-            return;
-        }
         const dismissedAt = sessionStorage.getItem('gm_update_dismissed_at');
         if (dismissedAt && Date.now() - parseInt(dismissedAt, 10) < 5 * 60 * 1000) {
             // Dismissed within last 5 minutes
@@ -69,7 +63,7 @@ async function triggerUpdate() {
     isUpdating.value = true;
 
     try {
-        // 1. Purge SW CacheStorage so the browser fetches all assets fresh from the network
+        // Purge SW CacheStorage so the browser fetches all assets fresh from the network
         if ('caches' in window) {
             try {
                 const keys = await caches.keys();
@@ -77,7 +71,7 @@ async function triggerUpdate() {
             } catch (e) {}
         }
 
-        // 2. Signal any waiting SW to activate now
+        // Signal any waiting SW to activate
         if ('serviceWorker' in navigator) {
             try {
                 const reg = await navigator.serviceWorker.getRegistration();
@@ -87,24 +81,16 @@ async function triggerUpdate() {
             } catch (e) {}
         }
 
-        // 3. Clear session flags
         try {
             sessionStorage.removeItem('gm_update_dismissed_at');
             sessionStorage.removeItem('vite_preload_reload');
-            for (const key of Object.keys(sessionStorage)) {
-                if (key.startsWith('chunk_reload_')) sessionStorage.removeItem(key);
-            }
-            // Tell the next page load NOT to re-show the banner immediately
-            sessionStorage.setItem('gm_just_updated', '1');
         } catch (e) {}
     } catch (e) {}
 
-    // 4. Navigate with ?refresh=<timestamp> — this forces the browser to bypass its HTTP
-    //    disk cache and fetch a completely fresh HTML page (critical on Android & iOS).
-    //    app.js will strip the param from the address bar after load.
-    const freshUrl = new URL(window.location.origin + window.location.pathname);
-    freshUrl.searchParams.set('refresh', Date.now().toString());
-    window.location.href = freshUrl.toString();
+    // Hard reload the current page directly from network
+    const cleanUrl = new URL(window.location.href);
+    cleanUrl.searchParams.set('v', Date.now().toString());
+    window.location.replace(cleanUrl.toString());
 }
 
 function handleCustomUpdateEvent(e) {
@@ -115,11 +101,6 @@ function handleCustomUpdateEvent(e) {
 function handleVisibilityChange() {
     if (document.visibilityState === 'visible') {
         checkServerVersion();
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistration().then((reg) => {
-                if (reg) reg.update().catch(() => {});
-            }).catch(() => {});
-        }
     }
 }
 
@@ -127,49 +108,12 @@ onMounted(() => {
     // Record initial page version from Inertia shared props
     initialVersion = page.props?.app_version || null;
 
-    // If we just performed a forced update, clear the flag and skip first check
-    let suppressFirstCheck = false;
-    try {
-        if (sessionStorage.getItem('gm_just_updated')) {
-            // Already cleared inside showUpdateBanner if triggered, but clear here too
-            // in case the banner was never shown (e.g., vite:preloadError path)
-            sessionStorage.removeItem('gm_just_updated');
-            suppressFirstCheck = true;
-        }
-    } catch (e) {}
-
-    // Listen for custom trigger from app.js (e.g. chunk preload errors or SW updatefound)
+    // Listen for custom trigger from app.js (e.g. Vite preload/chunk hash mismatches)
     window.addEventListener('giftmatch:update-available', handleCustomUpdateEvent);
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
-    // Check service worker waiting status
-    if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistration().then((reg) => {
-            if (reg) {
-                if (reg.waiting) {
-                    showUpdateBanner('Nova versão pronta para instalar.');
-                }
-                reg.addEventListener('updatefound', () => {
-                    const newWorker = reg.installing;
-                    if (newWorker) {
-                        newWorker.addEventListener('statechange', () => {
-                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                showUpdateBanner('Nova versão baixada! Toque para atualizar.');
-                            }
-                        });
-                    }
-                });
-            }
-        }).catch(() => {});
-    }
-
-    // Initial check after 2 seconds, then periodically every 90 seconds
-    // Skip on the first load after an update to avoid a false-positive comparison
-    setTimeout(() => {
-        if (!suppressFirstCheck) {
-            checkServerVersion();
-        }
-    }, 2000);
+    // Initial check after 5 seconds, then periodically every 90 seconds
+    setTimeout(checkServerVersion, 5000);
     pollInterval = setInterval(checkServerVersion, 90 * 1000);
 });
 

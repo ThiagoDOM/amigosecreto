@@ -8,68 +8,39 @@ import AppUpdateBanner from '@/Components/AppUpdateBanner.vue';
 
 const appName = import.meta.env.VITE_APP_NAME || 'GiftMatch';
 
-let lastClickedHref = null;
-
-// True when this page was loaded via a ?refresh= cache-buster URL.
-// Used to break redirect loops: if we already loaded fresh and STILL get errors,
-// show the banner instead of looping.
-let loadedWithCacheBuster = false;
-
-/** Redirect to a URL, always adding ?refresh=<timestamp> so the browser bypasses HTTP cache. */
-function hardNavigate(url) {
+// Safe storage helpers that never throw in private browsing mode
+function safeSessionGet(key) {
     try {
-        const dest = new URL(url, window.location.origin);
-        dest.searchParams.set('refresh', Date.now().toString());
-        window.location.href = dest.toString();
+        return typeof window !== 'undefined' && window.sessionStorage ? window.sessionStorage.getItem(key) : null;
     } catch (e) {
-        window.location.href = url;
+        return null;
     }
 }
 
-if (typeof window !== 'undefined') {
-    // Intercept clicks to track target URL during navigation
-    document.addEventListener('click', (e) => {
-        const anchor = e.target.closest('a');
-        if (anchor && anchor.href && anchor.href.startsWith(window.location.origin)) {
-            lastClickedHref = anchor.href;
+function safeSessionSet(key, value) {
+    try {
+        if (typeof window !== 'undefined' && window.sessionStorage) {
+            window.sessionStorage.setItem(key, value);
         }
-    }, true);
+    } catch (e) {}
+}
 
+if (typeof window !== 'undefined') {
+    // Handle reset / clear query params
     try {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('limpar') || urlParams.has('reset')) {
-            // Nuclear reset: wipe SW registrations, all caches, and storage flags,
-            // then redirect with a cache-buster so the browser fetches completely fresh HTML.
-            const doNuclearReset = async () => {
-                try {
-                    if ('caches' in window) {
-                        const keys = await caches.keys();
-                        await Promise.all(keys.map((k) => caches.delete(k)));
-                    }
-                } catch (e) {}
-                try {
-                    if ('serviceWorker' in navigator) {
-                        const regs = await navigator.serviceWorker.getRegistrations();
-                        await Promise.all(regs.map((r) => r.unregister()));
-                    }
-                } catch (e) {}
-                try { sessionStorage.clear(); } catch (e) {}
-                try {
-                    // Remove the one-time SW clean migration flag so sw.js re-registers cleanly
-                    localStorage.removeItem('gm_sw_clean_20261028');
-                } catch (e) {}
-                // Navigate to the clean path with a timestamp cache-buster
-                const dest = new URL(window.location.origin + window.location.pathname);
-                dest.searchParams.set('refresh', Date.now().toString());
-                window.location.href = dest.toString();
-            };
-            doNuclearReset();
-        } else if (urlParams.has('refresh') || urlParams.has('v')) {
-            loadedWithCacheBuster = true; // This page was already loaded fresh — don't loop
-            // Clean up cache buster parameter from address bar cleanly
+            try { sessionStorage.clear(); } catch (e) {}
+            try { localStorage.clear(); } catch (e) {}
+            if ('caches' in window) {
+                caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k)))).catch(() => {});
+            }
+            window.location.replace(window.location.pathname);
+        } else if (urlParams.has('v') || urlParams.has('refresh')) {
+            // Clean up cache buster param from URL cleanly without reload
             const cleanUrl = new URL(window.location.href);
-            cleanUrl.searchParams.delete('refresh');
             cleanUrl.searchParams.delete('v');
+            cleanUrl.searchParams.delete('refresh');
             window.history.replaceState({}, '', cleanUrl.pathname + (cleanUrl.search ? cleanUrl.search : '') + cleanUrl.hash);
         }
     } catch (e) {}
@@ -78,26 +49,18 @@ if (typeof window !== 'undefined') {
     window.addEventListener('vite:preloadError', (event) => {
         if (event && event.preventDefault) event.preventDefault();
 
-        // If this page was already loaded with a cache-buster and we STILL get errors,
-        // don't loop — show the update banner and let the user decide.
-        if (loadedWithCacheBuster) {
+        const reloadKey = 'vite_preload_reload';
+        const last = safeSessionGet(reloadKey);
+        const now = Date.now();
+
+        if (!last || now - parseInt(last, 10) > 8000) {
+            safeSessionSet(reloadKey, now.toString());
+            window.location.reload();
+        } else {
             window.dispatchEvent(new CustomEvent('giftmatch:update-available', {
-                detail: { message: 'Erro ao carregar. Toque em "Atualizar Agora" para continuar.' }
+                detail: { message: 'Nova versão disponível. Toque para atualizar.' },
             }));
-            return;
         }
-
-        try { sessionStorage.setItem('gm_just_updated', '1'); } catch (e) {}
-        if ('caches' in window) {
-            caches.keys().then((keys) => keys.forEach((k) => caches.delete(k))).catch(() => {});
-        }
-
-        // Navigate to the intended target (or current page) with a cache-buster
-        const target = (lastClickedHref && lastClickedHref !== window.location.href)
-            ? lastClickedHref
-            : window.location.href;
-        lastClickedHref = null;
-        hardNavigate(target);
     });
 }
 
@@ -115,31 +78,23 @@ createInertiaApp({
             console.error('Error loading page chunk:', err);
 
             if (typeof window !== 'undefined') {
-                // If this page was already loaded with a cache-buster, don't loop.
-                // Show the banner and let the user decide.
-                if (loadedWithCacheBuster) {
-                    window.dispatchEvent(new CustomEvent('giftmatch:update-available', {
-                        detail: { message: 'Erro ao carregar. Toque em "Atualizar Agora" para continuar.' }
-                    }));
-                    // Return a never-resolving promise so Inertia doesn't crash —
-                    // the banner guides the user to do a manual fresh reload.
-                    return new Promise(() => {});
+                const reloadKey = 'chunk_reload_' + name;
+                const last = safeSessionGet(reloadKey);
+                const now = Date.now();
+
+                // If not reloaded within the last 8 seconds, reload to get fresh chunks
+                if (!last || now - parseInt(last, 10) > 8000) {
+                    safeSessionSet(reloadKey, now.toString());
+                    window.location.reload();
+                    return new Promise(() => {}); // Wait for the reload
                 }
 
-                // First-time failure: navigate to the intended target with a cache-buster
-                // so the browser fetches fresh HTML and new chunk hashes from the server.
-                try { sessionStorage.setItem('gm_just_updated', '1'); } catch (e) {}
-                if ('caches' in window) {
-                    caches.keys().then((keys) => keys.forEach((k) => caches.delete(k))).catch(() => {});
-                }
-
-                const target = (lastClickedHref && lastClickedHref !== window.location.href)
-                    ? lastClickedHref
-                    : window.location.href;
-                lastClickedHref = null;
-                hardNavigate(target);
-                return new Promise(() => {}); // prevent error cascade while navigating
+                // If already reloaded recently and still failed, show the update banner
+                window.dispatchEvent(new CustomEvent('giftmatch:update-available', {
+                    detail: { message: 'Erro ao carregar a página. Toque para atualizar.' },
+                }));
             }
+
             throw err;
         });
     },
@@ -169,4 +124,3 @@ createInertiaApp({
         color: '#f43f5e',
     },
 });
-
