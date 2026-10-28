@@ -406,7 +406,7 @@ function handleConfirmForget() {
                         <div class="w-11 h-11 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
                             <Smartphone class="w-5 h-5" />
                         </div>
-                        <h3 class="text-base sm:text-lg font-bold font-display text-white">Zero Apps & Zero Burocracia</h3>
+                        <h3 class="text-base sm:text-lg font-bold font-display text-white">Zero Apps e Zero Burocracia</h3>
                         <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
                             Os participantes não precisam baixar nada na Play Store nem criar senhas chatas que todo mundo esquece. Tudo funciona 100% no navegador de qualquer celular ou computador.
                         </p>
@@ -417,7 +417,7 @@ function handleConfirmForget() {
                         <div class="w-11 h-11 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
                             <Sliders class="w-5 h-5" />
                         </div>
-                        <h3 class="text-base sm:text-lg font-bold font-display text-white">Regras para Casais & Famílias</h3>
+                        <h3 class="text-base sm:text-lg font-bold font-display text-white">Regras para Casais e Famílias</h3>
                         <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
                             Defina com apenas 1 clique quem não pode tirar quem (namorados, maridos e esposas, irmãos). Nosso algoritmo garante um sorteio matematicamente válido sem falhas.
                         </p>

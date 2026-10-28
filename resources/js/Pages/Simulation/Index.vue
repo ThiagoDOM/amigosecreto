@@ -61,7 +61,7 @@ const mockEvent = reactive({
 const form = reactive({
     name: 'João Exemplo',
     phone: '(11) 90000-0000',
-    email: 'lucas@exemplo.com',
+    email: 'joao@exemplo.com',
     clothing_size: 'M',
     shoe_size: '41',
     likes: 'Café especial, tecnologia, livros de ficção e chocolates amargos',

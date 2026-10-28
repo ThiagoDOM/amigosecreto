@@ -1185,7 +1185,7 @@ onMounted(() => {
                         class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl text-xs font-bold text-white bg-gradient-to-r from-rose-600 via-rose-500 to-amber-500 hover:from-rose-500 hover:to-amber-400 shadow-lg shadow-rose-950/40 transition-all hover:scale-[1.02] cursor-pointer"
                     >
                         <Bookmark class="w-4 h-4 text-amber-300" />
-                        <span>Como Salvar Meu Link e Programar Lembrete 🔔</span>
+                        <span>Como Salvar Meu Link e Programar Lembrete</span>
                     </button>
                 </div>
 
