@@ -8,24 +8,23 @@ import AppUpdateBanner from '@/Components/AppUpdateBanner.vue';
 
 const appName = import.meta.env.VITE_APP_NAME || 'GiftMatch';
 
-// Safe sessionStorage helpers that never throw in Safari Private Browsing mode
-function safeSessionGet(key) {
+let lastClickedHref = null;
+
+// True when this page was loaded via a ?refresh= cache-buster URL.
+// Used to break redirect loops: if we already loaded fresh and STILL get errors,
+// show the banner instead of looping.
+let loadedWithCacheBuster = false;
+
+/** Redirect to a URL, always adding ?refresh=<timestamp> so the browser bypasses HTTP cache. */
+function hardNavigate(url) {
     try {
-        return typeof window !== 'undefined' && window.sessionStorage ? window.sessionStorage.getItem(key) : null;
+        const dest = new URL(url, window.location.origin);
+        dest.searchParams.set('refresh', Date.now().toString());
+        window.location.href = dest.toString();
     } catch (e) {
-        return null;
+        window.location.href = url;
     }
 }
-
-function safeSessionSet(key, value) {
-    try {
-        if (typeof window !== 'undefined' && window.sessionStorage) {
-            window.sessionStorage.setItem(key, value);
-        }
-    } catch (e) {}
-}
-
-let lastClickedHref = null;
 
 if (typeof window !== 'undefined') {
     // Intercept clicks to track target URL during navigation
@@ -41,6 +40,7 @@ if (typeof window !== 'undefined') {
         if (urlParams.has('limpar') || urlParams.has('reset')) {
             window.location.replace(window.location.pathname);
         } else if (urlParams.has('refresh') || urlParams.has('v')) {
+            loadedWithCacheBuster = true; // This page was already loaded fresh — don't loop
             // Clean up cache buster parameter from address bar cleanly
             const cleanUrl = new URL(window.location.href);
             cleanUrl.searchParams.delete('refresh');
@@ -53,29 +53,26 @@ if (typeof window !== 'undefined') {
     window.addEventListener('vite:preloadError', (event) => {
         if (event && event.preventDefault) event.preventDefault();
 
-        // Mark that we're about to force a reload so the update banner doesn't
-        // re-appear immediately on the next page load.
-        try { sessionStorage.setItem('gm_just_updated', '1'); } catch (e) {}
+        // If this page was already loaded with a cache-buster and we STILL get errors,
+        // don't loop — show the update banner and let the user decide.
+        if (loadedWithCacheBuster) {
+            window.dispatchEvent(new CustomEvent('giftmatch:update-available', {
+                detail: { message: 'Erro ao carregar. Toque em "Atualizar Agora" para continuar.' }
+            }));
+            return;
+        }
 
-        // Clear caches before navigating away
+        try { sessionStorage.setItem('gm_just_updated', '1'); } catch (e) {}
         if ('caches' in window) {
             caches.keys().then((keys) => keys.forEach((k) => caches.delete(k))).catch(() => {});
         }
 
-        if (lastClickedHref && lastClickedHref !== window.location.href) {
-            const target = lastClickedHref;
-            lastClickedHref = null;
-            window.location.replace(target);
-            return;
-        }
-
-        const reloadKey = 'vite_preload_reload';
-        const last = safeSessionGet(reloadKey);
-        const now = Date.now();
-        if (!last || now - parseInt(last, 10) > 4000) {
-            safeSessionSet(reloadKey, now.toString());
-            window.location.replace(window.location.origin + window.location.pathname + window.location.hash);
-        }
+        // Navigate to the intended target (or current page) with a cache-buster
+        const target = (lastClickedHref && lastClickedHref !== window.location.href)
+            ? lastClickedHref
+            : window.location.href;
+        lastClickedHref = null;
+        hardNavigate(target);
     });
 }
 
@@ -92,37 +89,31 @@ createInertiaApp({
         return pagePromise().catch((err) => {
             console.error('Error loading page chunk:', err);
 
-            // Notify user with the update banner
             if (typeof window !== 'undefined') {
-                window.dispatchEvent(new CustomEvent('giftmatch:update-available', {
-                    detail: { message: 'Nova versão disponível! Toque para atualizar o app.' }
-                }));
+                // If this page was already loaded with a cache-buster, don't loop.
+                // Show the banner and let the user decide.
+                if (loadedWithCacheBuster) {
+                    window.dispatchEvent(new CustomEvent('giftmatch:update-available', {
+                        detail: { message: 'Erro ao carregar. Toque em "Atualizar Agora" para continuar.' }
+                    }));
+                    // Return a never-resolving promise so Inertia doesn't crash —
+                    // the banner guides the user to do a manual fresh reload.
+                    return new Promise(() => {});
+                }
 
-                // Mark update in progress so the banner won't re-appear on next load
+                // First-time failure: navigate to the intended target with a cache-buster
+                // so the browser fetches fresh HTML and new chunk hashes from the server.
                 try { sessionStorage.setItem('gm_just_updated', '1'); } catch (e) {}
-
-                // Clear caches
                 if ('caches' in window) {
                     caches.keys().then((keys) => keys.forEach((k) => caches.delete(k))).catch(() => {});
                 }
 
-                // If user was navigating to another page, navigate directly so server serves fresh HTML
-                if (lastClickedHref && lastClickedHref !== window.location.href) {
-                    const target = lastClickedHref;
-                    lastClickedHref = null;
-                    window.location.replace(target);
-                    return new Promise(() => {}); // prevent further uncaught error cascade
-                }
-
-                // If on same page, do a clean reload without cache-busting query params
-                const reloadKey = 'chunk_reload_' + name;
-                const last = safeSessionGet(reloadKey);
-                const now = Date.now();
-                if (!last || now - parseInt(last, 10) > 4000) {
-                    safeSessionSet(reloadKey, now.toString());
-                    window.location.replace(window.location.origin + window.location.pathname + window.location.hash);
-                    return new Promise(() => {});
-                }
+                const target = (lastClickedHref && lastClickedHref !== window.location.href)
+                    ? lastClickedHref
+                    : window.location.href;
+                lastClickedHref = null;
+                hardNavigate(target);
+                return new Promise(() => {}); // prevent error cascade while navigating
             }
             throw err;
         });

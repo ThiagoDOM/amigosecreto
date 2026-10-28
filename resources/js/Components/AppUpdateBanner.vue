@@ -69,7 +69,7 @@ async function triggerUpdate() {
     isUpdating.value = true;
 
     try {
-        // 1. Purge CacheStorage (all SW caches)
+        // 1. Purge SW CacheStorage so the browser fetches all assets fresh from the network
         if ('caches' in window) {
             try {
                 const keys = await caches.keys();
@@ -77,39 +77,34 @@ async function triggerUpdate() {
             } catch (e) {}
         }
 
-        // 2. Tell active service worker to skip waiting and claim clients
+        // 2. Signal any waiting SW to activate now
         if ('serviceWorker' in navigator) {
             try {
                 const reg = await navigator.serviceWorker.getRegistration();
-                if (reg) {
-                    if (reg.waiting) {
-                        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-                    }
-                    // Give the SW a moment to activate before we navigate away
-                    await new Promise((resolve) => setTimeout(resolve, 200));
+                if (reg?.waiting) {
+                    reg.waiting.postMessage({ type: 'SKIP_WAITING' });
                 }
             } catch (e) {}
         }
 
-        // 3. Clear all session / local storage flags that could re-trigger the banner
+        // 3. Clear session flags
         try {
             sessionStorage.removeItem('gm_update_dismissed_at');
             sessionStorage.removeItem('vite_preload_reload');
-            // Clear all chunk reload flags
             for (const key of Object.keys(sessionStorage)) {
                 if (key.startsWith('chunk_reload_')) sessionStorage.removeItem(key);
             }
-            // Mark that we just performed a forced update so the banner won't
-            // re-appear on the very next load before initialVersion is stabilised.
+            // Tell the next page load NOT to re-show the banner immediately
             sessionStorage.setItem('gm_just_updated', '1');
         } catch (e) {}
     } catch (e) {}
 
-    // 4. Hard-navigate to the same path (no ?v= param) so the browser requests
-    //    fresh HTML from the server. Using location.replace avoids a back-button entry.
-    //    We keep only the current pathname + hash so Inertia SSR serves the right page.
-    const freshUrl = window.location.origin + window.location.pathname + window.location.hash;
-    window.location.replace(freshUrl);
+    // 4. Navigate with ?refresh=<timestamp> — this forces the browser to bypass its HTTP
+    //    disk cache and fetch a completely fresh HTML page (critical on Android & iOS).
+    //    app.js will strip the param from the address bar after load.
+    const freshUrl = new URL(window.location.origin + window.location.pathname);
+    freshUrl.searchParams.set('refresh', Date.now().toString());
+    window.location.href = freshUrl.toString();
 }
 
 function handleCustomUpdateEvent(e) {
