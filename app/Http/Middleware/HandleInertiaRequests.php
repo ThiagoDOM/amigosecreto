@@ -17,7 +17,7 @@ class HandleInertiaRequests extends Middleware
     /**
      * Determine the current asset version.
      */
-    public function version(Request $request): ?string
+    public static function currentVersion(): ?string
     {
         if ($vercelDeploy = env('VERCEL_DEPLOYMENT_ID') ?? env('VERCEL_GIT_COMMIT_SHA')) {
             return (string) $vercelDeploy;
@@ -31,7 +31,15 @@ class HandleInertiaRequests extends Middleware
             return hash_file('xxh128', $manifest);
         }
 
-        return parent::version($request);
+        return 'gm_app_v1';
+    }
+
+    /**
+     * Determine the current asset version for Inertia.
+     */
+    public function version(Request $request): ?string
+    {
+        return static::currentVersion() ?? parent::version($request);
     }
 
     /**
