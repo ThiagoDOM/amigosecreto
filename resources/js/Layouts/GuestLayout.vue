@@ -1,6 +1,5 @@
 <script setup>
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
-import CookieConsent from '@/Components/CookieConsent.vue';
 import ToastNotification from '@/Components/ToastNotification.vue';
 import { Link } from '@inertiajs/vue3';
 
@@ -23,7 +22,6 @@ defineProps({
 <template>
     <div class="relative flex min-h-screen flex-col items-center justify-center bg-slate-950 py-10 px-4 sm:px-6 overflow-hidden font-sans text-slate-100">
         <ToastNotification />
-        <CookieConsent />
 
         <!-- Subtle background glow -->
         <div class="absolute -top-40 -left-40 w-96 h-96 bg-rose-600/15 rounded-full blur-3xl pointer-events-none"></div>

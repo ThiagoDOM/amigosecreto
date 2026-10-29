@@ -2,7 +2,6 @@
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
-import CookieConsent from '@/Components/CookieConsent.vue';
 import GoogleAd from '@/Components/GoogleAd.vue';
 import ToastNotification from '@/Components/ToastNotification.vue';
 import WishlistEditor from '@/Components/WishlistEditor.vue';
@@ -76,7 +75,6 @@ function submit() {
 
     <div class="min-h-screen bg-slate-950 text-slate-100 relative overflow-hidden font-sans py-12 px-4 sm:px-6 flex flex-col justify-between">
         <ToastNotification />
-        <CookieConsent />
 
         <!-- Festive background glows -->
         <div class="absolute -top-32 -left-32 w-[500px] h-[500px] bg-rose-600/20 rounded-full blur-[140px] pointer-events-none"></div>

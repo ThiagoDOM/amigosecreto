@@ -3,7 +3,6 @@ import { Head, Link, useForm, router, usePage } from '@inertiajs/vue3';
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
-import CookieConsent from '@/Components/CookieConsent.vue';
 import GoogleAd from '@/Components/GoogleAd.vue';
 import ToastNotification from '@/Components/ToastNotification.vue';
 import WishlistEditor from '@/Components/WishlistEditor.vue';
@@ -963,7 +962,6 @@ onMounted(() => {
 
     <div class="min-h-screen bg-slate-950 text-slate-100 relative overflow-hidden font-sans py-8 sm:py-12 px-4 sm:px-6">
         <ToastNotification />
-        <CookieConsent />
 
         <!-- Festive Ambient Blobs -->
         <div class="absolute -top-32 -left-32 w-[500px] h-[500px] bg-rose-600/20 rounded-full blur-[140px] pointer-events-none"></div>

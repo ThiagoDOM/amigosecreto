@@ -6,7 +6,6 @@ import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import ToastNotification from '@/Components/ToastNotification.vue';
-import CookieConsent from '@/Components/CookieConsent.vue';
 import { Link } from '@inertiajs/vue3';
 import { PlusCircle, Calendar, User, LogOut } from 'lucide-vue-next';
 
@@ -15,9 +14,8 @@ const showingNavigationDropdown = ref(false);
 
 <template>
     <div class="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
-        <!-- Toast Flash Notification & Cookie Consent -->
+        <!-- Toast Flash Notification -->
         <ToastNotification />
-        <CookieConsent />
 
         <!-- Navigation Bar -->
         <nav class="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/80">
