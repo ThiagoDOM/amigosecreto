@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Mail\DrawNotificationMail;
 use App\Models\Event;
 use DomainException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -24,59 +25,73 @@ class DrawService
      */
     public function draw(Event $event): Event
     {
-        $participants = $event->participants()->get();
-
-        if ($participants->count() < 3) {
-            throw new DomainException('É necessário ter pelo menos 3 participantes para realizar o sorteio.');
+        if ($event->isDrawn()) {
+            throw new DomainException('Este sorteio já foi realizado.');
         }
 
-        $participantIds = $participants->pluck('id')->all();
-        $exclusions = $event->exclusions()->get();
+        $lock = Cache::lock("event_draw_{$event->id}", 30);
 
-        // Build exclusion lookup: [giver_id => [excluded_id_1, excluded_id_2]]
-        $forbiddenMap = [];
-        foreach ($participantIds as $id) {
-            $forbiddenMap[$id] = [$id]; // Self is always forbidden
+        if (! $lock->get()) {
+            throw new DomainException('O sorteio já está sendo processado. Aguarde um instante.');
         }
 
-        foreach ($exclusions as $exclusion) {
-            $forbiddenMap[$exclusion->participant_id][] = $exclusion->excluded_participant_id;
-        }
+        try {
+            $participants = $event->participants()->get();
 
-        // Try to find a single Hamiltonian cycle first for maximum fun
-        $pairings = $this->findHamiltonianCycle($participantIds, $forbiddenMap);
-
-        // If no single cycle exists due to strict restrictions, try general derangement
-        if ($pairings === null) {
-            $pairings = $this->findValidDerangement($participantIds, $forbiddenMap);
-        }
-
-        if ($pairings === null) {
-            throw new DomainException(
-                'Não foi possível encontrar uma combinação válida com as restrições atuais. '.
-                'Por favor, revise ou remova algumas restrições entre participantes.'
-            );
-        }
-
-        // Persist pairings in database transaction
-        DB::transaction(function () use ($event, $pairings): void {
-            foreach ($pairings as $giverId => $receiverId) {
-                $event->participants()->where('id', $giverId)->update([
-                    'drawn_participant_id' => $receiverId,
-                    'revealed_at' => null,
-                ]);
+            if ($participants->count() < 3) {
+                throw new DomainException('É necessário ter pelo menos 3 participantes para realizar o sorteio.');
             }
 
-            $event->update([
-                'status' => 'drawn',
-                'drawn_at' => now(),
-            ]);
-        });
+            $participantIds = $participants->pluck('id')->all();
+            $exclusions = $event->exclusions()->get();
 
-        // Notify participants who registered an email address
-        $this->sendDrawNotifications($event);
+            // Build exclusion lookup: [giver_id => [excluded_id_1, excluded_id_2]]
+            $forbiddenMap = [];
+            foreach ($participantIds as $id) {
+                $forbiddenMap[$id] = [$id]; // Self is always forbidden
+            }
 
-        return $event->fresh(['participants.drawnParticipant', 'exclusions']);
+            foreach ($exclusions as $exclusion) {
+                $forbiddenMap[$exclusion->participant_id][] = $exclusion->excluded_participant_id;
+            }
+
+            // Try to find a single Hamiltonian cycle first for maximum fun
+            $pairings = $this->findHamiltonianCycle($participantIds, $forbiddenMap);
+
+            // If no single cycle exists due to strict restrictions, try general derangement
+            if ($pairings === null) {
+                $pairings = $this->findValidDerangement($participantIds, $forbiddenMap);
+            }
+
+            if ($pairings === null) {
+                throw new DomainException(
+                    'Não foi possível encontrar uma combinação válida com as restrições atuais. '.
+                    'Por favor, revise ou remova algumas restrições entre participantes.'
+                );
+            }
+
+            // Persist pairings in database transaction
+            DB::transaction(function () use ($event, $pairings): void {
+                foreach ($pairings as $giverId => $receiverId) {
+                    $event->participants()->where('id', $giverId)->update([
+                        'drawn_participant_id' => $receiverId,
+                        'revealed_at' => null,
+                    ]);
+                }
+
+                $event->update([
+                    'status' => 'drawn',
+                    'drawn_at' => now(),
+                ]);
+            });
+
+            // Notify participants who registered an email address
+            $this->sendDrawNotifications($event);
+
+            return $event->fresh(['participants.drawnParticipant', 'exclusions']);
+        } finally {
+            $lock->release();
+        }
     }
 
     /**

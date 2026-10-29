@@ -154,4 +154,32 @@ class DrawServiceTest extends TestCase
             $this->assertNull($p->drawn_participant_id);
         }
     }
+
+    public function test_cannot_draw_already_drawn_event(): void
+    {
+        $user = User::factory()->create();
+        $event = Event::create([
+            'user_id' => $user->id,
+            'title' => 'Evento Teste',
+            'code' => Event::generateUniqueCode(),
+        ]);
+
+        foreach (['Ana', 'Bia', 'Caio'] as $name) {
+            Participant::create([
+                'event_id' => $event->id,
+                'name' => $name,
+                'token' => Participant::generateUniqueToken(),
+            ]);
+        }
+
+        $service = new DrawService;
+        $service->draw($event);
+
+        $event->refresh();
+        $this->assertTrue($event->isDrawn());
+
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('Este sorteio já foi realizado.');
+        $service->draw($event);
+    }
 }

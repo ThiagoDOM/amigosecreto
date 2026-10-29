@@ -1,5 +1,5 @@
 <script setup>
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import GoogleAd from '@/Components/GoogleAd.vue';
@@ -26,10 +26,15 @@ const props = defineProps({
     },
 });
 
+const page = usePage();
+const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+const initialName = urlParams?.get('name') || page.props.auth?.user?.name || '';
+const initialEmail = urlParams?.get('email') || page.props.auth?.user?.email || '';
+
 const form = useForm({
-    name: '',
+    name: initialName,
     phone: '',
-    email: '',
+    email: initialEmail,
     marketing_opt_in: true,
     wishlist: [],
     clothing_size: '',

@@ -4,7 +4,7 @@ import WishlistEditor from '@/Components/WishlistEditor.vue';
 import WishlistDisplay from '@/Components/WishlistDisplay.vue';
 import { formatDate, formatPhone, maskPhone, formatCurrency } from '@/Utils/formatters';
 import { THEMES, getTheme } from '@/Utils/themes';
-import { Head, Link, useForm, router } from '@inertiajs/vue3';
+import { Head, Link, useForm, router, usePage } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { 
     Users, 
@@ -29,7 +29,9 @@ import {
     MessageCircle,
     Send,
     Mail,
-    CheckCircle2
+    CheckCircle2,
+    Loader2,
+    UserCheck
 } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -46,6 +48,8 @@ const props = defineProps({
         default: () => [],
     },
 });
+
+const page = usePage();
 
 // Clipboard state
 const copiedInvite = ref(false);
@@ -68,10 +72,23 @@ const copiedPayloadLink = ref(false);
 const copiedFullMessage = ref(false);
 const copiedParticipantModalLink = ref(false);
 
+const isDrawing = ref(false);
+const showDrawnFriend = ref(false);
+
 const selectedParticipant = ref(null);
 const selectedParticipantWishlist = ref(null);
 const participantToDelete = ref(null);
 const exclusionToDelete = ref(null);
+
+const isOrganizerParticipating = computed(() => {
+    const userEmail = page.props.auth?.user?.email?.toLowerCase().trim();
+    const userName = page.props.auth?.user?.name?.toLowerCase().trim();
+    return props.participants.some(p => {
+        const pEmail = p.email?.toLowerCase().trim();
+        const pName = p.name?.toLowerCase().trim();
+        return (userEmail && pEmail === userEmail) || (userName && pName === userName);
+    });
+});
 
 // Forms
 const addParticipantForm = useForm({
@@ -255,8 +272,11 @@ function requestDraw() {
 }
 
 function executeDraw() {
+    if (isDrawing.value) return;
+    isDrawing.value = true;
     router.post(route('events.draw', props.event.id), {}, {
         onFinish: () => {
+            isDrawing.value = false;
             showDrawConfirmModal.value = false;
         }
     });
@@ -343,6 +363,7 @@ function openParticipantDetails(p) {
     selectedParticipant.value = p;
     selectedParticipantWishlist.value = p;
     copiedParticipantModalLink.value = false;
+    showDrawnFriend.value = false;
     showParticipantDetailsModal.value = true;
 }
 
@@ -537,6 +558,16 @@ const revealedCount = computed(() => {
                         <RefreshCw class="w-3.5 h-3.5" />
                         <span>Sortear Novamente</span>
                     </button>
+
+                    <!-- Organizer Self-Participation -->
+                    <Link
+                        v-if="!event.is_drawn && !isOrganizerParticipating"
+                        :href="route('invite.show', { code: event.code, name: $page.props.auth?.user?.name, email: $page.props.auth?.user?.email })"
+                        class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 hover:bg-emerald-900/50 hover:text-white transition-all shadow-sm"
+                    >
+                        <UserCheck class="w-4 h-4 text-emerald-400" />
+                        <span>Vou participar</span>
+                    </Link>
                 </div>
 
                 <!-- Primary Draw Button -->
@@ -545,14 +576,15 @@ const revealedCount = computed(() => {
                         v-if="!event.is_drawn"
                         type="button"
                         @click="requestDraw"
-                        :disabled="!event.can_draw"
+                        :disabled="!event.can_draw || isDrawing"
                         class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white transition-all shadow-sm"
-                        :class="event.can_draw 
+                        :class="(event.can_draw && !isDrawing)
                             ? 'bg-rose-600 hover:bg-rose-500 shadow-rose-900/30 active:scale-95' 
                             : 'bg-slate-800 text-slate-500 cursor-not-allowed'"
                     >
-                        <Gift class="w-4 h-4" />
-                        <span>Realizar Sorteio Agora</span>
+                        <Loader2 v-if="isDrawing" class="w-4 h-4 animate-spin text-white" />
+                        <Gift v-else class="w-4 h-4" />
+                        <span>{{ isDrawing ? 'Sorteando...' : 'Realizar Sorteio Agora' }}</span>
                     </button>
 
                     <div v-if="!event.can_draw && !event.is_drawn" class="text-right text-[11px] text-amber-400 mt-1 font-medium">
@@ -772,16 +804,19 @@ const revealedCount = computed(() => {
                     <button
                         type="button"
                         @click="showDrawConfirmModal = false"
-                        class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800"
+                        :disabled="isDrawing"
+                        class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                         Cancelar
                     </button>
                     <button
                         type="button"
                         @click="executeDraw"
-                        class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-sm"
+                        :disabled="isDrawing"
+                        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm transition-all"
                     >
-                        Confirmar e Sortear
+                        <Loader2 v-if="isDrawing" class="w-4 h-4 animate-spin text-white" />
+                        <span>{{ isDrawing ? 'Sorteando e enviando...' : 'Confirmar e Sortear' }}</span>
                     </button>
                 </div>
             </div>
@@ -1319,16 +1354,30 @@ const revealedCount = computed(() => {
                 </div>
 
                 <!-- Section 5: (Se sorteado) Informação do Amigo Tirado (Organizador) -->
-                <div v-if="event.is_drawn && selectedParticipant.drawn_friend" class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs space-y-1">
-                    <div class="font-bold text-amber-300 flex items-center gap-1.5">
-                        <Gift class="w-3.5 h-3.5 text-amber-400" />
-                        <span>Amigo Secreto Sorteado:</span>
+                <div v-if="event.is_drawn && selectedParticipant.drawn_friend" class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs space-y-2">
+                    <div class="flex items-center justify-between">
+                        <div class="font-bold text-amber-300 flex items-center gap-1.5">
+                            <Gift class="w-3.5 h-3.5 text-amber-400" />
+                            <span>Amigo Secreto Sorteado:</span>
+                        </div>
+                        <button
+                            type="button"
+                            @click="showDrawnFriend = !showDrawnFriend"
+                            class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 transition-colors cursor-pointer"
+                        >
+                            <component :is="showDrawnFriend ? EyeOff : Eye" class="w-3.5 h-3.5" />
+                            <span>{{ showDrawnFriend ? 'Ocultar' : 'Revelar' }}</span>
+                        </button>
                     </div>
-                    <p class="text-slate-200 font-medium">
-                        {{ selectedParticipant.name }} tirou <strong class="text-white">{{ selectedParticipant.drawn_friend.name }}</strong>
+                    <p v-if="showDrawnFriend" class="text-slate-200 font-medium">
+                        {{ selectedParticipant.name }} tirou <strong class="text-white text-sm bg-amber-500/20 px-2 py-0.5 rounded border border-amber-500/30">{{ selectedParticipant.drawn_friend.name }}</strong>
+                    </p>
+                    <p v-else class="text-slate-400 font-mono tracking-widest text-xs flex items-center gap-2">
+                        <span>{{ selectedParticipant.name }} tirou:</span>
+                        <span class="bg-slate-800/90 px-2.5 py-0.5 rounded text-slate-500 select-none">••••••••••••</span>
                     </p>
                     <p class="text-[11px] text-amber-400/80">
-                        * Informação confidencial visível apenas para você (organizador) para ajudar participantes com dúvidas.
+                        * Informação confidencial visível apenas para você (organizador). Fica oculta por padrão para evitar spoilers acidentais.
                     </p>
                 </div>
 

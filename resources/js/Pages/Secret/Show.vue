@@ -42,7 +42,8 @@ import {
     LogOut,
     AlertTriangle,
     ShieldCheck,
-    ShoppingBag
+    ShoppingBag,
+    Sparkles
 } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -1420,6 +1421,31 @@ onMounted(() => {
                     <span>Roupa: <strong class="text-white">{{ participant.clothing_size || '-' }}</strong></span>
                     <span>Calçado: <strong class="text-white">{{ participant.shoe_size || '-' }}</strong></span>
                     <span v-if="participant.likes">Adora: <strong class="text-white">{{ participant.likes }}</strong></span>
+                </div>
+            </div>
+
+            <!-- Promoção da Plataforma / Crie Seu Próprio Amigo Secreto -->
+            <div class="rounded-3xl bg-gradient-to-br from-rose-950/40 via-slate-900/90 to-amber-950/40 border border-rose-500/30 p-6 sm:p-7 shadow-xl space-y-4 text-center sm:text-left sm:flex sm:items-center sm:justify-between sm:space-y-0 gap-6">
+                <div class="space-y-1.5 max-w-lg">
+                    <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                        <Sparkles class="w-3.5 h-3.5 text-amber-400" />
+                        <span>Crie o seu Amigo Secreto</span>
+                    </div>
+                    <h3 class="text-base sm:text-lg font-bold font-display text-white">
+                        Que tal organizar um Amigo Secreto com a família ou colegas?
+                    </h3>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        No <strong>GiftMatch</strong> é 100% gratuito: você define regras para casais não se tirarem, lista de presentes com sugestões de lojas e envia os links com 1 clique no WhatsApp.
+                    </p>
+                </div>
+                <div class="shrink-0 flex flex-col sm:flex-row items-center gap-2.5">
+                    <Link
+                        :href="route('register')"
+                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-400 shadow-lg shadow-rose-900/40 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
+                    >
+                        <Gift class="w-4 h-4" />
+                        <span>Criar Evento Grátis</span>
+                    </Link>
                 </div>
             </div>
 
