@@ -2,31 +2,15 @@ import '../css/app.css';
 import './bootstrap';
 
 import { createInertiaApp } from '@inertiajs/vue3';
+import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createApp, h } from 'vue';
 import { ZiggyVue } from 'ziggy-js';
 import AppUpdateBanner from '@/Components/AppUpdateBanner.vue';
 
 const appName = import.meta.env.VITE_APP_NAME || 'GiftMatch';
 
-// Safe storage helpers that never throw in private browsing mode
-function safeSessionGet(key) {
-    try {
-        return typeof window !== 'undefined' && window.sessionStorage ? window.sessionStorage.getItem(key) : null;
-    } catch (e) {
-        return null;
-    }
-}
-
-function safeSessionSet(key, value) {
-    try {
-        if (typeof window !== 'undefined' && window.sessionStorage) {
-            window.sessionStorage.setItem(key, value);
-        }
-    } catch (e) {}
-}
-
 if (typeof window !== 'undefined') {
-    // Handle reset / clear query params
+    // Handle clean-up / reset query params safely
     try {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('limpar') || urlParams.has('reset')) {
@@ -37,7 +21,7 @@ if (typeof window !== 'undefined') {
             }
             window.location.replace(window.location.pathname);
         } else if (urlParams.has('v') || urlParams.has('refresh')) {
-            // Clean up cache buster param from URL cleanly without reload
+            // Clean up cache buster parameter from address bar cleanly
             const cleanUrl = new URL(window.location.href);
             cleanUrl.searchParams.delete('v');
             cleanUrl.searchParams.delete('refresh');
@@ -45,59 +29,18 @@ if (typeof window !== 'undefined') {
         }
     } catch (e) {}
 
-    // Recover from Vite deployment chunk hash mismatches
+    // Prevent benign modulepreload network failures (common on mobile / Samsung Internet / Data Saver)
+    // from halting script execution or throwing uncaught errors.
     window.addEventListener('vite:preloadError', (event) => {
-        if (event && event.preventDefault) event.preventDefault();
-
-        const reloadKey = 'vite_preload_reload';
-        const last = safeSessionGet(reloadKey);
-        const now = Date.now();
-
-        if (!last || now - parseInt(last, 10) > 8000) {
-            safeSessionSet(reloadKey, now.toString());
-            window.location.reload();
-        } else {
-            window.dispatchEvent(new CustomEvent('giftmatch:update-available', {
-                detail: { message: 'Nova versão disponível. Toque para atualizar.' },
-            }));
+        if (event && event.preventDefault) {
+            event.preventDefault();
         }
     });
 }
 
 createInertiaApp({
     title: (title) => (title ? (title.includes(appName) ? title : `${title} - ${appName}`) : appName),
-    resolve: (name) => {
-        const pages = import.meta.glob('./Pages/**/*.vue');
-        const pagePromise = pages[`./Pages/${name}.vue`];
-
-        if (!pagePromise) {
-            throw new Error(`Page not found: ./Pages/${name}.vue`);
-        }
-
-        return pagePromise().catch((err) => {
-            console.error('Error loading page chunk:', err);
-
-            if (typeof window !== 'undefined') {
-                const reloadKey = 'chunk_reload_' + name;
-                const last = safeSessionGet(reloadKey);
-                const now = Date.now();
-
-                // If not reloaded within the last 8 seconds, reload to get fresh chunks
-                if (!last || now - parseInt(last, 10) > 8000) {
-                    safeSessionSet(reloadKey, now.toString());
-                    window.location.reload();
-                    return new Promise(() => {}); // Wait for the reload
-                }
-
-                // If already reloaded recently and still failed, show the update banner
-                window.dispatchEvent(new CustomEvent('giftmatch:update-available', {
-                    detail: { message: 'Erro ao carregar a página. Toque para atualizar.' },
-                }));
-            }
-
-            throw err;
-        });
-    },
+    resolve: (name) => resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob('./Pages/**/*.vue')),
     setup({ el, App, props, plugin }) {
         const rootComponent = {
             render() {
