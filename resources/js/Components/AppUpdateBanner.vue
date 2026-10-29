@@ -71,7 +71,7 @@ async function triggerUpdate() {
             } catch (e) {}
         }
 
-        // Signal any waiting SW to activate
+        // Signal waiting SW to activate
         if ('serviceWorker' in navigator) {
             try {
                 const reg = await navigator.serviceWorker.getRegistration();
@@ -83,7 +83,6 @@ async function triggerUpdate() {
 
         try {
             sessionStorage.removeItem('gm_update_dismissed_at');
-            sessionStorage.removeItem('vite_preload_reload');
         } catch (e) {}
     } catch (e) {}
 
@@ -91,11 +90,6 @@ async function triggerUpdate() {
     const cleanUrl = new URL(window.location.href);
     cleanUrl.searchParams.set('v', Date.now().toString());
     window.location.replace(cleanUrl.toString());
-}
-
-function handleCustomUpdateEvent(e) {
-    const detailMsg = e?.detail?.message;
-    showUpdateBanner(detailMsg || 'Uma nova versão do GiftMatch está disponível.');
 }
 
 function handleVisibilityChange() {
@@ -108,22 +102,19 @@ onMounted(() => {
     // Record initial page version from Inertia shared props
     initialVersion = page.props?.app_version || null;
 
-    // Listen for custom trigger from app.js (e.g. Vite preload/chunk hash mismatches)
-    window.addEventListener('giftmatch:update-available', handleCustomUpdateEvent);
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
-    // Initial check after 5 seconds, then periodically every 90 seconds
-    setTimeout(checkServerVersion, 5000);
+    // Initial check after 15 seconds, then periodically every 90 seconds
+    setTimeout(checkServerVersion, 15000);
     pollInterval = setInterval(checkServerVersion, 90 * 1000);
 });
 
 onUnmounted(() => {
-    window.removeEventListener('giftmatch:update-available', handleCustomUpdateEvent);
     document.removeEventListener('visibilitychange', handleVisibilityChange);
     if (pollInterval) clearInterval(pollInterval);
 });
 
-// Expose update trigger globally for app.js failsafes
+// Expose update trigger globally for testing / manual invocation
 if (typeof window !== 'undefined') {
     window.performAppUpdate = triggerUpdate;
     window.showAppUpdateBanner = showUpdateBanner;
