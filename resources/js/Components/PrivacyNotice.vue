@@ -9,7 +9,6 @@ onMounted(() => {
     try {
         const consent = localStorage.getItem('giftmatch_cookies_accepted');
         if (!consent) {
-            // Small delay for smooth entrance
             setTimeout(() => {
                 isVisible.value = true;
             }, 600);
@@ -47,7 +46,7 @@ function acceptEssential() {
             v-if="isVisible"
             role="dialog"
             aria-live="polite"
-            aria-label="Aviso de Cookies"
+            aria-label="Aviso de Privacidade"
             class="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-50 rounded-2xl bg-slate-900/95 border border-slate-700/80 p-5 shadow-2xl backdrop-blur-xl text-slate-200 space-y-3"
         >
             <div class="flex items-start justify-between gap-3">
@@ -68,8 +67,9 @@ function acceptEssential() {
                 <button
                     @click="acceptEssential"
                     type="button"
-                    class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                    class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
                     title="Fechar e aceitar apenas essenciais"
+                    aria-label="Fechar e aceitar apenas essenciais"
                 >
                     <X class="w-4 h-4" />
                 </button>
@@ -86,14 +86,14 @@ function acceptEssential() {
                 <button
                     type="button"
                     @click="acceptEssential"
-                    class="px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-800 text-slate-300 font-semibold transition-all active:scale-95"
+                    class="px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-800 text-slate-300 font-semibold transition-all active:scale-95 cursor-pointer"
                 >
                     Apenas Essenciais
                 </button>
                 <button
                     type="button"
                     @click="acceptAll"
-                    class="px-4 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold shadow-sm shadow-rose-900/30 transition-all active:scale-95"
+                    class="px-4 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold shadow-sm shadow-rose-900/30 transition-all active:scale-95 cursor-pointer"
                 >
                     Aceitar Todos
                 </button>

@@ -3,7 +3,6 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import { ref, defineAsyncComponent } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 
-const CookieConsent = defineAsyncComponent(() => import('@/Components/CookieConsent.vue'));
 const GoogleAd = defineAsyncComponent(() => import('@/Components/GoogleAd.vue'));
 const AffiliateRecommendations = defineAsyncComponent(() => import('@/Components/AffiliateRecommendations.vue'));
 import { 
@@ -157,8 +156,6 @@ function handleConfirmForget() {
         <meta name="twitter:description" content="Organize seu Amigo Secreto no GiftMatch de forma simples, rápida e 100% gratuita! Sorteio automático com regras para casais, lista de desejos e envio direto no WhatsApp." />
         <meta name="twitter:image" content="/og-home.jpg" />
     </Head>
-
-    <CookieConsent />
 
     <div class="min-h-screen bg-slate-950 text-slate-100 selection:bg-rose-500 selection:text-white font-sans antialiased relative overflow-hidden flex flex-col justify-between">
         <!-- Ambient lighting (subtle & elegant) -->

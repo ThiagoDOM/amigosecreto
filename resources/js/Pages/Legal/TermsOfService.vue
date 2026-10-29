@@ -1,7 +1,6 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
-import CookieConsent from '@/Components/CookieConsent.vue';
 import { ArrowLeft, FileText, CheckCircle2, AlertTriangle, Scale } from 'lucide-vue-next';
 
 defineProps({
@@ -14,7 +13,6 @@ defineProps({
 
 <template>
     <Head title="Termos de Uso - GiftMatch" />
-    <CookieConsent />
 
     <div class="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-rose-500 selection:text-white flex flex-col justify-between">
         <!-- Ambient lighting -->

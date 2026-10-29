@@ -6,6 +6,7 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createApp, h } from 'vue';
 import { ZiggyVue } from 'ziggy-js';
 import AppUpdateBanner from '@/Components/AppUpdateBanner.vue';
+import PrivacyNotice from '@/Components/PrivacyNotice.vue';
 
 const appName = import.meta.env.VITE_APP_NAME || 'GiftMatch';
 
@@ -46,6 +47,7 @@ createInertiaApp({
             render() {
                 return h('div', { class: 'relative min-h-screen' }, [
                     h(App, props),
+                    h(PrivacyNotice),
                     h(AppUpdateBanner),
                 ]);
             },
