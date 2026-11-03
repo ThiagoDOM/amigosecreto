@@ -41,6 +41,8 @@ defineProps({
         </div>
 
         <div class="relative z-10 mt-6 flex items-center gap-3 text-xs text-slate-500">
+            <Link :href="route('guides.index')" class="hover:text-rose-400 transition-colors">Guias & Dicas</Link>
+            <span>&bull;</span>
             <Link :href="route('terms')" class="hover:text-rose-400 transition-colors">Termos de Uso</Link>
             <span>&bull;</span>
             <Link :href="route('privacy')" class="hover:text-rose-400 transition-colors">Política de Privacidade</Link>

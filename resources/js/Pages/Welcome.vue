@@ -27,7 +27,8 @@ import {
     ShoppingBag,
     HelpCircle,
     ChevronDown,
-    ChevronUp
+    ChevronUp,
+    BookOpen
 } from 'lucide-vue-next';
 
 defineProps({
@@ -171,6 +172,13 @@ function handleConfirmForget() {
                 </Link>
 
                 <nav class="flex items-center gap-3">
+                    <Link
+                        :href="route('guides.index')"
+                        class="px-3 py-2 text-xs sm:text-sm font-semibold text-slate-300 hover:text-white transition-colors"
+                    >
+                        Guias & Dicas
+                    </Link>
+
                     <template v-if="$page.props.auth.user">
                         <Link
                             :href="route('dashboard')"
@@ -184,7 +192,7 @@ function handleConfirmForget() {
                         <Link
                             v-if="canLogin"
                             :href="route('login')"
-                            class="px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-300 hover:text-white transition-colors"
+                            class="px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-300 hover:text-white transition-colors"
                         >
                             Entrar
                         </Link>
@@ -541,17 +549,112 @@ function handleConfirmForget() {
                 </div>
             </section>
 
+            <!-- Central de Guias & Dicas em Destaque (SEO Hub) -->
+            <section class="max-w-5xl mx-auto px-4 sm:px-6 w-full mt-14 space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-800 pb-4">
+                    <div>
+                        <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20 mb-2">
+                            <BookOpen class="w-3.5 h-3.5" />
+                            <span>Guias & Dicas de Amigo Secreto</span>
+                        </div>
+                        <h2 class="text-xl sm:text-2xl font-bold font-display text-white">
+                            Tudo para o seu Amigo Secreto ser Inesquecível
+                        </h2>
+                    </div>
+                    <Link
+                        :href="route('guides.index')"
+                        class="inline-flex items-center gap-1 text-xs sm:text-sm font-bold text-rose-400 hover:text-rose-300 transition-colors shrink-0"
+                    >
+                        <span>Ver todos os 14 guias</span>
+                        <ArrowRight class="w-4 h-4" />
+                    </Link>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <Link
+                        :href="route('guides.show', 'ideias-presentes-amigo-secreto-ate-50-reais')"
+                        class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-rose-500/40 hover:bg-slate-900 transition-all space-y-2 flex flex-col justify-between group shadow-sm"
+                    >
+                        <div class="space-y-1.5">
+                            <span class="text-[11px] font-bold text-rose-400 uppercase tracking-wide">Presentes</span>
+                            <h3 class="text-sm font-bold text-white group-hover:text-rose-300 transition-colors line-clamp-2">
+                                40 Ideias Criativas de Presentes até R$ 50
+                            </h3>
+                            <p class="text-xs text-slate-400 line-clamp-2">
+                                Opções unissex, itens de café, livros e mimos elegantes que cabem no bolso.
+                            </p>
+                        </div>
+                        <span class="text-xs font-semibold text-rose-400 inline-flex items-center gap-1 pt-2">
+                            <span>Ler guia</span>
+                            <ArrowRight class="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                        </span>
+                    </Link>
+
+                    <Link
+                        :href="route('guides.show', 'amigo-secreto-da-onca-como-funciona-regras-ideias')"
+                        class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-rose-500/40 hover:bg-slate-900 transition-all space-y-2 flex flex-col justify-between group shadow-sm"
+                    >
+                        <div class="space-y-1.5">
+                            <span class="text-[11px] font-bold text-amber-400 uppercase tracking-wide">Brincadeiras</span>
+                            <h3 class="text-sm font-bold text-white group-hover:text-rose-300 transition-colors line-clamp-2">
+                                Amigo da Onça: Regras e 30 Ideias de Presentes
+                            </h3>
+                            <p class="text-xs text-slate-400 line-clamp-2">
+                                Dinâmica de roubo de presentes e brincadeiras sem constranger ninguém.
+                            </p>
+                        </div>
+                        <span class="text-xs font-semibold text-rose-400 inline-flex items-center gap-1 pt-2">
+                            <span>Ler guia</span>
+                            <ArrowRight class="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                        </span>
+                    </Link>
+
+                    <Link
+                        :href="route('guides.show', 'amigo-secreto-whatsapp-sem-spoiler')"
+                        class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-rose-500/40 hover:bg-slate-900 transition-all space-y-2 flex flex-col justify-between group shadow-sm"
+                    >
+                        <div class="space-y-1.5">
+                            <span class="text-[11px] font-bold text-emerald-400 uppercase tracking-wide">Organização</span>
+                            <h3 class="text-sm font-bold text-white group-hover:text-rose-300 transition-colors line-clamp-2">
+                                Como Fazer Amigo Secreto no WhatsApp Sem Spoiler
+                            </h3>
+                            <p class="text-xs text-slate-400 line-clamp-2">
+                                Envie os links secretos individuais sem ninguém descobrir quem tirou quem.
+                            </p>
+                        </div>
+                        <span class="text-xs font-semibold text-rose-400 inline-flex items-center gap-1 pt-2">
+                            <span>Ler guia</span>
+                            <ArrowRight class="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                        </span>
+                    </Link>
+
+                    <Link
+                        :href="route('guides.show', 'regras-restricoes-casais-amigo-secreto')"
+                        class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-rose-500/40 hover:bg-slate-900 transition-all space-y-2 flex flex-col justify-between group shadow-sm"
+                    >
+                        <div class="space-y-1.5">
+                            <span class="text-[11px] font-bold text-indigo-400 uppercase tracking-wide">Regras</span>
+                            <h3 class="text-sm font-bold text-white group-hover:text-rose-300 transition-colors line-clamp-2">
+                                Como Evitar que Casais se Tirem no Sorteio
+                            </h3>
+                            <p class="text-xs text-slate-400 line-clamp-2">
+                                Como funciona o algoritmo de restrições para casais e familiares.
+                            </p>
+                        </div>
+                        <span class="text-xs font-semibold text-rose-400 inline-flex items-center gap-1 pt-2">
+                            <span>Ler guia</span>
+                            <ArrowRight class="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                        </span>
+                    </Link>
+                </div>
+            </section>
+
             <!-- Affiliate Partner Deals (Shopee & Mercado Livre) -->
             <div class="max-w-4xl mx-auto px-4 w-full mt-8">
                 <AffiliateRecommendations
                     title="Ideias e Ofertas de Presentes para Amigo Secreto"
                     subtitle="Garanta seu presente com descontos exclusivos, cupons e frete grátis nas maiores lojas do Brasil:"
                 />
-            </div>
-
-            <!-- Google AdSense Native Banner -->
-            <div class="max-w-4xl mx-auto px-4 w-full">
-                <GoogleAd slot-id="home-bottom" />
             </div>
         </main>
 
@@ -562,6 +665,8 @@ function handleConfirmForget() {
                     <ApplicationLogo />
                 </div>
                 <div class="flex flex-wrap items-center justify-center gap-4 text-xs text-slate-400">
+                    <Link :href="route('guides.index')" class="hover:text-rose-400 transition-colors text-rose-300/90 font-medium">Guias & Dicas</Link>
+                    <span>&bull;</span>
                     <Link :href="route('terms')" class="hover:text-rose-400 transition-colors">Termos de Uso</Link>
                     <span>&bull;</span>
                     <Link :href="route('privacy')" class="hover:text-rose-400 transition-colors">Política de Privacidade</Link>

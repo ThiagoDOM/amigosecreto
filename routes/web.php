@@ -2,12 +2,14 @@
 
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ExclusionController;
+use App\Http\Controllers\GuideController;
 use App\Http\Controllers\InviteController;
 use App\Http\Controllers\ParticipantController;
 use App\Http\Controllers\ParticipantSessionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SecretRevealController;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Services\GuideService;
 use App\Services\ParticipantSessionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +31,11 @@ Route::get('/simulacao', function () {
 
 // Participant Session Management (No login required)
 Route::post('/participante/sair', [ParticipantSessionController::class, 'forget'])->name('participant.session.forget');
+
+// Central de Guias & Dicas (Blog de SEO)
+Route::get('/guias', [GuideController::class, 'index'])->name('guides.index');
+Route::get('/guias/{slug}', [GuideController::class, 'show'])->name('guides.show');
+Route::redirect('/dicas', '/guias');
 
 // Institutional & Legal Pages (LGPD & AdSense compliance)
 Route::get('/politica-de-privacidade', function () {
@@ -64,16 +71,47 @@ Route::get('/ads.txt', function () {
     return response("# ads.txt - GiftMatch\n", 200, ['Content-Type' => 'text/plain']);
 });
 
-// Search Engine XML Sitemap
-Route::get('/sitemap.xml', function () {
-    $sitemapPath = public_path('sitemap.xml');
-    if (file_exists($sitemapPath)) {
-        return response(file_get_contents($sitemapPath), 200, [
-            'Content-Type' => 'application/xml; charset=utf-8',
-        ]);
+// Search Engine XML Sitemap (Dynamic with Guides)
+Route::get('/sitemap.xml', function (GuideService $guideService) {
+    $baseUrl = (app()->isProduction() || empty(config('app.url')) || str_contains(config('app.url'), 'localhost'))
+        ? 'https://giftmatch.online'
+        : rtrim(config('app.url'), '/');
+
+    $xml = '<?xml version="1.0" encoding="UTF-8"?>';
+    $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+
+    // Core Pages
+    $corePages = [
+        ['loc' => $baseUrl.'/', 'priority' => '1.0', 'changefreq' => 'daily', 'lastmod' => date('Y-m-d')],
+        ['loc' => $baseUrl.'/guias', 'priority' => '0.9', 'changefreq' => 'daily', 'lastmod' => date('Y-m-d')],
+        ['loc' => $baseUrl.'/register', 'priority' => '0.8', 'changefreq' => 'monthly', 'lastmod' => '2026-10-23'],
+        ['loc' => $baseUrl.'/login', 'priority' => '0.4', 'changefreq' => 'monthly', 'lastmod' => '2026-10-23'],
+        ['loc' => $baseUrl.'/termos-de-uso', 'priority' => '0.5', 'changefreq' => 'monthly', 'lastmod' => '2026-10-23'],
+        ['loc' => $baseUrl.'/politica-de-privacidade', 'priority' => '0.5', 'changefreq' => 'monthly', 'lastmod' => '2026-10-23'],
+    ];
+
+    foreach ($corePages as $page) {
+        $xml .= '<url>';
+        $xml .= '<loc>'.htmlspecialchars($page['loc']).'</loc>';
+        $xml .= '<lastmod>'.$page['lastmod'].'</lastmod>';
+        $xml .= '<changefreq>'.$page['changefreq'].'</changefreq>';
+        $xml .= '<priority>'.$page['priority'].'</priority>';
+        $xml .= '</url>';
     }
 
-    return response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>', 200, [
+    // Guides & Articles
+    foreach ($guideService->getAll() as $guide) {
+        $xml .= '<url>';
+        $xml .= '<loc>'.htmlspecialchars($baseUrl.'/guias/'.$guide['slug']).'</loc>';
+        $xml .= '<lastmod>'.$guide['updated_at'].'</lastmod>';
+        $xml .= '<changefreq>weekly</changefreq>';
+        $xml .= '<priority>0.8</priority>';
+        $xml .= '</url>';
+    }
+
+    $xml .= '</urlset>';
+
+    return response($xml, 200, [
         'Content-Type' => 'application/xml; charset=utf-8',
     ]);
 });
