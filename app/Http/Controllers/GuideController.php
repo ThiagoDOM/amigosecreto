@@ -56,3 +56,4 @@ class GuideController extends Controller
         ]);
     }
 }
+

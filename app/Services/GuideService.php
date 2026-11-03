@@ -966,3 +966,4 @@ No editor de listas do GiftMatch, você pode colar os links diretos dos produtos
         ];
     }
 }
+

@@ -261,3 +261,4 @@ function clearSearch() {
         </footer>
     </div>
 </template>
+

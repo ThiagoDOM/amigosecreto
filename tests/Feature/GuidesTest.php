@@ -87,3 +87,4 @@ class GuidesTest extends TestCase
         }
     }
 }
+
