@@ -142,18 +142,44 @@ export function getTheme(themeId) {
 }
 
 /**
- * Generates direct search queries for online partner stores.
+ * Generates direct search queries for online partner stores with affiliate tracking parameters.
  */
 export function buildStoreSearchUrls(query) {
     const cleanQuery = (query || '').trim();
     const encoded = encodeURIComponent(cleanQuery);
 
+    const shopeePid = (import.meta.env.VITE_SHOPEE_AFFILIATE_PID || '').trim();
     const shopeeBase = (import.meta.env.VITE_AFFILIATE_SHOPEE_URL || '').trim();
+
+    const mlTool = (import.meta.env.VITE_MERCADOLIVRE_AFFILIATE_TOOL || '').trim();
+    const mlWord = (import.meta.env.VITE_MERCADOLIVRE_AFFILIATE_WORD || '').trim();
     const mlBase = (import.meta.env.VITE_AFFILIATE_MERCADOLIVRE_URL || '').trim();
 
+    // Shopee URL with affiliate tracking parameters
+    let shopeeUrl = '';
+    if (!cleanQuery && shopeeBase) {
+        shopeeUrl = shopeeBase;
+    } else {
+        shopeeUrl = `https://shopee.com.br/search?keyword=${encoded}`;
+        if (shopeePid) {
+            shopeeUrl += `&utm_source=${encodeURIComponent(shopeePid)}&utm_medium=affiliates&mmp_pid=${encodeURIComponent(shopeePid)}`;
+        }
+    }
+
+    // Mercado Livre URL with affiliate tracking parameters
+    let mlUrl = '';
+    if (!cleanQuery && mlBase) {
+        mlUrl = mlBase;
+    } else {
+        mlUrl = `https://lista.mercadolivre.com.br/${encoded}`;
+        if (mlTool) {
+            const wordParam = mlWord ? `&matt_word=${encodeURIComponent(mlWord)}` : '';
+            mlUrl += `?matt_tool=${encodeURIComponent(mlTool)}${wordParam}&forceInApp=true`;
+        }
+    }
+
     return {
-        shopee: shopeeBase && !cleanQuery ? shopeeBase : `https://shopee.com.br/search?keyword=${encoded}`,
-        mercadolivre: mlBase && !cleanQuery ? mlBase : `https://lista.mercadolivre.com.br/${encoded}`,
-        amazon: `https://www.amazon.com.br/s?k=${encoded}`,
+        shopee: shopeeUrl,
+        mercadolivre: mlUrl,
     };
 }

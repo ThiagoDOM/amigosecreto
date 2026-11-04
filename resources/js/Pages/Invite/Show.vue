@@ -166,13 +166,14 @@ function submit() {
                 <!-- Name -->
                 <div class="space-y-1.5">
                     <label for="name" class="block text-xs font-bold uppercase tracking-wider text-slate-200">
-                        Seu Nome Completo <span class="text-rose-500">*</span>
+                        Seu Nome <span class="text-rose-500">*</span>
                     </label>
                     <input
                         id="name"
+                        name="name"
                         v-model="form.name"
                         type="text"
-                        placeholder="Ex: João"
+                        placeholder="Ex: João Silva"
                         class="w-full px-4 py-3 rounded-2xl bg-slate-800/90 border border-slate-700 text-white placeholder-slate-400 text-sm focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
                         required
                     />

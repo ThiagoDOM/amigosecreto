@@ -126,8 +126,25 @@ function getStoreLinks(itemTitle) {
     return buildStoreSearchUrls(query);
 }
 
-const shopeeDirectUrl = (import.meta.env.VITE_AFFILIATE_SHOPEE_URL || '').trim();
-const mercadoLivreDirectUrl = (import.meta.env.VITE_AFFILIATE_MERCADOLIVRE_URL || '').trim();
+const shopeePid = (import.meta.env.VITE_SHOPEE_AFFILIATE_PID || '').trim();
+const rawShopeeUrl = (import.meta.env.VITE_AFFILIATE_SHOPEE_URL || '').trim();
+const shopeeDirectUrl = computed(() => {
+    if (rawShopeeUrl) return rawShopeeUrl;
+    if (shopeePid) return `https://shopee.com.br?utm_source=${encodeURIComponent(shopeePid)}&utm_medium=affiliates&mmp_pid=${encodeURIComponent(shopeePid)}`;
+    return 'https://shopee.com.br';
+});
+
+const mlTool = (import.meta.env.VITE_MERCADOLIVRE_AFFILIATE_TOOL || '').trim();
+const mlWord = (import.meta.env.VITE_MERCADOLIVRE_AFFILIATE_WORD || '').trim();
+const rawMlUrl = (import.meta.env.VITE_AFFILIATE_MERCADOLIVRE_URL || '').trim();
+const mercadoLivreDirectUrl = computed(() => {
+    if (rawMlUrl) return rawMlUrl;
+    if (mlTool) {
+        const wordParam = mlWord ? `&matt_word=${encodeURIComponent(mlWord)}` : '';
+        return `https://www.mercadolivre.com.br?matt_tool=${encodeURIComponent(mlTool)}${wordParam}&forceInApp=true`;
+    }
+    return 'https://www.mercadolivre.com.br';
+});
 
 function close() {
     emit('close');
@@ -270,18 +287,19 @@ function close() {
                                 <span>Abrir Link Escolhido pelo Amigo</span>
                             </a>
 
-                            <!-- Ready-to-search store options -->
-                            <div class="grid grid-cols-3 gap-1.5 text-[11px]">
+                            <!-- Ready-to-search store options (Shopee & Mercado Livre) -->
+                            <div class="grid grid-cols-2 gap-2 text-xs">
                                 <!-- Shopee -->
                                 <a
                                     :href="getStoreLinks(item.title).shopee"
                                     target="_blank"
                                     rel="noopener noreferrer sponsored"
-                                    class="flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg bg-[#EE4D2D]/15 hover:bg-[#EE4D2D]/25 border border-[#EE4D2D]/35 text-[#ff6b4a] font-bold transition-all text-center"
-                                    title="Buscar na Shopee com cupons"
+                                    class="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-[#EE4D2D]/15 hover:bg-[#EE4D2D]/25 border border-[#EE4D2D]/35 text-[#ff6b4a] font-bold transition-all text-center shadow-sm hover:scale-[1.01]"
+                                    title="Buscar na Shopee com cupons e frete grátis"
                                 >
-                                    <span>Shopee</span>
-                                    <ExternalLink class="w-2.5 h-2.5" />
+                                    <ShoppingBag class="w-3.5 h-3.5" />
+                                    <span>Buscar na Shopee</span>
+                                    <ExternalLink class="w-3 h-3 opacity-70" />
                                 </a>
 
                                 <!-- Mercado Livre -->
@@ -289,23 +307,12 @@ function close() {
                                     :href="getStoreLinks(item.title).mercadolivre"
                                     target="_blank"
                                     rel="noopener noreferrer sponsored"
-                                    class="flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg bg-amber-400/15 hover:bg-amber-400/25 border border-amber-400/35 text-amber-300 font-bold transition-all text-center"
+                                    class="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-amber-400/15 hover:bg-amber-400/25 border border-amber-400/35 text-amber-300 font-bold transition-all text-center shadow-sm hover:scale-[1.01]"
                                     title="Buscar no Mercado Livre com Entrega Full"
                                 >
-                                    <span>M. Livre</span>
-                                    <ExternalLink class="w-2.5 h-2.5" />
-                                </a>
-
-                                <!-- Amazon -->
-                                <a
-                                    :href="getStoreLinks(item.title).amazon"
-                                    target="_blank"
-                                    rel="noopener noreferrer sponsored"
-                                    class="flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/35 text-sky-300 font-bold transition-all text-center"
-                                    title="Buscar na Amazon com Prime"
-                                >
-                                    <span>Amazon</span>
-                                    <ExternalLink class="w-2.5 h-2.5" />
+                                    <Truck class="w-3.5 h-3.5" />
+                                    <span>Buscar no M. Livre</span>
+                                    <ExternalLink class="w-3 h-3 opacity-70" />
                                 </a>
                             </div>
                         </div>
