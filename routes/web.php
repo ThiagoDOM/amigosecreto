@@ -32,7 +32,7 @@ Route::get('/simulacao', function () {
 // Participant Session Management (No login required)
 Route::post('/participante/sair', [ParticipantSessionController::class, 'forget'])->name('participant.session.forget');
 
-// Central de Guias & Dicas (Blog de SEO)
+// Central de Guias e Dicas (Blog de SEO)
 Route::get('/guias', [GuideController::class, 'index'])->name('guides.index');
 Route::get('/guias/{slug}', [GuideController::class, 'show'])->name('guides.show');
 Route::redirect('/dicas', '/guias');

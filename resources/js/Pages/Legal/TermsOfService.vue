@@ -165,7 +165,7 @@ defineProps({
                     <ApplicationLogo />
                 </div>
                 <div class="flex items-center gap-4 text-xs text-slate-400">
-                    <Link :href="route('guides.index')" class="hover:text-rose-400 transition-colors">Guias & Dicas</Link>
+                    <Link :href="route('guides.index')" class="hover:text-rose-400 transition-colors">Guias e Dicas</Link>
                     <span>&bull;</span>
                     <Link :href="route('terms')" class="hover:text-rose-400 transition-colors font-bold text-slate-200">Termos de Uso</Link>
                     <span>&bull;</span>

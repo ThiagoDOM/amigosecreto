@@ -176,7 +176,7 @@ function handleConfirmForget() {
                         :href="route('guides.index')"
                         class="px-3 py-2 text-xs sm:text-sm font-semibold text-slate-300 hover:text-white transition-colors"
                     >
-                        Guias & Dicas
+                        Guias e Dicas
                     </Link>
 
                     <template v-if="$page.props.auth.user">
@@ -549,13 +549,13 @@ function handleConfirmForget() {
                 </div>
             </section>
 
-            <!-- Central de Guias & Dicas em Destaque (SEO Hub) -->
+            <!-- Central de Guias e Dicas em Destaque (SEO Hub) -->
             <section class="max-w-5xl mx-auto px-4 sm:px-6 w-full mt-14 space-y-6">
                 <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-800 pb-4">
                     <div>
                         <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20 mb-2">
                             <BookOpen class="w-3.5 h-3.5" />
-                            <span>Guias & Dicas de Amigo Secreto</span>
+                            <span>Guias e Dicas de Amigo Secreto</span>
                         </div>
                         <h2 class="text-xl sm:text-2xl font-bold font-display text-white">
                             Tudo para o seu Amigo Secreto ser Inesquecível
@@ -665,7 +665,7 @@ function handleConfirmForget() {
                     <ApplicationLogo />
                 </div>
                 <div class="flex flex-wrap items-center justify-center gap-4 text-xs text-slate-400">
-                    <Link :href="route('guides.index')" class="hover:text-rose-400 transition-colors text-rose-300/90 font-medium">Guias & Dicas</Link>
+                    <Link :href="route('guides.index')" class="hover:text-rose-400 transition-colors text-rose-300/90 font-medium">Guias e Dicas</Link>
                     <span>&bull;</span>
                     <Link :href="route('terms')" class="hover:text-rose-400 transition-colors">Termos de Uso</Link>
                     <span>&bull;</span>

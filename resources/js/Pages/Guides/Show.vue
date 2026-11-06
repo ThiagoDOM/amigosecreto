@@ -91,7 +91,7 @@ const breadcrumbSchema = {
         {
             '@type': 'ListItem',
             'position': 2,
-            'name': 'Guias & Dicas',
+            'name': 'Guias e Dicas',
             'item': 'https://giftmatch.online/guias',
         },
         {
@@ -332,7 +332,7 @@ const breadcrumbSchema = {
             <div class="flex items-center justify-center gap-4 flex-wrap">
                 <Link :href="route('home')" class="hover:text-rose-400 transition-colors">Início</Link>
                 <span>&bull;</span>
-                <Link :href="route('guides.index')" class="text-rose-400 font-semibold">Guias & Dicas</Link>
+                <Link :href="route('guides.index')" class="text-rose-400 font-semibold">Guias e Dicas</Link>
                 <span>&bull;</span>
                 <Link :href="route('terms')" class="hover:text-rose-400 transition-colors">Termos de Uso</Link>
                 <span>&bull;</span>

@@ -57,12 +57,12 @@ function clearSearch() {
 
 <template>
     <Head>
-        <title>Central de Guias & Dicas de Amigo Secreto - GiftMatch</title>
+        <title>Central de Guias e Dicas de Amigo Secreto - GiftMatch</title>
         <meta name="description" content="Aprenda como organizar um amigo secreto online de sucesso. Regras, ideias de presentes até R$ 50 e R$ 100, Amigo da Onça, Amigo Caneca, brincadeiras e muito mais." />
         <meta name="keywords" content="amigo secreto online, como organizar amigo secreto, presentes amigo secreto, regras amigo secreto, amigo da onca, amigo chocolate" />
         <link rel="canonical" href="https://giftmatch.online/guias" />
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="Central de Guias & Dicas de Amigo Secreto - GiftMatch" />
+        <meta property="og:title" content="Central de Guias e Dicas de Amigo Secreto - GiftMatch" />
         <meta property="og:description" content="Artigos completos, ideias de presentes, regras e brincadeiras para fazer um amigo secreto perfeito em 2026." />
         <meta property="og:url" content="https://giftmatch.online/guias" />
         <meta property="og:site_name" content="GiftMatch" />
@@ -251,7 +251,7 @@ function clearSearch() {
             <div class="flex items-center justify-center gap-4 flex-wrap">
                 <Link :href="route('home')" class="hover:text-rose-400 transition-colors">Início</Link>
                 <span>&bull;</span>
-                <Link :href="route('guides.index')" class="text-rose-400 font-semibold">Guias & Dicas</Link>
+                <Link :href="route('guides.index')" class="text-rose-400 font-semibold">Guias e Dicas</Link>
                 <span>&bull;</span>
                 <Link :href="route('terms')" class="hover:text-rose-400 transition-colors">Termos de Uso</Link>
                 <span>&bull;</span>
