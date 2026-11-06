@@ -572,19 +572,19 @@ function handleConfirmForget() {
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <Link
-                        :href="route('guides.show', 'ideias-presentes-amigo-secreto-ate-50-reais')"
-                        class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-rose-500/40 hover:bg-slate-900 transition-all space-y-2 flex flex-col justify-between group shadow-sm"
+                        :href="route('guides.show', 'como-organizar-amigo-secreto-online')"
+                        class="p-5 rounded-2xl bg-slate-900/80 border border-emerald-500/30 hover:border-emerald-500/60 hover:bg-slate-900 transition-all space-y-2 flex flex-col justify-between group shadow-sm"
                     >
                         <div class="space-y-1.5">
-                            <span class="text-[11px] font-bold text-rose-400 uppercase tracking-wide">Presentes</span>
-                            <h3 class="text-sm font-bold text-white group-hover:text-rose-300 transition-colors line-clamp-2">
-                                40 Ideias Criativas de Presentes até R$ 50
+                            <span class="text-[11px] font-bold text-emerald-400 uppercase tracking-wide">Guia Completo • Sem E-mail</span>
+                            <h3 class="text-sm font-bold text-white group-hover:text-emerald-300 transition-colors line-clamp-2">
+                                Organizar Amigo Secreto Online Sem E-mail
                             </h3>
                             <p class="text-xs text-slate-400 line-clamp-2">
-                                Opções unissex, itens de café, livros e mimos elegantes que cabem no bolso.
+                                Passo a passo 2026: sorteio rápido no WhatsApp, sem senhas e sem exigir e-mail dos convidados.
                             </p>
                         </div>
-                        <span class="text-xs font-semibold text-rose-400 inline-flex items-center gap-1 pt-2">
+                        <span class="text-xs font-semibold text-emerald-400 inline-flex items-center gap-1 pt-2">
                             <span>Ler guia</span>
                             <ArrowRight class="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
                         </span>

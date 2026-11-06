@@ -92,100 +92,221 @@ class GuideService
         return [
             [
                 'slug' => 'como-organizar-amigo-secreto-online',
-                'title' => 'Como Organizar Amigo Secreto Online pelo WhatsApp: Guia Completo',
-                'meta_title' => 'Como Organizar Amigo Secreto Online pelo WhatsApp (Guia Prático)',
-                'meta_description' => 'Aprenda o passo a passo para organizar um amigo secreto online de sucesso pelo WhatsApp. Dicas de prazos, regras para casais, listas de presentes e sorteio sem papelzinho.',
-                'excerpt' => 'Descubra como planejar, convidar amigos pelo WhatsApp, definir valores justos, travar casais e sortear sem ninguém ver o amigo do outro.',
+                'title' => 'Organizar Amigo Secreto Online: Passo a Passo Completo (Sem Precisar de E-mail)',
+                'meta_title' => 'Organizar Amigo Secreto Online Grátis: Passo a Passo (Sem E-mail)',
+                'meta_description' => 'Aprenda como organizar amigo secreto online em 2026 sem exigir e-mail dos convidados. Sorteio rápido no WhatsApp, regras para casais e listas de presentes grátis.',
+                'excerpt' => 'Descubra como organizar seu amigo secreto online sem exigir e-mail de ninguém! Sorteio direto no WhatsApp, regras para casais e listas de presentes sem cadastro.',
                 'category' => 'Organização',
                 'icon' => 'Share2',
-                'read_time' => '7 min de leitura',
+                'read_time' => '8 min de leitura',
                 'published_at' => '2026-10-15',
-                'updated_at' => '2026-11-01',
-                'keywords' => ['amigo secreto online', 'sorteio amigo secreto whatsapp', 'como organizar amigo secreto', 'amigo oculto online'],
+                'updated_at' => '2026-11-06',
+                'keywords' => [
+                    'organizar amigo secreto online',
+                    'amigo secreto online sem email',
+                    'como organizar amigo secreto online',
+                    'sorteio amigo secreto whatsapp sem email',
+                    'amigo secreto online gratis',
+                    'amigo oculto online sem cadastro',
+                ],
                 'table_of_contents' => [
-                    ['id' => 'por-que-online', 'title' => '1. Por que aposentar o papelzinho?'],
-                    ['id' => 'cronograma', 'title' => '2. O cronograma ideal para não haver correria'],
-                    ['id' => 'valor-e-regras', 'title' => '3. Definindo o valor médio e as regras do grupo'],
-                    ['id' => 'regras-casais', 'title' => '4. A regra de ouro: Casais e parentes próximos'],
-                    ['id' => 'lista-desejos', 'title' => '5. Como incentivar a lista de desejos'],
-                    ['id' => 'passo-a-passo-giftmatch', 'title' => '6. Passo a passo para criar no GiftMatch'],
+                    ['id' => 'destaque-sem-email', 'title' => '1. O Diferencial: E-mail NÃO é obrigatório no GiftMatch'],
+                    ['id' => 'problema-sites-antigos', 'title' => '2. O problema dos sorteadores antigos (Por que exigem e-mail?)'],
+                    ['id' => 'como-funciona-link-magico', 'title' => '3. A Solução Moderna: Links Mágicos no WhatsApp'],
+                    ['id' => 'tabela-comparativa', 'title' => '4. Tabela Comparativa: GiftMatch vs Outros Sorteadores'],
+                    ['id' => 'regras-casais', 'title' => '5. Regras para Casais e Família não se tirarem'],
+                    ['id' => 'passo-a-passo-completo', 'title' => '6. Passo a Passo para Organizar em 2 Minutos'],
+                    ['id' => 'faq-duvidas', 'title' => '7. Perguntas Frequentes (FAQ)'],
                 ],
                 'content' => '
 <p class="lead text-base sm:text-lg text-slate-200 leading-relaxed font-normal">
-Organizar um amigo secreto de fim de ano, na empresa ou entre amigos de infância é uma das tradições mais divertidas do Brasil. No entanto, quem já tentou fazer o sorteio tradicional com papelzinhos sabe a dor de cabeça: alguém tira o próprio nome, alguém perde o papel, o casal tira um ao outro e o sorteio precisa ser refeito três vezes.
+Quer saber <strong>como organizar amigo secreto online</strong> de forma rápida, moderna e sem dor de cabeça? Se você já tentou fazer o sorteio tradicional com papéis picados ou usou sites antigos da internet, com certeza já passou por frustrações: alguém perdeu o papelzinho, o e-mail caiu na caixa de spam de metade da família, ou o aplicativo exigiu cadastro com senha para 30 tios e primos.
 </p>
 
-<h2 id="por-que-online" class="text-xl sm:text-2xl font-bold font-display text-white mt-8 mb-4">1. Por que aposentar o papelzinho e usar o WhatsApp?</h2>
-<p class="text-slate-300 leading-relaxed mb-4">
-Hoje em dia, a maioria dos grupos reúne pessoas que moram em bairros ou até cidades diferentes, trabalham em horários desencontrados ou estão no modelo home office. Fazer o sorteio presencial antes do dia da entrega dos presentes se tornou inviável.
-</p>
-<p class="text-slate-300 leading-relaxed mb-4">
-Ao utilizar uma plataforma online com integração direta no WhatsApp como o <strong>GiftMatch</strong>, você resolve quatro problemas críticos de uma só vez:
-</p>
-<ul class="list-disc list-inside space-y-2 text-slate-300 ml-2 mb-6">
-    <li><strong>Zero riscos de alguém tirar a si mesmo:</strong> O algoritmo de permutação circular garante matematicamente que ninguém tire o próprio nome.</li>
-    <li><strong>Privacidade total sem cadastro para convidados:</strong> Os participantes não precisam baixar aplicativo nem criar senha; eles acessam seu link secreto exclusivo direto pelo navegador do celular.</li>
-    <li><strong>Regras inteligentes para casais:</strong> Você impede que marido e mulher, irmãos ou colegas de quarto tirem um ao outro.</li>
-    <li><strong>Fim dos presentes errados:</strong> Cada participante preenche suas preferências, tamanhos de roupa e calçado e sugestões de presentes com links de lojas.</li>
-</ul>
-
-<h2 id="cronograma" class="text-xl sm:text-2xl font-bold font-display text-white mt-8 mb-4">2. O cronograma ideal para não haver correria</h2>
-<p class="text-slate-300 leading-relaxed mb-4">
-O erro número um dos organizadores é deixar o sorteio para a semana da confraternização. Os participantes precisam de tempo hábil para pesquisar preços, comprar com tranquilidade e esperar a entrega dos Correios ou transportadoras.
-</p>
-<div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3 mb-6">
-    <div class="font-bold text-rose-400 text-sm">📅 Cronograma Recomendado:</div>
-    <ul class="space-y-2 text-xs sm:text-sm text-slate-300">
-        <li><strong>30 a 20 dias antes:</strong> Criação do grupo no GiftMatch, envio do link de convite no grupo do WhatsApp e fixação da data e valor.</li>
-        <li><strong>15 dias antes:</strong> Data limite para todos entrarem e preencherem suas listas de presentes. Realização do sorteio com 1 clique!</li>
-        <li><strong>14 a 5 dias antes:</strong> Tempo livre para compras nas lojas físicas ou online e troca de bilhetes secretos anônimos para tirar dúvidas.</li>
-        <li><strong>O grande dia:</strong> A confraternização presencial ou chamada de vídeo para a revelação.</li>
-    </ul>
+<!-- Destaque Especial: Sem E-mail Obrigatório -->
+<div id="destaque-sem-email" class="my-6 p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-emerald-950/70 via-slate-900 to-emerald-950/40 border border-emerald-500/30 shadow-xl space-y-3">
+    <div class="flex items-center gap-2 text-emerald-400 font-bold text-sm sm:text-base">
+        <span class="p-1.5 rounded-xl bg-emerald-500/20 border border-emerald-500/30">✨</span>
+        <span>A Grande Vantagem do GiftMatch: O E-mail NÃO é Obrigatório!</span>
+    </div>
+    <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+        Ao contrário de outros sites que travam o sorteio se faltar o e-mail de um único participante, no <strong>GiftMatch o e-mail é 100% opcional</strong>. Cada convidado entra apenas informando o <strong>Nome</strong> e, se quiser, o número de WhatsApp. O resultado do sorteio é entregue individualmente por um <em>Link Secreto Mágico</em> enviado direto no WhatsApp, sem senhas e sem complicação!
+    </p>
 </div>
 
-<h2 id="valor-e-regras" class="text-xl sm:text-2xl font-bold font-display text-white mt-8 mb-4">3. Definindo o valor médio e as regras do grupo</h2>
+<h2 id="problema-sites-antigos" class="text-xl sm:text-2xl font-bold font-display text-white mt-8 mb-4">2. O problema dos sorteadores antigos (Por que exigir e-mail é uma péssima ideia?)</h2>
 <p class="text-slate-300 leading-relaxed mb-4">
-Definir uma faixa de valor clara evita duas situações chatas: alguém dar uma lembrancinha de R$ 15 e receber um item de R$ 150, ou alguém se sentir constrangido por não poder gastar muito.
+A maioria das ferramentas criadas nos anos 2000 ainda depende do e-mail como chave de acesso principal. No entanto, o comportamento das pessoas mudou completamente:
 </p>
-<p class="text-slate-300 leading-relaxed mb-4">
-As faixas mais comuns e bem-sucedidas no Brasil são:
-</p>
-<ul class="list-disc list-inside space-y-1.5 text-slate-300 ml-2 mb-6">
-    <li><strong>Econômico / Universitário:</strong> R$ 30 a R$ 50 (livros, canecas, chocolates artesanais).</li>
-    <li><strong>Padrão Família / Escritório:</strong> R$ 50 a R$ 100 (jogos, fones de ouvido, camisas, bebidas selecionadas).</li>
-    <li><strong>Especial / Natal Familiar:</strong> R$ 100 a R$ 150 (itens de maior valor afetivo ou itens solicitados na lista).</li>
+<ul class="list-disc list-inside space-y-2.5 text-slate-300 ml-2 mb-6">
+    <li><strong>A maioria dos familiares não abre a caixa de e-mail:</strong> Tios, avós, adolescentes e crianças quase nunca utilizam e-mail no dia a dia. Para eles, tudo acontece no WhatsApp.</li>
+    <li><strong>E-mails de sorteio vão parar no lixo eletrônico (SPAM):</strong> Provedores como Gmail, Outlook e Yahoo frequentemente bloqueiam mensagens automáticas de sorteio ou as jogam na aba de Promoções/Spam, fazendo os participantes acharem que o sorteio ainda não aconteceu.</li>
+    <li><strong>O sorteio fica travado esperando o e-mail de todo mundo:</strong> Se você tem 20 pessoas no grupo e duas não sabem o e-mail de cabeça, ninguém consegue sortear.</li>
+    <li><strong>Exigência de senhas e download de aplicativos pesados:</strong> Ninguém quer ter que baixar um aplicativo de 80 MB na loja e criar uma conta com senha apenas para ver quem tirou no amigo secreto.</li>
 </ul>
 
-<h2 id="regras-casais" class="text-xl sm:text-2xl font-bold font-display text-white mt-8 mb-4">4. A regra de ouro: Casais e parentes próximos</h2>
+<h2 id="como-funciona-link-magico" class="text-xl sm:text-2xl font-bold font-display text-white mt-8 mb-4">3. A Solução Moderna: Links Mágicos no WhatsApp</h2>
 <p class="text-slate-300 leading-relaxed mb-4">
-Não há nada mais sem graça em um amigo secreto de família do que um casal tirar a si mesmo. Afinal, eles já compram presentes juntos no dia a dia e dividem o orçamento familiar!
-</p>
-<p class="text-slate-300 leading-relaxed mb-4">
-No GiftMatch, você pode adicionar <em>Regras de Exclusão (Regras de Casais)</em> antes de sortear. Basta selecionar a pessoa A e a pessoa B e marcar que elas não podem se tirar mutuamente. O sistema roda um algoritmo de Ciclo Hamiltoniano com grafo direcionado que respeita 100% dessas restrições sem nunca travar o sorteio.
-</p>
-
-<h2 id="lista-desejos" class="text-xl sm:text-2xl font-bold font-display text-white mt-8 mb-4">5. Como incentivar a lista de desejos</h2>
-<p class="text-slate-300 leading-relaxed mb-4">
-Quem tira alguém tímido ou alguém do trabalho com quem não tem tanta intimidade sempre sofre para escolher o presente. Incentive todos os participantes a responderem 3 perguntas fundamentais na tela do convite:
-</p>
-<ol class="list-decimal list-inside space-y-2 text-slate-300 ml-2 mb-6">
-    <li>Qual é o tamanho de roupa e calçado?</li>
-    <li>O que você adora (hobbies, séries, autores, café, doces)?</li>
-    <li>O que você <strong>não gosta</strong> ou tem alergia? (Fundamental para evitar perfumes ou doces com nozes/lactose).</li>
-</ol>
-
-<h2 id="passo-a-passo-giftmatch" class="text-xl sm:text-2xl font-bold font-display text-white mt-8 mb-4">6. Passo a passo para criar no GiftMatch</h2>
-<p class="text-slate-300 leading-relaxed mb-4">
-Organizar leva menos de dois minutos:
+Para resolver esse problema de vez, o <strong>GiftMatch</strong> foi desenhado com a tecnologia de <em>Links Mágicos Criptografados</em>:
 </p>
 <ol class="list-decimal list-inside space-y-2.5 text-slate-300 ml-2 mb-6">
-    <li>Acesse a página inicial do <strong>GiftMatch</strong> e clique em <em>Criar Amigo Secreto Grátis</em>.</li>
-    <li>Insira o nome do evento (ex: "Natal da Família Silva 2026"), a data da festa, o valor sugerido e escolha um tema visual festivo.</li>
-    <li>Copie o link do convite ou clique no botão direto de compartilhar no WhatsApp para enviar no grupo da família ou da empresa.</li>
-    <li>Conforme os amigos forem entrando e adicionando suas listas de presentes, você verá a contagem em tempo real no seu painel.</li>
-    <li>Defina as restrições de casais se houver e clique em <strong>Realizar Sorteio Agora</strong>.</li>
-    <li>Pronto! O sistema gera links exclusivos e você pode enviar a revelação de cada um no privado do WhatsApp ou deixar que eles acessem pela tela inicial.</li>
+    <li><strong>Você cria o evento em 1 minuto:</strong> Define o nome, a data de confraternização e o valor sugerido dos presentes.</li>
+    <li><strong>Envia o link de convite no grupo do WhatsApp:</strong> Seus amigos clicam no link pelo próprio celular, digitam seu nome e preenchem sua lista de desejos (tamanho de calçado, camiseta, o que adoram e o que preferem evitar).</li>
+    <li><strong>O organizador aperta "Realizar Sorteio":</strong> Nosso algoritmo inteligente distribui os amigos secretos respeitando todas as regras.</li>
+    <li><strong>Entrega com 1 clique no WhatsApp:</strong> O painel do organizador gera um botão individual "Enviar no WhatsApp" para cada participante. Você só toca no botão e a mensagem personalizada com o link secreto abre pronta para envio.</li>
+    <li><strong>Segredo absoluto:</strong> Ao clicar no link, o amigo abre sua tela individual de revelação no navegador do celular (Chrome, Safari ou Samsung Internet), sem precisar de login nem senha!</li>
 </ol>
+
+<h2 id="tabela-comparativa" class="text-xl sm:text-2xl font-bold font-display text-white mt-8 mb-4">4. Tabela Comparativa: GiftMatch vs Sorteadores Tradicionais</h2>
+<p class="text-slate-300 leading-relaxed mb-4">
+Veja por que o GiftMatch se tornou a melhor plataforma para <strong>organizar amigo secreto online</strong> no Brasil:
+</p>
+
+<div class="overflow-x-auto my-6">
+    <table class="w-full text-left text-xs sm:text-sm text-slate-300 border-collapse border border-slate-800 rounded-2xl overflow-hidden">
+        <thead class="bg-slate-900 text-slate-200 uppercase font-bold text-[11px] border-b border-slate-800">
+            <tr>
+                <th class="p-3.5">Funcionalidade</th>
+                <th class="p-3.5 text-slate-400">Sorteadores Antigos</th>
+                <th class="p-3.5 text-rose-400 bg-rose-500/10 font-black">GiftMatch (Moderno)</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-800/80 bg-slate-950/60">
+            <tr>
+                <td class="p-3.5 font-semibold text-white">E-mail dos Convidados</td>
+                <td class="p-3.5 text-rose-400">Obrigatório (trava se faltar)</td>
+                <td class="p-3.5 text-emerald-400 font-bold bg-rose-500/5">100% Opcional (só o nome basta)</td>
+            </tr>
+            <tr>
+                <td class="p-3.5 font-semibold text-white">Cadastro com Senha</td>
+                <td class="p-3.5 text-slate-400">Exige conta e login</td>
+                <td class="p-3.5 text-emerald-400 font-bold bg-rose-500/5">Zero senhas (Link Mágico direto)</td>
+            </tr>
+            <tr>
+                <td class="p-3.5 font-semibold text-white">Envio do Resultado</td>
+                <td class="p-3.5 text-slate-400">E-mail (frequentemente vai para o Spam)</td>
+                <td class="p-3.5 text-emerald-400 font-bold bg-rose-500/5">1 clique no WhatsApp individual</td>
+            </tr>
+            <tr>
+                <td class="p-3.5 font-semibold text-white">Regras para Casais (Restrições)</td>
+                <td class="p-3.5 text-slate-400">Limitado ou recurso pago</td>
+                <td class="p-3.5 text-emerald-400 font-bold bg-rose-500/5">Gratuito e Ilimitado (Ciclo Hamiltoniano)</td>
+            </tr>
+            <tr>
+                <td class="p-3.5 font-semibold text-white">Lista de Desejos e Medidas</td>
+                <td class="p-3.5 text-slate-400">Básica ou sem links</td>
+                <td class="p-3.5 text-emerald-400 font-bold bg-rose-500/5">Completa: roupas, calçados, gostos e links</td>
+            </tr>
+            <tr>
+                <td class="p-3.5 font-semibold text-white">Bilhete Secreto Anônimo</td>
+                <td class="p-3.5 text-slate-400">Não possui</td>
+                <td class="p-3.5 text-emerald-400 font-bold bg-rose-500/5">Chat anônimo para tirar dúvidas de presentes</td>
+            </tr>
+            <tr>
+                <td class="p-3.5 font-semibold text-white">Custo</td>
+                <td class="p-3.5 text-slate-400">Planos pagos com anúncios invasivos</td>
+                <td class="p-3.5 text-emerald-400 font-bold bg-rose-500/5">100% Gratuito</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<h2 id="regras-casais" class="text-xl sm:text-2xl font-bold font-display text-white mt-8 mb-4">5. Regras para Casais e Família não se tirarem</h2>
+<p class="text-slate-300 leading-relaxed mb-4">
+Uma das maiores reclamações em reuniões de família é quando o marido tira a esposa, ou irmãos trocam presentes entre si. Eles já moram juntos e compram presentes o ano inteiro!
+</p>
+<p class="text-slate-300 leading-relaxed mb-4">
+No GiftMatch, você pode configurar as <strong>Regras de Exclusão (Regras de Casais)</strong> em poucos segundos:
+</p>
+<ul class="list-disc list-inside space-y-2 text-slate-300 ml-2 mb-6">
+    <li>Selecione as pessoas que não podem se tirar mutuamente (ex: Marcos não pode tirar Juliana, e Juliana não pode tirar Marcos).</li>
+    <li>O nosso sistema utiliza matemática baseada em <em>Ciclos Hamiltonianos</em> para garantir que todos tirem amigos diferentes, mantendo a corrente de presentes 100% fechada e sem que ninguém tire a si mesmo.</li>
+</ul>
+
+<h2 id="passo-a-passo-completo" class="text-xl sm:text-2xl font-bold font-display text-white mt-8 mb-4">6. Passo a Passo Completo para Organizar em 2 Minutos</h2>
+<p class="text-slate-300 leading-relaxed mb-4">
+Siga este roteiro simples para colocar o seu amigo secreto no ar agora mesmo:
+</p>
+
+<div class="space-y-4 my-6">
+    <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+        <div class="font-bold text-rose-400 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-rose-500/20 text-rose-300 inline-flex items-center justify-center text-xs">1</span>
+            <span>Acesse e Crie seu Evento</span>
+        </div>
+        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+            Entre na <a href="/" class="text-rose-400 underline font-semibold">página inicial do GiftMatch</a> e clique em <strong>Criar Sorteio Grátis</strong>. Informe o nome da festa (ex: "Amigo Secreto da Firma 2026"), a data da revelação, o valor médio e escolha um tema visual festivo (Tradicional, Amigo Chocolate, Amigo Caneca, Amigo Livro ou Amigo da Onça).
+        </p>
+    </div>
+
+    <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+        <div class="font-bold text-rose-400 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-rose-500/20 text-rose-300 inline-flex items-center justify-center text-xs">2</span>
+            <span>Compartilhe o Convite no WhatsApp</span>
+        </div>
+        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+            Clique no botão <strong>Compartilhar Convite no WhatsApp</strong>. A mensagem é enviada para o seu grupo com o link direto. Os participantes entram em segundos: digitam apenas o nome e cadastram suas preferências de presentes.
+        </p>
+    </div>
+
+    <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+        <div class="font-bold text-rose-400 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-rose-500/20 text-rose-300 inline-flex items-center justify-center text-xs">3</span>
+            <span>Adicione Regras de Exclusão (Opcional)</span>
+        </div>
+        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+            Se houver casais, irmãos ou pessoas que não devam se tirar, adicione as regras com dois toques antes de iniciar o sorteio.
+        </p>
+    </div>
+
+    <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+        <div class="font-bold text-rose-400 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-rose-500/20 text-rose-300 inline-flex items-center justify-center text-xs">4</span>
+            <span>Realize o Sorteio e Envie os Resultados</span>
+        </div>
+        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+            Clique em <strong>Realizar Sorteio Agora</strong>. O sistema processa o resultado instantaneamente com trava contra cliques duplos. Agora, basta clicar no ícone do WhatsApp ao lado do nome de cada participante para enviar o link individual dele no privado!
+        </p>
+    </div>
+</div>
+
+<h2 id="faq-duvidas" class="text-xl sm:text-2xl font-bold font-display text-white mt-8 mb-4">7. Perguntas Frequentes sobre Amigo Secreto Online (FAQ)</h2>
+<div class="space-y-4 my-6 text-xs sm:text-sm">
+    <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1.5">
+        <h3 class="font-bold text-white text-sm">É realmente possível organizar amigo secreto online sem e-mail?</h3>
+        <p class="text-slate-300 leading-relaxed">
+            Sim! No GiftMatch o e-mail não é um campo obrigatório. O convidado pode preencher apenas o nome e participar normalmente. O link secreto de revelação é entregue diretamente pelo WhatsApp ou salvo no navegador do participante.
+        </p>
+    </div>
+
+    <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1.5">
+        <h3 class="font-bold text-white text-sm">O organizador do evento consegue ver quem tirou quem?</h3>
+        <p class="text-slate-300 leading-relaxed">
+            No painel do organizador, os amigos tirados ficam ocultos por padrão para evitar spoilers acidentais. Há apenas um botão com ícone de olho protegido caso o organizador precise consultar para tirar dúvidas de algum amigo que perdeu o link.
+        </p>
+    </div>
+
+    <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1.5">
+        <h3 class="font-bold text-white text-sm">Os participantes precisam baixar algum aplicativo no celular?</h3>
+        <p class="text-slate-300 leading-relaxed">
+            Zero aplicativos! Todo o fluxo acontece diretamente no navegador web do celular (Google Chrome, Safari, Samsung Internet, etc.). O site é rápido, responsivo e adaptado para qualquer tela.
+        </p>
+    </div>
+
+    <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1.5">
+        <h3 class="font-bold text-white text-sm">E se algum amigo perder o link secreto dele?</h3>
+        <p class="text-slate-300 leading-relaxed">
+            Sem problemas. O organizador tem no painel o botão "Copiar Link" ou "Enviar no WhatsApp" de cada participante e pode reenviar a qualquer momento em 2 segundos.
+        </p>
+    </div>
+
+    <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1.5">
+        <h3 class="font-bold text-white text-sm">O GiftMatch cobra alguma taxa ou mensalidade?</h3>
+        <p class="text-slate-300 leading-relaxed">
+            Não, o GiftMatch é 100% gratuito. Você pode criar quantos eventos quiser, adicionar participantes ilimitados e sortear sem pagar absolutamente nada.
+        </p>
+    </div>
+</div>
 ',
             ],
             [
@@ -966,4 +1087,3 @@ No editor de listas do GiftMatch, você pode colar os links diretos dos produtos
         ];
     }
 }
-
