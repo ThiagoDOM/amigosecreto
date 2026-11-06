@@ -732,19 +732,21 @@ const revealedCount = computed(() => {
                                 <button
                                     type="button"
                                     @click="shareParticipantGeneric(p)"
-                                    class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                                    class="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
                                     title="Mais opções de envio"
+                                    aria-label="Mais opções de envio"
                                 >
-                                    <Share2 class="w-3.5 h-3.5" />
+                                    <Share2 class="w-4 h-4" />
                                 </button>
 
                                 <a
                                     :href="p.magic_url"
                                     target="_blank"
-                                    class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                                    class="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
                                     title="Abrir página do amigo secreto"
+                                    aria-label="Abrir página do amigo secreto"
                                 >
-                                    <ExternalLink class="w-3.5 h-3.5" />
+                                    <ExternalLink class="w-4 h-4" />
                                 </a>
                             </template>
 
@@ -753,8 +755,9 @@ const revealedCount = computed(() => {
                                 <button
                                     type="button"
                                     @click="copyMagicLink(p)"
-                                    class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                                    class="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
                                     :title="copiedMagic === p.id ? 'Copiado!' : 'Copiar link individual do participante'"
+                                    :aria-label="copiedMagic === p.id ? 'Link copiado' : 'Copiar link individual do participante'"
                                 >
                                     <Check v-if="copiedMagic === p.id" class="w-4 h-4 text-emerald-400" />
                                     <Copy v-else class="w-4 h-4" />
@@ -763,8 +766,9 @@ const revealedCount = computed(() => {
                                 <button
                                     type="button"
                                     @click="sendMagicLinkWhatsApp(p)"
-                                    class="p-1.5 rounded-lg text-emerald-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                                    class="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-xl text-emerald-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
                                     title="Enviar link de acesso pelo WhatsApp"
+                                    aria-label="Enviar link de acesso pelo WhatsApp"
                                 >
                                     <MessageCircle class="w-4 h-4" />
                                 </button>
@@ -772,8 +776,9 @@ const revealedCount = computed(() => {
                                 <button
                                     type="button"
                                     @click="requestDeleteParticipant(p)"
-                                    class="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors cursor-pointer"
+                                    class="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-950/30 transition-colors cursor-pointer"
                                     title="Remover participante"
+                                    aria-label="Remover participante"
                                 >
                                     <Trash2 class="w-4 h-4" />
                                 </button>

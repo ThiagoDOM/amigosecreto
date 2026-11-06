@@ -106,12 +106,44 @@ const allSuggestedItems = computed(() => {
     return list;
 });
 
+function getItemMinPrice(item) {
+    if (!item.price) return null;
+    const matches = item.price.match(/\d+/g);
+    return matches && matches.length > 0 ? parseInt(matches[0], 10) : null;
+}
+
+const under50Count = computed(() => {
+    return allSuggestedItems.value.filter(i => {
+        const p = getItemMinPrice(i);
+        return p !== null && p <= 50;
+    }).length;
+});
+
+const under100Count = computed(() => {
+    return allSuggestedItems.value.filter(i => {
+        const p = getItemMinPrice(i);
+        return p !== null && p <= 100;
+    }).length;
+});
+
 const filteredItems = computed(() => {
     if (activeFilter.value === 'wishlist') {
         return allSuggestedItems.value.filter(i => i.isFromWishlist);
     }
     if (activeFilter.value === 'theme') {
         return allSuggestedItems.value.filter(i => i.isFromTheme);
+    }
+    if (activeFilter.value === 'under50') {
+        return allSuggestedItems.value.filter(i => {
+            const p = getItemMinPrice(i);
+            return p !== null && p <= 50;
+        });
+    }
+    if (activeFilter.value === 'under100') {
+        return allSuggestedItems.value.filter(i => {
+            const p = getItemMinPrice(i);
+            return p !== null && p <= 100;
+        });
     }
     return allSuggestedItems.value;
 });
@@ -244,6 +276,28 @@ function close() {
                         :class="activeFilter === 'theme' ? 'bg-rose-600 text-white shadow-sm font-bold' : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700'"
                     >
                         <span>{{ currentTheme.emoji }} Tema {{ currentTheme.label }} ({{ themeIdeas.length }})</span>
+                    </button>
+
+                    <button
+                        v-if="under50Count > 0"
+                        @click="activeFilter = 'under50'"
+                        type="button"
+                        class="px-3.5 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5"
+                        :class="activeFilter === 'under50' ? 'bg-emerald-600 text-white shadow-sm font-bold' : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700'"
+                    >
+                        <Tag class="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Até R$ 50 ({{ under50Count }})</span>
+                    </button>
+
+                    <button
+                        v-if="under100Count > 0"
+                        @click="activeFilter = 'under100'"
+                        type="button"
+                        class="px-3.5 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5"
+                        :class="activeFilter === 'under100' ? 'bg-amber-600 text-white shadow-sm font-bold' : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700'"
+                    >
+                        <DollarSign class="w-3.5 h-3.5 text-amber-400" />
+                        <span>Até R$ 100 ({{ under100Count }})</span>
                     </button>
                 </div>
 

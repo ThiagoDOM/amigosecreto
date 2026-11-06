@@ -961,7 +961,7 @@ onMounted(() => {
 <template>
     <Head :title="'GiftMatch - ' + participant.name" />
 
-    <div class="min-h-screen bg-slate-950 text-slate-100 relative overflow-hidden font-sans py-8 sm:py-12 px-4 sm:px-6">
+    <div class="min-h-screen min-h-dvh bg-slate-950 text-slate-100 relative overflow-hidden font-sans py-8 sm:py-12 px-4 sm:px-6">
         <ToastNotification />
 
         <!-- Festive Ambient Blobs -->

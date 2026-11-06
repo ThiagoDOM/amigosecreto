@@ -16,7 +16,8 @@ import {
     User, 
     CheckCircle2, 
     AlertCircle,
-    ChevronDown
+    ChevronDown,
+    Loader2
 } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -78,7 +79,7 @@ function submit() {
         <meta name="twitter:image" content="https://giftmatch.online/og-invite.jpg" />
     </Head>
 
-    <div class="min-h-screen bg-slate-950 text-slate-100 relative overflow-hidden font-sans py-12 px-4 sm:px-6 flex flex-col justify-between">
+    <div class="min-h-screen min-h-dvh bg-slate-950 text-slate-100 relative overflow-hidden font-sans py-12 px-4 sm:px-6 flex flex-col justify-between">
         <ToastNotification />
 
         <!-- Festive background glows -->
@@ -343,10 +344,11 @@ function submit() {
                     <button
                         type="submit"
                         :disabled="form.processing"
-                        class="w-full inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl text-base font-bold text-white bg-gradient-to-r from-rose-600 via-rose-500 to-amber-500 hover:from-rose-500 hover:to-amber-400 shadow-xl shadow-rose-600/30 transition-all hover:scale-[1.01] disabled:opacity-50"
+                        class="w-full inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl text-base font-bold text-white bg-gradient-to-r from-rose-600 via-rose-500 to-amber-500 hover:from-rose-500 hover:to-amber-400 shadow-xl shadow-rose-600/30 transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
                     >
-                        <Gift class="w-5 h-5" />
-                        <span>{{ form.processing ? 'Entrando no Amigo Secreto...' : 'Confirmar Minha Participação' }}</span>
+                        <Loader2 v-if="form.processing" class="w-5 h-5 animate-spin" />
+                        <Gift v-else class="w-5 h-5" />
+                        <span>{{ form.processing ? 'Confirmando sua vaga...' : 'Confirmar Minha Participação' }}</span>
                     </button>
                     <p class="text-center text-xs text-slate-400 mt-2 font-medium">
                         Ao entrar, você receberá seu link secreto exclusivo.

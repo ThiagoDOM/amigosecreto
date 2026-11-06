@@ -302,6 +302,31 @@ function handleConfirmForget() {
                     </a>
                 </div>
 
+                <!-- 3-Step Micro Funnel (Clarity & Friction Reduction) -->
+                <div class="mt-8 max-w-2xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 text-left">
+                    <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800/80 flex items-center sm:flex-col sm:items-start gap-3 sm:gap-1.5 shadow-sm">
+                        <div class="w-7 h-7 rounded-lg bg-rose-500/15 text-rose-400 font-extrabold text-xs flex items-center justify-center shrink-0">1</div>
+                        <div>
+                            <h4 class="text-xs font-bold text-white">Crie em 30 segundos</h4>
+                            <p class="text-[11px] text-slate-400">Nome, data e valor sugerido</p>
+                        </div>
+                    </div>
+                    <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800/80 flex items-center sm:flex-col sm:items-start gap-3 sm:gap-1.5 shadow-sm">
+                        <div class="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-400 font-extrabold text-xs flex items-center justify-center shrink-0">2</div>
+                        <div>
+                            <h4 class="text-xs font-bold text-white">Envie no WhatsApp</h4>
+                            <p class="text-[11px] text-slate-400">Ninguém precisa baixar aplicativo</p>
+                        </div>
+                    </div>
+                    <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800/80 flex items-center sm:flex-col sm:items-start gap-3 sm:gap-1.5 shadow-sm">
+                        <div class="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-400 font-extrabold text-xs flex items-center justify-center shrink-0">3</div>
+                        <div>
+                            <h4 class="text-xs font-bold text-white">Sorteio sem spoilers</h4>
+                            <p class="text-[11px] text-slate-400">Regras para casais não se tirarem</p>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Fast Join by Invite Code -->
                 <div class="mt-10 max-w-md mx-auto">
                     <form @submit.prevent="goToInvite" class="relative flex items-center">
